@@ -2,9 +2,11 @@
 
 ## 1. Introduccion
 
-Textil es un sistema de gestion para empresas textiles. Actualmente existe un codigo en SwiftUI que solo funciona en Xcode/macOS y sirve como referencia de diseno y logica.
+Textil es un sistema de gestion para empresas textiles. Actualmente existe un codigo en SwiftUI que funciona en Xcode/macOS.
 
-El objetivo es construir una app movil (iOS y Android) que se conecte a Supabase para centralizar la informacion, compartir datos por empresa y controlar permisos por roles.
+El objetivo es conectar la app a Supabase para centralizar la informacion, compartir datos por empresa y controlar permisos por roles.
+
+Existen dos caminos posibles para lograrlo, y este documento presenta la comparacion entre ambos.
 
 ---
 
@@ -67,11 +69,10 @@ Los otros **47 modelos** se guardan localmente en cada telefono:
 
 | Elemento | Estado |
 |----------|--------|
-| Codigo Swift (SwiftUI) | Solo referencia, no se puede ejecutar aqui |
+| Codigo Swift (SwiftUI) | Funciona en Xcode/Mac, pantallas y logica ya hechas |
 | Supabase (Backend) | Parcial, solo autenticacion y perfiles |
 | Tablas de negocio en Supabase | No existen, todo esta en cada telefono |
-| App movil | No existe, es lo que se va a construir |
-| Datos compartidos por empresa | No existe, se construira en Fase 2 |
+| Datos compartidos por empresa | No existe, se debe construir |
 
 ### Tablas que ya existen en Supabase
 
@@ -119,9 +120,71 @@ Los otros **47 modelos** se guardan localmente en cada telefono:
 
 ---
 
-## 5. Plan de Proyecto
+## 5. Comparacion de Opciones
 
-### Fase 1 — Login, Usuarios y Roles (32 horas)
+### Opcion A: Seguir con Swift (solo iPhone)
+
+Se conserva el codigo Swift actual y se modifica para conectar los 47 modelos al servidor. Las pantallas ya estan hechas, solo hay que cambiar de donde leen y escriben los datos.
+
+**Ventajas:**
+- Las 94 pantallas ya estan construidas
+- Solo hay que modificar los modelos y la capa de datos
+- Menos trabajo total
+
+**Desventajas:**
+- Solo funciona en iPhone (no Android)
+- Se necesita Mac con Xcode para desarrollar y probar
+- No se puede construir ni probar desde este entorno (yo te guio, tu ejecutas en Xcode)
+
+### Opcion B: Migrar a React Native (iPhone + Android)
+
+Se construye la app desde cero en React Native/Expo. Se toma el codigo Swift como referencia para replicar las pantallas y la logica.
+
+**Ventajas:**
+- Funciona en iPhone Y Android
+- Se puede construir y probar desde aqui
+- Una sola base de codigo para ambas plataformas
+
+**Desventajas:**
+- Se reconstruyen las 94 pantallas desde cero
+- Mas horas de trabajo en total
+- Curva de aprendizaje si el equipo solo conoce Swift
+
+### Tabla comparativa de horas
+
+| Fase | Opcion A: Swift (solo iPhone) | Opcion B: React Native (iPhone + Android) |
+|------|-------------------------------|------------------------------------------|
+| Fase 1 — Login, Usuarios y Roles | 20 hrs | 32 hrs |
+| Fase 2 — Migracion de datos al servidor | 22 hrs | 22 hrs |
+| | | |
+| **Total Fases 1-2** | **42 hrs** | **54 hrs** |
+
+**Diferencia Fase 1:** Con Swift son menos horas porque las pantallas de login, perfil y gestion de usuarios ya existen parcialmente. Con React Native se construyen desde cero.
+
+**La Fase 2 es igual en ambos casos** porque el trabajo es en Supabase (crear tablas, politicas de seguridad) y eso no depende de la tecnologia de la app.
+
+---
+
+## 6. Plan de Proyecto
+
+### Fase 1 — Login, Usuarios y Roles
+
+**Opcion A: Swift (20 horas)**
+
+| # | Entregable | Horas |
+|---|-----------|-------|
+| E1 | Ajustar proyecto Swift para nueva arquitectura de datos | 2 |
+| E2 | Ajustar pantalla de Login existente (validaciones, errores en espanol) | 2 |
+| E3 | Modificar sistema de autenticacion (empresa_id, roles, estados) | 3 |
+| E4 | Ajustar pantallas de estado (bloqueado, pendiente) | 1 |
+| E5 | Modificar navegacion para filtrado por rol | 3 |
+| E6 | Ajustar pantalla de Perfil | 1 |
+| E7 | Ajustar Gestion de Usuarios — solo superadmin | 4 |
+| E8 | Crear Gestion de Roles — solo superadmin | 3 |
+| E9 | Pruebas en Xcode/dispositivo | 1 |
+| | **Total Fase 1 (Swift)** | **20** |
+
+**Opcion B: React Native (32 horas)**
 
 | # | Entregable | Horas |
 |---|-----------|-------|
@@ -135,20 +198,11 @@ Los otros **47 modelos** se guardan localmente en cada telefono:
 | E8 | Gestion de Roles — solo superadmin (permisos por rol, asignar) | 4 |
 | E9 | Pruebas y ajustes | 4 |
 | E10 | Documentacion | 1 |
-| | **Total Fase 1** | **32** |
-
-**Cronograma:**
-
-| Semana | Actividades |
-|--------|-------------|
-| Semana 1 | Configuracion + Login + Autenticacion |
-| Semana 2 | Pantallas de estado + Navegacion + Perfil |
-| Semana 3 | Gestion de usuarios + Gestion de roles |
-| Semana 4 | Pruebas y ajustes + Documentacion |
+| | **Total Fase 1 (React Native)** | **32** |
 
 ---
 
-### Fase 2 — Migracion de Datos al Servidor (22 horas)
+### Fase 2 — Migracion de Datos al Servidor (22 horas, igual en ambas opciones)
 
 Esta fase es necesaria para que todos los de la misma empresa vean la misma informacion.
 
@@ -160,57 +214,76 @@ Esta fase es necesaria para que todos los de la misma empresa vean la misma info
 | E14 | Funciones para leer/escribir datos desde la app (filtrado automatico por empresa) | 8 |
 | | **Total Fase 2** | **22** |
 
-**Cronograma:**
+---
 
-| Semana | Actividades |
-|--------|-------------|
-| Semana 5 | Diseno + creacion de tablas |
-| Semana 6 | Politicas de seguridad + capa de datos |
+### Fases Futuras — Pantallas de cada modulo (pendientes de estimar a detalle)
+
+Estas fases se planificaran una vez completadas las Fases 1 y 2. Las horas son estimaciones iniciales que se refinaran conforme avance el proyecto.
+
+| Fase | Modulos | Swift (est.) | React Native (est.) |
+|------|---------|-------------|---------------------|
+| Fase 3 | Catalogos (Agentes, Clientes, Proveedores, Articulos, etc.) | 15-20 | 40-50 |
+| Fase 4 | Ordenes de clientes + Compras | 12-15 | 30-40 |
+| Fase 5 | Produccion + Recibos | 10-12 | 25-30 |
+| Fase 6 | Costos y Costeos | 8-10 | 20-25 |
+| Fase 7 | Inventarios + Salidas + Reingresos | 10-12 | 25-30 |
+| Fase 8 | Ventas + PDF/Excel | 8-10 | 20-25 |
+| Fase 9 | Servicios + Solicitudes | 6-8 | 15-20 |
+| Fase 10 | Resumenes y Reportes | 6-8 | 15-20 |
+| Fase 11 | Firmas digitales + Funcionalidad avanzada | 5-7 | 10-15 |
+
+Las horas de Swift son menores porque las pantallas ya existen; solo se modificarian para leer/escribir del servidor en vez del telefono. Con React Native se construyen todas desde cero.
 
 ---
 
-### Fases Futuras — Pantallas de cada modulo
+## 7. Resumen de Horas (solo Fases 1 y 2)
 
-| Fase | Modulos | Horas |
-|------|---------|-------|
-| Fase 3 | Catalogos (Agentes, Clientes, Proveedores, Articulos, etc.) | 40-50 |
-| Fase 4 | Ordenes de clientes + Compras | 30-40 |
-| Fase 5 | Produccion + Recibos | 25-30 |
-| Fase 6 | Costos y Costeos | 20-25 |
-| Fase 7 | Inventarios + Salidas + Reingresos | 25-30 |
-| Fase 8 | Ventas + PDF/Excel | 20-25 |
-| Fase 9 | Servicios + Solicitudes | 15-20 |
-| Fase 10 | Resumenes y Reportes | 15-20 |
-| Fase 11 | Firmas digitales + Funcionalidad avanzada | 10-15 |
+| | Opcion A: Swift (solo iPhone) | Opcion B: React Native (iPhone + Android) |
+|--|-------------------------------|------------------------------------------|
+| Fase 1 — Login, Usuarios y Roles | 20 hrs | 32 hrs |
+| Fase 2 — Migracion de datos al servidor | 22 hrs | 22 hrs |
+| **Total** | **42 hrs** | **54 hrs** |
+
+Las fases futuras (3-11) se estimaran a detalle una vez completadas las primeras dos fases y no estan incluidas en este total.
 
 ---
 
-## 6. Resumen de Horas
-
-| Fase | Descripcion | Horas |
-|------|-------------|-------|
-| Fase 1 | Login, Usuarios y Roles | 32 |
-| Fase 2 | Migracion de datos al servidor | 22 |
-| Fases 3-11 | Pantallas de todos los modulos | 200-255 |
-| | **Total estimado** | **254-309** |
-
----
-
-## 7. Supuestos y Consideraciones
+## 8. Supuestos y Consideraciones
 
 1. Se cuenta con acceso al proyecto de Supabase (URL y clave ya disponibles).
 2. Las tablas existentes (perfiles, empresas, Usuarios) se mantienen sin cambios.
 3. La autenticacion con Supabase Auth ya esta configurada.
-4. El codigo Swift se usa solo como referencia, no se reutiliza directamente.
-5. La app se puede probar en dispositivos fisicos con Expo Go (escanear QR).
-6. La Fase 2 es obligatoria para que funcione el modelo de datos compartidos por empresa.
-7. empresa_id es la llave de todo el sistema: cada tabla debe tener este campo para filtrar por empresa.
-8. Las politicas de seguridad garantizan que la Empresa A nunca vea datos de la Empresa B.
-9. Hoy los datos viven solo en cada telefono. Para compartirlos, todo debe moverse al servidor.
+4. La Fase 2 es obligatoria para que funcione el modelo de datos compartidos por empresa.
+5. empresa_id es la llave de todo el sistema: cada tabla debe tener este campo para filtrar por empresa.
+6. Las politicas de seguridad garantizan que la Empresa A nunca vea datos de la Empresa B.
+7. Hoy los datos viven solo en cada telefono. Para compartirlos, todo debe moverse al servidor.
+
+### Si eligen Opcion A (Swift):
+8. Se necesita Mac con Xcode instalado para compilar y probar.
+9. El desarrollo lo puedo guiar desde aqui, pero las pruebas las ejecutas tu en Xcode.
+10. La app solo estara disponible para iPhone/iPad.
+
+### Si eligen Opcion B (React Native):
+11. La app se puede probar en dispositivos fisicos con Expo Go (escanear QR).
+12. Funciona en iPhone Y Android con el mismo codigo.
+13. Se puede construir y probar completamente desde este entorno.
 
 ---
 
-## 8. Tecnologias
+## 9. Tecnologias
+
+### Opcion A: Swift
+
+| Componente | Tecnologia |
+|-----------|-----------|
+| App movil | SwiftUI (codigo existente) |
+| Backend | Supabase (ya existente) |
+| Autenticacion | Supabase Auth |
+| Base de datos | PostgreSQL via Supabase |
+| Almacenamiento local | Se reemplaza SwiftData por llamadas a Supabase |
+| Idioma | Espanol (Mexico) |
+
+### Opcion B: React Native
 
 | Componente | Tecnologia |
 |-----------|-----------|
@@ -222,30 +295,3 @@ Esta fase es necesaria para que todos los de la misma empresa vean la misma info
 | Estado global | React Context API |
 | Sesion local | AsyncStorage |
 | Idioma | Espanol (Mexico) |
-
----
-
-## 9. Estructura de Carpetas
-
-```
-textil-mobile/
-    src/
-        api/
-            supabaseClient.js
-        auth/
-            AuthContext.js
-        navigation/
-            AppNavigator.js
-        screens/
-            LoginScreen.js
-            BlockedScreen.js
-            PendingScreen.js
-            ProfileScreen.js
-            admin/
-                UserManagementScreen.js
-                RoleManagementScreen.js
-        components/
-    App.js
-    app.json
-    package.json
-```
