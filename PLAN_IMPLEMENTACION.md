@@ -141,7 +141,6 @@ Se construye la app desde cero en React Native/Expo. Se toma el codigo Swift com
 
 **Ventajas:**
 - Funciona en iPhone Y Android
-- Se puede construir y probar desde aqui
 - Una sola base de codigo para ambas plataformas
 
 **Desventajas:**
