@@ -8,28 +8,84 @@ El objetivo es **construir desde cero** una app móvil en **React Native / Expo*
 
 ---
 
+## HALLAZGO CRÍTICO: ¿Dónde se guardan los datos?
+
+Al revisar el código original, se encontró lo siguiente:
+
+### Datos en Supabase (servidor — compartidos)
+Solo **3 tablas** están en el servidor y se comparten entre usuarios:
+
+| Tabla | Uso |
+|-------|-----|
+| `perfiles` | Datos del usuario (nombre, email, rol, empresa, aprobado, activo) |
+| `empresas` | Catálogo de empresas |
+| `Usuarios` | Referencia de usuarios |
+
+Solo **5 archivos** de los 176 se conectan a Supabase: `SuperbaseClient`, `AuthViewModel`, `LoginView`, `PerfilViewModel`, `UsuariosAdminView`.
+
+### Datos en SwiftData (teléfono — NO compartidos)
+Los otros **47 modelos** de datos se guardan **localmente en cada teléfono** usando SwiftData:
+
+| Categoría | Modelos que se guardan solo en el teléfono |
+|-----------|-------------------------------------------|
+| Catálogos | Agente, Cliente, Empresa (local), Proveedor, Articulo, Color, Modelo, Talla, Tela, PrecioTela, Departamento, Linea, Marca, Unidad, Maquilero, Servicio, TipoTela |
+| Órdenes | OrdenCliente, OrdenClienteDetalle, OrdenCompra, OrdenCompraDetalle |
+| Compras | CompraCliente, CompraClienteDetalle |
+| Producción | Produccion, ReciboProduccion, ProduccionFirma |
+| Recibos | ReciboCompra, ReciboCompraPago, ReciboCompraDetalle, PagoRecibo |
+| Ventas | VentaCliente, VentaClienteDetalle |
+| Salidas | SalidaInsumo, SalidaInsumoDetalle |
+| Reingresos | Reingreso, ReingresoDetalle, ReingresoMovimiento |
+| Costos | CostoMezclillaEntity, CostoGeneralEntity |
+
+### ¿Qué significa esto?
+
+**La información NO se comparte entre usuarios ni entre dispositivos.** Si el usuario A crea un cliente en su teléfono, el usuario B nunca lo va a ver. Cada teléfono tiene su propia base de datos aislada.
+
+Algunos modelos como `VentaCliente`, `SalidaInsumo` y `Reingreso` tienen un campo `empresa` como texto, pero es solo una referencia local — no filtra datos desde un servidor.
+
+---
+
+## ¿Qué se necesita para lograr lo que piden?
+
+Lo que quieren es:
+
+1. **Login con email, contraseña y empresa** → Supabase Auth ya lo soporta parcialmente (email + contraseña sí, empresa se obtiene del perfil)
+2. **Todos los de la misma empresa ven la misma información** → Esto requiere **migrar los 47 modelos locales a tablas en Supabase** con un campo `empresa_id` para filtrar
+3. **Si cambia de empresa, ve la información de la otra empresa** → Requiere que los datos estén en el servidor y se filtren por `empresa_id`
+4. **Roles de empleados** → Ya existe parcialmente en la tabla `perfiles` (campo `rol`), solo hay que implementar el filtrado en la app
+
+### Trabajo adicional necesario: Migración de datos al servidor
+
+Para que los datos se compartan, se necesita:
+1. **Crear las tablas en Supabase** para cada uno de los 47 modelos que hoy son locales
+2. **Agregar `empresa_id`** a cada tabla para poder filtrar por empresa
+3. **Configurar políticas de seguridad (RLS)** para que cada usuario solo vea datos de su empresa
+4. **Cambiar la app** para que lea/escriba de Supabase en lugar del almacenamiento local
+
+---
+
 ## ¿Qué ya existe?
 
 | Elemento | Estado | Descripción |
 |----------|--------|-------------|
-| Código Swift (SwiftUI) | Solo referencia | 176 archivos Swift que sirven como guía del diseño original. No se pueden ejecutar aquí — requieren Xcode en macOS. |
-| Supabase (Backend) | Funcionando | Autenticación y base de datos PostgreSQL ya configurados y operando. |
-| Tablas en Supabase | Listas | `perfiles`, `empresas`, `Usuarios` ya creadas con datos. |
-| App móvil React Native | **No existe** | Es lo que se va a construir en este plan. |
-| Login funcional | **No existe** | Se construirá como parte de la Fase 1. |
-| Gestión de usuarios | **No existe** | Se construirá como parte de la Fase 1. |
+| Código Swift (SwiftUI) | Solo referencia | 176 archivos. No se pueden ejecutar aquí. |
+| Supabase (Backend) | Parcial | Solo autenticación y perfiles. Los datos de negocio NO están en el servidor. |
+| Tablas de negocio en Supabase | **No existen** | Clientes, órdenes, producción, ventas, etc. solo están en cada teléfono. |
+| App móvil React Native | **No existe** | Es lo que se va a construir. |
+| Login funcional | **No existe** | Se construirá en Fase 1. |
+| Datos compartidos por empresa | **No existe** | Se construirá en Fase 2+. |
 
 ---
 
 ## Análisis del Código de Referencia (SwiftUI)
 
-El código Swift sirve únicamente como **guía de diseño y lógica** para saber qué construir:
-
 | Concepto | Detalle |
 |----------|---------|
 | Archivos Swift | 176 |
 | Líneas de código | ~25,190 |
-| Modelos de datos | 64 |
+| Modelos con `@Model` (locales) | 47 |
+| Modelos con Supabase (servidor) | 3 |
 | Vistas (pantallas) | 94 |
 | Servicios / Helpers | 15 |
 
@@ -51,9 +107,11 @@ El código Swift sirve únicamente como **guía de diseño y lógica** para sabe
 2. Si no hay sesión → se muestra **pantalla de Login** (email + contraseña)
 3. Se autentica contra Supabase Auth
 4. Se carga el perfil del usuario desde la tabla `perfiles` (con datos de su empresa)
-5. Si `activo == false` → **pantalla de usuario bloqueado**
-6. Si `aprobado == false` → **pantalla de pendiente de aprobación**
-7. Si todo OK → **app principal** con pestañas filtradas según su rol
+5. La `empresa_id` del perfil determina qué datos ve el usuario
+6. Si `activo == false` → **pantalla de usuario bloqueado**
+7. Si `aprobado == false` → **pantalla de pendiente de aprobación**
+8. Si todo OK → **app principal** con pestañas filtradas según su rol
+9. Todos los datos se filtran por la `empresa_id` del usuario logueado
 
 ---
 
@@ -67,41 +125,7 @@ El código Swift sirve únicamente como **guía de diseño y lógica** para sabe
 
 ---
 
-## Módulos del Sistema Completo (referencia para fases futuras)
-
-### 1. Catálogos Comerciales
-- Agentes, Clientes, Empresas, Proveedores (cada uno con lista + formulario)
-
-### 2. Catálogos de Artículos
-- Artículos, Colores, Departamentos, Líneas, Marcas, Modelos, Tallas, Telas, Unidades
-
-### 3. Costos (solo admin+)
-- Costos Generales, Costos Mezclilla, Costeos
-
-### 4. Producción
-- Producción (lista, detalle, firma digital), Recibos de producción
-
-### 5. Órdenes y Compras
-- Órdenes de clientes, Compras de clientes, Compras de insumos
-
-### 6. Servicios (solo admin+)
-- Solicitudes de servicios, Recibos de compras/servicios
-
-### 7. Inventarios
-- Vista de inventarios, Movimientos
-
-### 8. Ventas y Movimientos (solo admin+)
-- Ventas a clientes, Salidas de insumos, Reingresos (con PDF y Excel)
-
-### 9. Usuarios y Seguridad (solo superadmin)
-- Administración de usuarios, Perfil, Seguridad
-
-### 10. Resúmenes (solo superadmin)
-- Resumen de producción, Resumen de compras
-
----
-
-## Fase 1 - Alcance: Login, Usuarios y Roles
+## Fase 1 - Login, Usuarios y Roles (32 horas)
 
 **Todo se construye desde cero.** El código Swift solo se usa como referencia de la lógica.
 
@@ -131,6 +155,7 @@ El código Swift sirve únicamente como **guía de diseño y lógica** para sabe
 - Crear sistema central que maneje toda la lógica de sesión
 - Verificación automática de sesión al abrir la app
 - Carga de perfil desde `perfiles` con datos de `empresas`
+- Obtener la `empresa_id` del usuario para filtrar datos en fases futuras
 - Evaluación de estados: bloqueado, pendiente, activo
 - Funciones para saber el rol: `esAdmin`, `esSuperAdmin`
 - Guardar sesión en el dispositivo (no tener que hacer login cada vez)
@@ -221,20 +246,73 @@ El código Swift sirve únicamente como **guía de diseño y lógica** para sabe
 
 ---
 
-## Fases Futuras (fuera de este alcance)
+## Fase 2 - Migración de Datos al Servidor (nueva, requerida)
 
-| Fase | Módulos | Estimación aproximada |
-|------|---------|----------------------|
-| Fase 2 | Catálogos completos (Agentes, Clientes, Empresas, Proveedores, Artículos, etc.) | 40-50 hrs |
-| Fase 3 | Órdenes de clientes + Compras | 30-40 hrs |
-| Fase 4 | Producción + Recibos | 25-30 hrs |
-| Fase 5 | Costos y Costeos | 20-25 hrs |
-| Fase 6 | Inventarios + Salidas + Reingresos | 25-30 hrs |
-| Fase 7 | Ventas + Generación de PDF/Excel | 20-25 hrs |
-| Fase 8 | Servicios + Solicitudes | 15-20 hrs |
-| Fase 9 | Resúmenes y Reportes | 15-20 hrs |
-| Fase 10 | Firmas digitales + Funcionalidad avanzada | 10-15 hrs |
-| | **TOTAL ESTIMADO (todas las fases)** | **~230-285 hrs** |
+**Esta fase es necesaria** para lograr que todos los usuarios de la misma empresa vean la misma información.
+
+#### E11. Diseño de tablas en Supabase — 6 horas
+- Diseñar las ~47 tablas que hoy son locales
+- Agregar campo `empresa_id` a cada tabla
+- Definir relaciones entre tablas (foreign keys)
+- Documentar el esquema completo
+
+#### E12. Crear tablas en Supabase — 4 horas
+- Ejecutar las migraciones para crear todas las tablas
+- Configurar índices para rendimiento
+- Verificar integridad referencial
+
+#### E13. Políticas de seguridad (RLS) — 4 horas
+- Configurar Row Level Security en cada tabla
+- Regla principal: cada usuario solo ve datos de su `empresa_id`
+- Permisos de escritura según rol
+- Pruebas de seguridad
+
+#### E14. Capa de datos en la app — 8 horas
+- Crear funciones para leer/escribir cada tabla desde la app
+- Filtrar automáticamente por `empresa_id` del usuario logueado
+- Manejo de errores y estados de carga
+
+---
+
+## Resumen de Esfuerzo - Fase 2
+
+| # | Entregable | Horas |
+|---|-----------|-------|
+| E11 | Diseño de tablas en Supabase | 6 |
+| E12 | Crear tablas en Supabase | 4 |
+| E13 | Políticas de seguridad (RLS) | 4 |
+| E14 | Capa de datos en la app | 8 |
+| | **TOTAL FASE 2** | **22 horas** |
+
+---
+
+## Fases Futuras (construcción de pantallas)
+
+Una vez que la Fase 2 esté lista (datos en servidor), se pueden construir las pantallas de cada módulo:
+
+| Fase | Módulos | Estimación |
+|------|---------|------------|
+| Fase 3 | Catálogos completos (Agentes, Clientes, Empresas, Proveedores, Artículos, etc.) | 40-50 hrs |
+| Fase 4 | Órdenes de clientes + Compras | 30-40 hrs |
+| Fase 5 | Producción + Recibos | 25-30 hrs |
+| Fase 6 | Costos y Costeos | 20-25 hrs |
+| Fase 7 | Inventarios + Salidas + Reingresos | 25-30 hrs |
+| Fase 8 | Ventas + Generación de PDF/Excel | 20-25 hrs |
+| Fase 9 | Servicios + Solicitudes | 15-20 hrs |
+| Fase 10 | Resúmenes y Reportes | 15-20 hrs |
+| Fase 11 | Firmas digitales + Funcionalidad avanzada | 10-15 hrs |
+| | **TOTAL FASES 3-11** | **~200-255 hrs** |
+
+---
+
+## Resumen General de Todo el Proyecto
+
+| Fase | Descripción | Horas |
+|------|-------------|-------|
+| Fase 1 | Login, Usuarios y Roles | 32 |
+| Fase 2 | Migración de datos al servidor | 22 |
+| Fases 3-11 | Pantallas de todos los módulos | 200-255 |
+| | **TOTAL COMPLETO** | **~254-309 hrs** |
 
 ---
 
@@ -243,12 +321,12 @@ El código Swift sirve únicamente como **guía de diseño y lógica** para sabe
 | Componente | Tecnología |
 |-----------|-----------|
 | Framework móvil | React Native + Expo |
-| Backend | Supabase (ya existente) |
+| Backend | Supabase (ya existente, se amplía) |
 | Autenticación | Supabase Auth (ya configurado) |
-| Base de datos | PostgreSQL vía Supabase (ya existente) |
+| Base de datos | PostgreSQL vía Supabase |
 | Navegación | React Navigation (Stack + Tabs) |
 | Estado global | React Context API |
-| Persistencia local | AsyncStorage |
+| Persistencia local | AsyncStorage (solo sesión) |
 | Idioma de la app | Español (México) |
 
 ---
@@ -261,7 +339,7 @@ textil-mobile/
 │   ├── api/
 │   │   └── supabaseClient.js        ← Conexión a Supabase
 │   ├── auth/
-│   │   └── AuthContext.js            ← Lógica de sesión y roles
+│   │   └── AuthContext.js            ← Lógica de sesión, roles y empresa
 │   ├── navigation/
 │   │   └── AppNavigator.js           ← Navegación entre pantallas
 │   ├── screens/
@@ -284,7 +362,9 @@ textil-mobile/
 ## Notas Importantes
 
 1. **El código Swift original se conserva** intacto en la carpeta `Textil/` solo como referencia de diseño y lógica.
-2. **La base de datos en Supabase ya existe** y no se requieren migraciones para la Fase 1.
-3. **Las políticas de seguridad (RLS)** en Supabase deben verificarse para que solo superadmin pueda modificar otros perfiles.
-4. **La app móvil se puede probar** directamente en un dispositivo físico (iPhone/Android) usando Expo Go y escaneando un código QR.
-5. **Todo lo de la Fase 1 se construye desde cero** — no hay código funcional previo, solo el backend de Supabase.
+2. **La base de datos en Supabase necesita ampliarse.** Hoy solo tiene 3 tablas (perfiles, empresas, Usuarios). Se necesitan ~47 tablas más para los datos de negocio.
+3. **Hoy los datos viven en cada teléfono.** Eso significa que si un usuario crea un cliente, solo él lo ve. Para compartir información por empresa, TODO debe moverse al servidor (Fase 2).
+4. **La `empresa_id` es la llave.** Cada dato en el servidor debe tener el campo `empresa_id` para filtrar qué empresa ve qué información.
+5. **Las políticas de seguridad (RLS)** en Supabase garantizarán que un usuario de la Empresa A nunca vea datos de la Empresa B.
+6. **La app móvil se puede probar** directamente en un dispositivo físico (iPhone/Android) usando Expo Go y escaneando un código QR.
+7. **Todo se construye desde cero** — no hay código funcional previo ejecutable, solo el backend parcial de Supabase.
