@@ -134,7 +134,6 @@ Se conserva el codigo Swift actual y se modifica para conectar los 47 modelos al
 **Desventajas:**
 - Solo funciona en iPhone (no Android)
 - Se necesita Mac con Xcode para desarrollar y probar
-- No se puede construir ni probar desde este entorno (yo te guio, tu ejecutas en Xcode)
 
 ### Opcion B: Migrar a React Native (iPhone + Android)
 
@@ -260,13 +259,11 @@ Las fases futuras (3-11) se estimaran a detalle una vez completadas las primeras
 
 ### Si eligen Opcion A (Swift):
 8. Se necesita Mac con Xcode instalado para compilar y probar.
-9. El desarrollo lo puedo guiar desde aqui, pero las pruebas las ejecutas tu en Xcode.
-10. La app solo estara disponible para iPhone/iPad.
+9. La app solo estara disponible para iPhone/iPad.
 
 ### Si eligen Opcion B (React Native):
-11. La app se puede probar en dispositivos fisicos con Expo Go (escanear QR).
-12. Funciona en iPhone Y Android con el mismo codigo.
-13. Se puede construir y probar completamente desde este entorno.
+10. La app se puede probar en dispositivos fisicos con Expo Go (escanear QR).
+11. Funciona en iPhone Y Android con el mismo codigo.
 
 ---
 
