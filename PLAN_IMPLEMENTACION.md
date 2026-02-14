@@ -220,17 +220,112 @@ Estas fases se planificaran una vez completadas las Fases 1 y 2. Las horas son e
 
 | Fase | Modulos | Swift (est.) | React Native (est.) |
 |------|---------|-------------|---------------------|
-| Fase 3 | Catalogos (Agentes, Clientes, Proveedores, Articulos, etc.) | 15-20 | 40-50 |
-| Fase 4 | Ordenes de clientes + Compras | 12-15 | 30-40 |
-| Fase 5 | Produccion + Recibos | 10-12 | 25-30 |
+| Fase 3 | Catalogos | 15-20 | 40-50 |
+| Fase 4 | Ordenes y Compras | 12-15 | 30-40 |
+| Fase 5 | Produccion y Recibos | 10-12 | 25-30 |
 | Fase 6 | Costos y Costeos | 8-10 | 20-25 |
-| Fase 7 | Inventarios + Salidas + Reingresos | 10-12 | 25-30 |
-| Fase 8 | Ventas + PDF/Excel | 8-10 | 20-25 |
-| Fase 9 | Servicios + Solicitudes | 6-8 | 15-20 |
+| Fase 7 | Inventarios y Movimientos | 10-12 | 25-30 |
+| Fase 8 | Ventas y Exportacion | 8-10 | 20-25 |
+| Fase 9 | Servicios y Solicitudes | 6-8 | 15-20 |
 | Fase 10 | Resumenes y Reportes | 6-8 | 15-20 |
-| Fase 11 | Firmas digitales + Funcionalidad avanzada | 5-7 | 10-15 |
+| Fase 11 | Firmas y Funcionalidad avanzada | 5-7 | 10-15 |
 
 Las horas de Swift son menores porque las pantallas ya existen; solo se modificarian para leer/escribir del servidor en vez del telefono. Con React Native se construyen todas desde cero.
+
+---
+
+### Detalle de cada fase futura
+
+**Fase 3 — Catalogos (15-20 hrs Swift / 40-50 hrs React Native)**
+
+Conectar todos los catalogos del sistema al servidor para que se compartan entre usuarios de la misma empresa. Incluye:
+
+- **Agentes:** Lista, crear, editar y eliminar agentes de venta
+- **Clientes:** Lista, crear, editar y eliminar clientes con sus datos de contacto
+- **Proveedores:** Lista, crear, editar y eliminar proveedores
+- **Articulos:** Catalogo de productos con sus propiedades (talla, color, modelo)
+- **Colores, Tallas, Modelos, Marcas, Lineas:** Catalogos auxiliares que se usan al crear articulos
+- **Telas y Tipos de Tela:** Catalogo de materiales con precios
+- **Departamentos y Unidades:** Clasificaciones internas de la empresa
+- **Maquileros:** Talleres externos que procesan produccion
+
+Cada catalogo tendra busqueda, filtrado por empresa y validaciones.
+
+**Fase 4 — Ordenes y Compras (12-15 hrs Swift / 30-40 hrs React Native)**
+
+El flujo completo de ordenes de clientes y compras de insumos. Incluye:
+
+- **Ordenes de clientes:** Crear orden con detalle de articulos, cantidades, precios y fechas de entrega
+- **Detalle de orden:** Desglose por articulo, color, talla y cantidad
+- **Seguimiento de estado:** Pendiente, en proceso, completada, cancelada
+- **Compras de insumos:** Registro de compras a proveedores con detalle de materiales
+- **Compras de clientes:** Registro de compras especiales por pedido de cliente
+- **Edicion y movimientos:** Modificar ordenes existentes, registrar cambios
+
+**Fase 5 — Produccion y Recibos (10-12 hrs Swift / 25-30 hrs React Native)**
+
+Control de la produccion enviada a maquileros y recepcion de producto terminado. Incluye:
+
+- **Registro de produccion:** Envio de material a maquileros con detalle de articulos y cantidades
+- **Recibos de produccion:** Registro de lo que regresa del maquilero (cantidades recibidas vs enviadas)
+- **Recibos de compras:** Registro de recepcion de insumos comprados a proveedores
+- **Pagos:** Registro de pagos a maquileros y proveedores
+- **Vista de detalle:** Consulta del estado de cada lote de produccion
+
+**Fase 6 — Costos y Costeos (8-10 hrs Swift / 20-25 hrs React Native)**
+
+Calculo de costos de produccion. Solo visible para administradores. Incluye:
+
+- **Costos generales:** Registro de costos por articulo (insumos, telas, mano de obra)
+- **Costos de mezclilla:** Calculo especializado para productos de mezclilla con sus variables propias
+- **Costeos:** Historial de costeos realizados, comparacion entre versiones
+- **Detalle de insumos y telas:** Desglose de cada componente del costo
+
+**Fase 7 — Inventarios y Movimientos (10-12 hrs Swift / 25-30 hrs React Native)**
+
+Control de existencias y movimientos de mercancia. Incluye:
+
+- **Vista de inventarios:** Existencias actuales por articulo, color y talla
+- **Salidas de insumos:** Registro de material que sale del almacen (a produccion o venta)
+- **Reingresos:** Registro de mercancia que regresa al almacen (devoluciones, sobrantes)
+- **Movimientos:** Historial de entradas y salidas con fecha, motivo y responsable
+- **Detalle por articulo:** Consulta de movimientos de un articulo especifico
+
+**Fase 8 — Ventas y Exportacion (8-10 hrs Swift / 20-25 hrs React Native)**
+
+Registro de ventas y generacion de documentos. Solo visible para administradores. Incluye:
+
+- **Ventas a clientes:** Registro de venta con detalle de articulos, cantidades y precios
+- **Detalle de venta:** Desglose por articulo, color, talla
+- **Exportacion a PDF:** Generacion de documentos de venta en formato PDF
+- **Exportacion a Excel:** Generacion de reportes en formato Excel para analisis
+- **Movimientos de venta:** Historial de cambios en cada venta
+
+**Fase 9 — Servicios y Solicitudes (6-8 hrs Swift / 15-20 hrs React Native)**
+
+Gestion de servicios externos. Solo visible para administradores. Incluye:
+
+- **Catalogo de servicios:** Lista de servicios disponibles (lavado, bordado, estampado, etc.)
+- **Solicitudes de servicio:** Crear solicitud con detalle de lo que se necesita
+- **Recibos de servicio:** Registro de recepcion del servicio completado
+- **Seguimiento:** Estado de cada solicitud (pendiente, en proceso, completada)
+
+**Fase 10 — Resumenes y Reportes (6-8 hrs Swift / 15-20 hrs React Native)**
+
+Vistas consolidadas de informacion. Solo visible para superadministradores. Incluye:
+
+- **Resumen de produccion:** Vista general de toda la produccion (enviada, recibida, pendiente)
+- **Resumen por cliente:** Ordenes, compras y ventas de cada cliente
+- **Resumen por maquilero:** Produccion enviada y recibida de cada maquilero
+- **Resumen de compras:** Detalle de compras y pagos a proveedores
+
+**Fase 11 — Firmas digitales y Funcionalidad avanzada (5-7 hrs Swift / 10-15 hrs React Native)**
+
+Funciones adicionales para completar el sistema. Incluye:
+
+- **Firmas digitales:** Captura de firma en pantalla para recibos de produccion (confirmacion de entrega/recepcion)
+- **Formatos de seguridad:** Configuraciones de acceso y permisos adicionales
+- **Ajustes finales:** Optimizacion, manejo de errores y pulido general de la app
 
 ---
 
