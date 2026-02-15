@@ -327,7 +327,7 @@ struct OrdenCompraInsumosDetalleView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(10)
-                .background(Color.white)
+                .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .frame(maxWidth: .infinity)
@@ -343,7 +343,7 @@ struct OrdenCompraInsumosDetalleView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(10)
-                .background(Color.white)
+                .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .frame(maxWidth: .infinity)

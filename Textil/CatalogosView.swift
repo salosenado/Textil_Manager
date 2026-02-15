@@ -65,7 +65,7 @@ struct CatalogosView: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(Color.gray.opacity(0.08))
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("Catálogos")
         }
     }
@@ -111,8 +111,9 @@ struct CatalogSection: View {
                     }
                 }
             }
-            .background(Color.white)
+            .background(Color(.systemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16))
+            .shadow(color: .black.opacity(0.05), radius: 4)
             .padding(.horizontal)
         }
     }

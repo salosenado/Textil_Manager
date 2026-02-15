@@ -335,7 +335,7 @@ struct OrdenesClientesView: View {
                     .clipShape(Capsule())
 
                 if !(orden.cancelada || produccionCancelada) {
-                    Text("MX $ \(String(format: "%.2f", orden.total))")
+                    Text("MX $ \(NumberFormatter.localizedString(from: NSNumber(value: orden.total), number: .decimal))")
                         .font(.headline)
                         .foregroundStyle(.green)
                 }

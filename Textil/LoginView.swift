@@ -8,8 +8,6 @@
 //  LoginView.swift
 //  Textil
 //
-//  Created by Salomon Senado on 2/9/26.
-//
 
 import SwiftUI
 import Supabase
@@ -27,37 +25,39 @@ struct LoginView: View {
 
     // MARK: - UI
     var body: some View {
+
         VStack(spacing: 20) {
 
             Spacer()
 
+            // MARK: - TITLE
             Text("Iniciar sesión")
                 .font(.largeTitle)
                 .bold()
 
-            // EMAIL
+            // MARK: - EMAIL
             TextField("Email", text: $email)
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .padding()
-                .background(Color(.systemGray6))
+                .background(Color(.secondarySystemBackground))
                 .cornerRadius(10)
 
-            // PASSWORD
+            // MARK: - PASSWORD
             SecureField("Contraseña", text: $password)
                 .padding()
-                .background(Color(.systemGray6))
+                .background(Color(.secondarySystemBackground))
                 .cornerRadius(10)
 
-            // ERROR
+            // MARK: - ERROR
             if let errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)
                     .multilineTextAlignment(.center)
             }
 
-            // LOGIN BUTTON
+            // MARK: - LOGIN BUTTON
             Button {
                 Task {
                     await iniciarSesion()
@@ -74,7 +74,90 @@ struct LoginView: View {
             .buttonStyle(.borderedProminent)
             .disabled(isLoading)
 
+            // MARK: - REGISTRO
+            NavigationLink("Crear cuenta") {
+                RegistroView()
+            }
+            .padding(.top, 5)
+
             Spacer()
+
+            Divider()
+                .padding(.vertical, 10)
+
+            // =========================
+            // 📞 CONTACTO EMPRESARIAL
+            // =========================
+            VStack(spacing: 12) {
+
+                Text("¿No tienes cuenta?")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                Text("Contáctanos para solicitar acceso")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                HStack(spacing: 25) {
+
+                    // WhatsApp
+                    Button {
+                        openURL("https://wa.me/5215591019101?text=Hola%20AppIndustri,%20quiero%20información%20sobre%20la%20plataforma.")
+                    } label: {
+                        VStack {
+                            Image(systemName: "message.fill")
+                                .font(.title2)
+                                .foregroundStyle(.green)
+                            Text("WhatsApp")
+                                .font(.caption)
+                        }
+                    }
+
+                    // Email
+                    Button {
+                        openURL("mailto:sales@appindustri.com")
+                    } label: {
+                        VStack {
+                            Image(systemName: "envelope.fill")
+                                .font(.title2)
+                                .foregroundStyle(.blue)
+                            Text("Email")
+                                .font(.caption)
+                        }
+                    }
+
+                    // Llamar
+                    Button {
+                        openURL("tel://+525591019101")
+                    } label: {
+                        VStack {
+                            Image(systemName: "phone.fill")
+                                .font(.title2)
+                                .foregroundStyle(.orange)
+                            Text("Llamar")
+                                .font(.caption)
+                        }
+                    }
+                }
+            }
+
+            // =========================
+            // 📄 LEGAL
+            // =========================
+            VStack(spacing: 8) {
+
+                NavigationLink("Política de Privacidad") {
+                    PrivacyPolicyView()
+                }
+                .font(.footnote)
+
+                NavigationLink("Términos y Condiciones") {
+                    TermsView()
+                }
+                .font(.footnote)
+            }
+            .foregroundStyle(.secondary)
+            .padding(.top, 10)
         }
         .padding()
     }
@@ -108,7 +191,6 @@ struct LoginView: View {
             print("✅ LOGIN OK")
             print("USER ID:", session.user.id)
 
-            // 🔥 AQUÍ ES DONDE ENTRA A LA APP
             authVM.isLoggedIn = true
 
         } catch {
@@ -120,8 +202,6 @@ struct LoginView: View {
                 errorMessage = "Email o contraseña incorrectos"
             } else if mensaje.contains("email not confirmed") {
                 errorMessage = "Debes confirmar tu email primero"
-            } else if mensaje.contains("missing email") {
-                errorMessage = "Falta el email"
             } else {
                 errorMessage = error.localizedDescription
             }
@@ -129,9 +209,17 @@ struct LoginView: View {
 
         isLoading = false
     }
+
+    // MARK: - Open URL
+    private func openURL(_ string: String) {
+        guard let url = URL(string: string) else { return }
+        UIApplication.shared.open(url)
+    }
 }
 
 #Preview {
-    LoginView()
-        .environmentObject(AuthViewModel())
+    NavigationStack {
+        LoginView()
+            .environmentObject(AuthViewModel())
+    }
 }

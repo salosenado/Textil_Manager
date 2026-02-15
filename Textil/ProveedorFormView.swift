@@ -84,7 +84,7 @@ struct ProveedorFormView: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(Color.gray.opacity(0.08))
+            .background(Color(.systemBackground))
             .navigationTitle(esNuevo ? "Nuevo proveedor" : "Editar proveedor")
             .toolbar {
 

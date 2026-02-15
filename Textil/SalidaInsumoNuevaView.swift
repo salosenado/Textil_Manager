@@ -301,7 +301,14 @@ struct SalidaInsumoNuevaView: View {
             Section(header: Text("Totales")) {
                 filaMoneda("Subtotal", subtotal)
                 filaMoneda("IVA", iva)
-                filaMoneda("Total", total)
+                HStack {
+                    Text("Total")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(total, format: .currency(code: "MXN"))
+                        .foregroundStyle(.green)
+                        .font(.title3.bold())
+                }
             }
 
             // GUARDAR
@@ -561,14 +568,16 @@ struct SalidaInsumoNuevaView: View {
     func fila(_ t: String, _ v: String) -> some View {
         HStack {
             Text(t)
+                .foregroundStyle(.secondary) // 🔹 agregar para texto de etiqueta
             Spacer()
-            Text(v).foregroundStyle(.secondary)
+            Text(v)
         }
     }
 
     func filaMoneda(_ t: String, _ v: Double) -> some View {
         HStack {
             Text(t)
+                .foregroundStyle(.secondary) // 🔹 agregar para etiqueta
             Spacer()
             Text(v, format: .currency(code: "MXN"))
         }

@@ -60,7 +60,7 @@ struct OrdenClienteDetalleEditableView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGray6))
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("Detalle del pedido")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -218,7 +218,10 @@ struct OrdenClienteDetalleEditableView: View {
             TextEditor(text: .constant(""))
                 .frame(height: 120)
                 .padding(8)
-                .background(RoundedRectangle(cornerRadius: 12).fill(Color.white))
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.secondarySystemBackground))
+                )
                 .disabled(true)
         }
     }
@@ -589,12 +592,23 @@ struct OrdenClienteDetalleEditableView: View {
                     .disabled(!enabled)
             }
             .padding()
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color(.systemGray6)))
+            .background(
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color(.secondarySystemBackground))
+            )
         }
     }
 
     func formatoMX(_ v: Double) -> String {
-        "MX $ " + String(format: "%.2f", v)
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = "MX $ "
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.groupingSeparator = ","
+        formatter.decimalSeparator = "."
+        
+        return formatter.string(from: NSNumber(value: v)) ?? "MX $ 0.00"
     }
 }
 

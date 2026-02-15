@@ -48,7 +48,10 @@ enum ReingresoPDFService {
 
                 text.draw(
                     at: CGPoint(x: x, y: y),
-                    withAttributes: [.font: font]
+                    withAttributes: [
+                        .font: font,
+                        .foregroundColor: UIColor.black   // 🔑 Asegura que siempre sea legible
+                    ]
                 )
                 y += size + 6
             }

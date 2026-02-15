@@ -51,7 +51,7 @@ class VentaCliente {
 
     @Attribute(.externalStorage)
     var firmaResponsable: Data?
-
+    
     // =====================================================
     // MARK: - DOCUMENTO
     // =====================================================

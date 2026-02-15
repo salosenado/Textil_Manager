@@ -69,7 +69,7 @@ struct AltaCompraClienteView: View {
                             .foregroundStyle(.secondary)
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.gray.opacity(0.15))
+                            .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                 }
@@ -96,7 +96,7 @@ struct AltaCompraClienteView: View {
                             .foregroundStyle(.secondary)
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.gray.opacity(0.15))
+                            .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
 
@@ -188,18 +188,20 @@ struct AltaCompraClienteView: View {
             (Double(costoTexto) ?? 0) > 0
         }
 
-        func agregarModelo() {
-            let d = OrdenCompraDetalle(
-                articulo: articulo!.nombre,
-                modelo: modelo!.nombre,
-                cantidad: Int(cantidadTexto)!,
-                costoUnitario: Double(costoTexto)!
-            )
+    func agregarModelo() {
+        let d = OrdenCompraDetalle(
+            articulo: articulo!.nombre,
+            modelo: modelo!.nombre,
+            cantidad: Int(cantidadTexto)!,
+            costoUnitario: Double(costoTexto)!
+        )
 
-            detalles.append(d)
-            cantidadTexto = ""
-            costoTexto = ""
-        }
+        d.modeloCatalogo = modelo   // 🔑 ESTA ES LA LÍNEA QUE FALTABA
+
+        detalles.append(d)
+        cantidadTexto = ""
+        costoTexto = ""
+    }
 
         func guardar() {
             guard let proveedor else { return }

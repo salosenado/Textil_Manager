@@ -106,7 +106,7 @@ struct SalidaInsumoDetalleView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGray6))
+            .background(Color(.systemBackground))
             .navigationTitle("Detalle de salida")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -524,7 +524,7 @@ struct SalidaInsumoDetalleView: View {
                 TextEditor(text: $salida.observaciones)
                     .frame(minHeight: 140)
                     .padding(12)
-                    .background(Color.white)
+                    .background(Color(.systemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .frame(maxWidth: .infinity, alignment: .leading)
             } else {
@@ -808,7 +808,7 @@ struct SalidaInsumoDetalleView: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(.systemGray6))
+                        .fill(Color(.systemBackground))
                 )
         }
     }

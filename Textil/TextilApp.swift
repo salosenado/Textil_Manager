@@ -27,6 +27,7 @@ struct TextilApp: App {
 
     var body: some Scene {
         WindowGroup {
+
             Group {
 
                 // ⏳ CARGANDO SESIÓN
@@ -41,16 +42,19 @@ struct TextilApp: App {
 
                 // ✅ SESIÓN ACTIVA
                 else if authVM.isLoggedIn {
-                    RootView()          // 🔥 AQUÍ ESTÁN TUS 20 TABS
+                    RootView()
                 }
 
                 // 🔑 LOGIN
                 else {
-                    LoginView()
+                    NavigationStack {
+                        LoginView()
+                    }
                 }
             }
             .environmentObject(authVM)
         }
+
         .modelContainer(for: [
             Agente.self,
             Cliente.self,
@@ -86,11 +90,30 @@ struct TextilApp: App {
             ProduccionFirma.self,
             VentaCliente.self,
             VentaClienteDetalle.self,
+            CobroVenta.self,
+            MovimientoFinancieroVenta.self,
             SalidaInsumo.self,
             SalidaInsumoDetalle.self,
             Reingreso.self,
             ReingresoDetalle.self,
-            ReingresoMovimiento.self
+            ReingresoMovimiento.self,
+            ActivoEmpresa.self,
+            MovimientoCaja.self,
+            MovimientoBanco.self,
+            PagoRegalia.self,
+            PagoComision.self,
+            Dispersion.self,
+            DispersionSalida.self,
+            ControlDisenoTrazo.self,
+            Prestamo.self,
+            PrestamoOtorgado.self,
+            PagoPrestamo.self,
+            PagoPrestamoOtorgado.self,
+
+            // 🔥 NUEVO MÓDULO
+            SaldoFacturaAdelantada.self,
+            PagoSaldoFactura.self
         ])
+
     }
 }

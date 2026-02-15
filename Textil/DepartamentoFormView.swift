@@ -44,7 +44,7 @@ struct DepartamentoFormView: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(Color.gray.opacity(0.08))
+            .background(Color(.systemGroupedBackground))
             .navigationTitle(
                 esNuevo ? "Nuevo departamento" : "Editar departamento"
             )

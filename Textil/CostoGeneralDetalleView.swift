@@ -150,7 +150,8 @@ struct CostoGeneralDetalleView: View {
         HStack {
             Text(titulo)
             Spacer()
-            Text(String(format: "%.2f", valor))
+            Text(String(format: "%.3f", valor))
+
                 .foregroundStyle(.secondary)
         }
     }

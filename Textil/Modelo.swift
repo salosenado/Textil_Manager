@@ -20,6 +20,10 @@ class Modelo {
 
     // 🔢 INVENTARIO
     var existencia: Int
+    
+    // 🏷 MARCA (NUEVO)
+        @Relationship
+        var marca: Marca?
 
     init(
         nombre: String = "",

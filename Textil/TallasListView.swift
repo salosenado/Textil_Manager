@@ -8,14 +8,13 @@
 //  TallasListView.swift
 //  Textil
 //
-
 import SwiftUI
 import SwiftData
 
 struct TallasListView: View {
 
     @Environment(\.modelContext) private var context
-    @Query(sort: \Talla.orden) private var tallas: [Talla]
+    @Query(sort: \Talla.nombre) private var tallas: [Talla]
 
     @State private var mostrarNueva = false
 
@@ -28,12 +27,7 @@ struct TallasListView: View {
                         esNueva: false
                     )
                 } label: {
-                    HStack {
-                        Text(talla.nombre)
-                        Spacer()
-                        Text("\(talla.orden)")
-                            .foregroundColor(.secondary)
-                    }
+                    Text(talla.nombre)
                 }
             }
             .onDelete(perform: eliminar)
@@ -68,3 +62,4 @@ struct TallasListView: View {
         TallasListView()
     }
 }
+

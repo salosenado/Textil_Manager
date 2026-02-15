@@ -92,7 +92,7 @@ struct AltaCostoGeneralView: View {
                         .foregroundStyle(.secondary)
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.15))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
@@ -109,7 +109,7 @@ struct AltaCostoGeneralView: View {
                 TextEditor(text: $observaciones)
                     .frame(minHeight: 80)
                     .padding(6)
-                    .background(Color.gray.opacity(0.1))
+                    .background(Color(.secondarySystemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 

@@ -189,7 +189,8 @@ struct InventariosView: View {
         TextField("Buscar modelo", text: $textoBusqueda)
             .textFieldStyle(.roundedBorder)
             .padding()
-            .background(Color(.systemBackground))
+            .background(Color(.secondarySystemBackground))
+
     }
 
     var filtroModeloLinea: some View {
@@ -215,7 +216,7 @@ struct InventariosView: View {
 
             Divider()
         }
-        .background(Color(.systemBackground))
+        .background(Color(.secondarySystemBackground))
     }
 
     func limpiarFiltros() {

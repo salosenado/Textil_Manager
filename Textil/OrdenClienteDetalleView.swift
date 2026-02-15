@@ -104,7 +104,7 @@ struct OrdenClienteDetalleView: View {
                         .foregroundStyle(.secondary)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.15))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
@@ -139,7 +139,7 @@ struct OrdenClienteDetalleView: View {
                         .foregroundStyle(.secondary)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.15))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
@@ -181,6 +181,14 @@ struct OrdenClienteDetalleView: View {
     }
 
     func formatoMX(_ valor: Double) -> String {
-        "MX $ " + String(format: "%.2f", valor)
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = "MX $ "
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        formatter.groupingSeparator = ","
+        formatter.decimalSeparator = "."
+        
+        return formatter.string(from: NSNumber(value: valor)) ?? "MX $ 0.00"
     }
 }

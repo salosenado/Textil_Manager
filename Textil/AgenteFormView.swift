@@ -4,13 +4,6 @@
 //
 //  Created by Salomon Senado on 1/29/26.
 //
-
-
-//
-//  AgenteFormView.swift
-//  Textil
-//
-
 import SwiftUI
 import SwiftData
 
@@ -27,40 +20,34 @@ struct AgenteFormView: View {
             ScrollView {
                 VStack(spacing: 24) {
 
-                    // AGENTE
                     FormSection(title: "Agente") {
                         TextField("Nombre", text: $agente.nombre)
                         Divider()
                         TextField("Apellido", text: $agente.apellido)
                     }
 
-                    // COMISIÓN
                     FormSection(title: "Comisión") {
-                        HStack {
-                            Text("Porcentaje %")
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            TextField("0", text: $agente.comision)
-                                .multilineTextAlignment(.trailing)
-                        }
+                        TextField("Porcentaje %", text: $agente.comision)
+                            .keyboardType(.decimalPad)
                     }
 
-                    // CONTACTO
                     FormSection(title: "Contacto") {
                         TextField("Teléfono", text: $agente.telefono)
                         Divider()
                         TextField("Email", text: $agente.email)
+                            .keyboardType(.emailAddress)
                     }
 
-                    // ESTADO
                     FormSection(title: "") {
                         Toggle("Activo", isOn: $agente.activo)
                     }
                 }
+                .padding(.horizontal)
                 .padding(.vertical, 16)
             }
-            .background(Color.gray.opacity(0.08))
+            .background(Color(.systemGray6))
             .navigationTitle(esNuevo ? "Nuevo agente" : "Editar agente")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
 
                 ToolbarItem(placement: .navigationBarLeading) {

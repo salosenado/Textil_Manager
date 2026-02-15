@@ -40,7 +40,6 @@ struct VentaClienteNuevaView: View {
 
 
     // MARK: - ENCABEZADO
-    let numeroVenta = "Venta #002"
     let fechaCaptura = Date()
     @State private var fechaEntrega = Date()
     @State private var numeroFactura = ""
@@ -49,6 +48,14 @@ struct VentaClienteNuevaView: View {
     @State private var modeloID: PersistentIdentifier?
     @State private var tallaID: PersistentIdentifier?
     @State private var unidadID: PersistentIdentifier?
+    @Query private var marcas: [Marca]
+
+    @State private var marcaID: PersistentIdentifier? = nil
+
+    var marcaSeleccionada: Marca? {
+        marcas.first { $0.persistentModelID == marcaID }
+    }
+
     @State private var cantidadForm: Int?
     @State private var costoUnitarioForm: Double?
     @State private var inventarioDisponible: Int = 0
@@ -59,6 +66,10 @@ struct VentaClienteNuevaView: View {
     @State private var mensajeAlertaValidacion = ""
     
     @State private var mostrarConfirmacionVenta = false
+    
+    @Query(sort: \VentaCliente.fechaVenta, order: .reverse)
+    private var ventasRegistradas: [VentaCliente]
+    
 
     // MARK: - MODELOS AGREGADOS
     struct ModeloAgregado: Identifiable {
@@ -68,6 +79,7 @@ struct VentaClienteNuevaView: View {
         let unidad: Unidad
         let cantidad: Int
         let costoUnitario: Double
+        let marca: Marca?   // 👈 NUEVO
 
         var total: Double {
             Double(cantidad) * costoUnitario
@@ -100,8 +112,24 @@ struct VentaClienteNuevaView: View {
     var tallaSeleccionada: Talla? {
         tallas.first { $0.persistentModelID == tallaID }
     }
+    
+    // MARK: - FOLIO CONSECUTIVO
+    var numeroVenta: String {
 
-    // MARK: - CÁLCULOS
+        guard let ultima = ventasRegistradas.first else {
+            return "Venta #001"
+        }
+
+        let soloNumeros = ultima.folio
+            .components(separatedBy: CharacterSet.decimalDigits.inverted)
+            .joined()
+
+        let numeroActual = Int(soloNumeros) ?? 0
+        let siguiente = numeroActual + 1
+
+        return String(format: "Venta #%03d", siguiente)
+    }
+    
     var subtotal: Double {
         modelosAgregados.reduce(0) { $0 + $1.total }
     }
@@ -219,6 +247,15 @@ struct VentaClienteNuevaView: View {
             // =========================
             Section(header: Text("Detalle")) {
 
+                // 🔥 MARCA (NUEVO CORRECTO)
+                    Picker("Marca", selection: $marcaID) {
+                        Text("Seleccionar").tag(PersistentIdentifier?.none)
+                        ForEach(marcas.filter { $0.activo }) {
+                            Text($0.nombre)
+                                .tag(Optional($0.persistentModelID))
+                        }
+                    }
+                
                 Picker("Modelo", selection: $modeloID) {
                     Text("Seleccionar").tag(PersistentIdentifier?.none)
                     ForEach(modelos) {
@@ -235,6 +272,7 @@ struct VentaClienteNuevaView: View {
                         .infoBox()
                 }
 
+                
                 Picker("Talla", selection: $tallaID) {
                     Text("Seleccionar").tag(PersistentIdentifier?.none)
                     ForEach(tallas) {
@@ -463,14 +501,15 @@ struct VentaClienteNuevaView: View {
                 talla: tallaSeleccionada,
                 unidad: unidadSeleccionada,
                 cantidad: cantidad,
-                costoUnitario: costoUnitario
+                costoUnitario: costoUnitario,
+                marca: marcaSeleccionada   // 👈 AQUÍ
             )
         )
 
-        // LIMPIAR FORM
         modeloID = nil
         tallaID = nil
         unidadID = nil
+        marcaID = nil
         cantidadForm = nil
         costoUnitarioForm = nil
         inventarioDisponible = 0
@@ -531,7 +570,8 @@ struct VentaClienteNuevaView: View {
                 cantidad: item.cantidad,
                 costoUnitario: item.costoUnitario,
                 unidad: item.unidad.nombre,
-                venta: venta
+                venta: venta,
+                marca: item.marca
             )
             context.insert(detalle)
         }

@@ -8,7 +8,6 @@
 //  AgentesListView.swift
 //  Textil
 //
-
 import SwiftUI
 import SwiftData
 
@@ -22,7 +21,6 @@ struct AgentesListView: View {
     var body: some View {
         List {
 
-            // LISTA DE AGENTES
             ForEach(agentes) { agente in
                 NavigationLink {
                     AgenteFormView(
@@ -30,24 +28,35 @@ struct AgentesListView: View {
                         esNuevo: false
                     )
                 } label: {
-                    VStack(alignment: .leading, spacing: 4) {
+
+                    VStack(alignment: .leading, spacing: 6) {
+
                         Text("\(agente.nombre) \(agente.apellido)")
-                            .font(.body)
+                            .font(.headline)
 
                         if !agente.comision.isEmpty {
                             Text("Porcentaje: \(agente.comision)%")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundStyle(.secondary)
                         }
                     }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(.systemBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .shadow(color: .black.opacity(0.05), radius: 3)
+                    .listRowInsets(EdgeInsets())
+                    .padding(.vertical, 6)
                 }
+                .listRowBackground(Color.clear)
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color(.systemGroupedBackground))
         .listStyle(.plain)
         .navigationTitle("Agentes")
         .toolbar {
 
-            // BOTÓN +
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     mostrarNuevo = true
@@ -56,7 +65,6 @@ struct AgentesListView: View {
                 }
             }
         }
-        // NUEVO AGENTE
         .sheet(isPresented: $mostrarNuevo) {
             NavigationStack {
                 AgenteFormView(

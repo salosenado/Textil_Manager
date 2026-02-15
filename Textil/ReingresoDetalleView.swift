@@ -210,7 +210,10 @@ struct ReingresoDetalleView: View {
                 estado("REINGRESO CANCELADO", .red)
             }
         }
-        .cardWhite()
+        .padding()
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
     }
 
     // MARK: - RESPONSABLES
@@ -380,7 +383,7 @@ struct ReingresoDetalleView: View {
                 TextEditor(text: $reingreso.observaciones)
                     .frame(minHeight: 140)
                     .padding(12)
-                    .background(Color.white)
+                    .background(Color(.systemBackground))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .frame(maxWidth: .infinity, alignment: .leading)   // 👈 CLAVE
             } else {
@@ -744,8 +747,8 @@ struct ReingresoDetalleView: View {
             .frame(maxWidth: .infinity)
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(c.opacity(0.15))
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.systemBackground))
             )
             .foregroundStyle(c)
     }

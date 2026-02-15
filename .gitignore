@@ -1,0 +1,17 @@
+.replit
+replit.md
+attached_assets
+.DS_Store
+*.py
+*.pyc
+__pycache__/
+venv/
+env/
+.idea/
+.vscode/
+*.log
+*.sqlite3
+*.db
+*.bak
+*.tmp
+

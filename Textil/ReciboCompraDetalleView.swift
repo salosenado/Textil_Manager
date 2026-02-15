@@ -43,6 +43,8 @@ struct ReciboCompraDetalleView: View {
     @State private var archivoURL: URL?
     
     @State private var numeroFacturaNota: String = ""
+    
+    @State private var detalleSeleccionado: OrdenCompraDetalle?
 
     enum AccionSegura {
         case registrarRecepcion
@@ -54,6 +56,7 @@ struct ReciboCompraDetalleView: View {
     // DATA
     @Query private var recepciones: [ReciboCompraDetalle]
     @Query private var pagos: [PagoRecibo]
+    
     
     // 🔒 BLOQUEO SOLO VISUAL
     var bloqueada: Bool {
@@ -116,25 +119,24 @@ struct ReciboCompraDetalleView: View {
         // REGISTRAR RECEPCIÓN COMPRA ✅
         // ============================
         .sheet(isPresented: $showRecepcionSheet) {
+
             RegistrarRecepcionCompraSheet { monto, obs in
 
-                guard let recibo else { return }
+                guard let recibo,
+                      let detalle = detalleSeleccionado
+                else { return }
 
-                // 🔥 REGISTRAR RECEPCIÓN POR CADA MODELO
-                for d in orden.detalles {
+                let nuevo = ReciboCompraDetalle(
+                    concepto: "Recepción",
+                    monto: monto,
+                    modelo: detalle.modelo,
+                    articulo: detalle.articulo,
+                    recibo: recibo,
+                    ordenCompra: orden
+                )
 
-                    let nuevo = ReciboCompraDetalle(
-                        concepto: "Recepción",
-                        monto: monto,
-                        modelo: d.modelo,
-                        articulo: d.articulo,
-                        recibo: recibo,
-                        ordenCompra: orden
-                    )
-
-                    nuevo.observaciones = obs
-                    context.insert(nuevo)
-                }
+                nuevo.observaciones = obs
+                context.insert(nuevo)
 
                 DispatchQueue.main.async {
                     try? context.save()
@@ -184,7 +186,7 @@ struct ReciboCompraDetalleView: View {
 
                 Text("Orden de compra")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(Color(uiColor: .secondaryLabel))
 
                 Text(orden.folio)
                     .font(.title2.bold())
@@ -192,19 +194,23 @@ struct ReciboCompraDetalleView: View {
                 Divider()
 
                 fila("Proveedor", orden.proveedor)
-                fila("Fecha orden", orden.fechaOrden.formatted(date: .abbreviated, time: .omitted))
-                fila("Fecha entrega", orden.fechaEntrega.formatted(date: .abbreviated, time: .omitted))
+                fila(
+                    "Fecha orden",
+                    orden.fechaOrden.formatted(date: .abbreviated, time: .omitted)
+                )
+                fila(
+                    "Fecha entrega",
+                    orden.fechaEntrega.formatted(date: .abbreviated, time: .omitted)
+                )
                 fila("Tipo", orden.tipoCompra.capitalized)
 
                 Divider()
 
-                // 🔥 TOTAL POR PZ RECIBIDAS
                 Text(formatoMX(totalRecibidoMX))
                     .font(.largeTitle.bold())
                     .foregroundStyle(.green)
 
                 Divider()
-                
 
                 fila("Subtotal", formatoMX(subtotalPedido))
                 fila("IVA", formatoMX(ivaPedido))
@@ -222,14 +228,14 @@ struct ReciboCompraDetalleView: View {
             }
         }
     }
-
     var facturaBar: some View {
         card {
             HStack {
 
                 Text("# Factura / Nota")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(Color(uiColor: .secondaryLabel))
+
 
                 Spacer()
 
@@ -264,17 +270,15 @@ struct ReciboCompraDetalleView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                ForEach(orden.detalles, id: \.self) { d in
+                ForEach(orden.detalles, id: \.persistentModelID) { d in
 
-                    // 🔹 MODELO (IGUAL QUE PRODUCCIÓN)
-                    Text(d.modelo)
+                    Text("Modelo: \(d.modelo)")
                         .font(.title2.bold())
 
-                    // 🔹 DESCRIPCIÓN (BLOQUE GRIS)
                     if !d.articulo.isEmpty {
                         Text(d.articulo)
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(Color(uiColor: .secondaryLabel))
                             .padding(8)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(Color.gray.opacity(0.15))
@@ -283,7 +287,7 @@ struct ReciboCompraDetalleView: View {
 
                     Divider()
 
-                    // 🔹 CÁLCULOS
+                    // 🔹 CÁLCULOS POR MODELO
                     let recibidas = piezasRecibidasPorModelo(d)
                     let pendientes = max(d.cantidad - recibidas, 0)
 
@@ -296,7 +300,41 @@ struct ReciboCompraDetalleView: View {
                     )
                     fila("Subtotal", formatoMX(d.subtotal))
 
-                    if d != orden.detalles.last {
+                    // =========================
+                    // RECEPCIONES DE ESTE MODELO
+                    // =========================
+                    let recepcionesModelo = recepcionesActivasPorModelo(d.modelo)
+
+                    if !recepcionesModelo.isEmpty {
+
+                        Divider()
+
+                        Text("Recepciones")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        ForEach(recepcionesModelo, id: \.persistentModelID) { r in
+                            HStack {
+                                Text(
+                                    r.recibo?.fechaRecibo.formatted(
+                                        date: .abbreviated,
+                                        time: .omitted
+                                    ) ?? ""
+                                )
+                                Spacer()
+                                Text("\(Int(r.monto)) PZ")
+                                    .fontWeight(.semibold)
+                            }
+
+                            if !r.observaciones.isEmpty {
+                                Text(r.observaciones)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+
+                    if d.persistentModelID != orden.detalles.last?.persistentModelID {
                         Divider()
                     }
                 }
@@ -304,6 +342,7 @@ struct ReciboCompraDetalleView: View {
         }
     }
 
+    
     // MARK: - RECEPCIONES
 
     var recepcionesCard: some View {
@@ -349,12 +388,19 @@ struct ReciboCompraDetalleView: View {
                     }
                 }
 
-                Button {
-                    accionPendiente = .registrarRecepcion
-                    showCodigoSheet = true
-                } label: {
-                    Label("Registrar recepción", systemImage: "plus.circle")
+                ForEach(orden.detalles, id: \.self) { d in
+                    Button {
+                        detalleSeleccionado = d
+                        accionPendiente = .registrarRecepcion
+                        showCodigoSheet = true
+                    } label: {
+                        Label("Registrar recepción \(d.modelo)", systemImage: "plus.circle")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(bloqueada)
+                    .opacity(bloqueada ? 0.4 : 1)
                 }
+
                 .buttonStyle(.bordered)
                 .disabled(bloqueada)
                 .opacity(bloqueada ? 0.4 : 1)
@@ -390,7 +436,7 @@ struct ReciboCompraDetalleView: View {
                         if !p.observaciones.isEmpty {
                             Text(p.observaciones)
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundColor(Color(uiColor: .secondaryLabel))
                         }
 
                         Button(role: .destructive) {
@@ -534,7 +580,8 @@ struct ReciboCompraDetalleView: View {
 
                                         Text("Usuario: \(mov.usuario)")
                                             .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                            .foregroundColor(Color(uiColor: .secondaryLabel))
+
 
                                         Text(
                                             mov.fecha.formatted(
@@ -571,11 +618,17 @@ struct ReciboCompraDetalleView: View {
 
     // MARK: - DATA (AGREGADO)
 
-    // MARK: - DATA (AGREGADO)
-
     var recepcionesActivas: [ReciboCompraDetalle] {
         recepciones.filter {
             $0.ordenCompra == orden &&
+            $0.fechaEliminacion == nil
+        }
+    }
+
+    func recepcionesActivasPorModelo(_ modelo: String) -> [ReciboCompraDetalle] {
+        recepciones.filter {
+            $0.ordenCompra == orden &&
+            $0.modelo == modelo &&
             $0.fechaEliminacion == nil
         }
     }
@@ -630,9 +683,8 @@ struct ReciboCompraDetalleView: View {
     // 🔽 RECEPCIONES POR MODELO (POR AHORA GLOBAL)
 
     func piezasRecibidasPorModelo(_ detalle: OrdenCompraDetalle) -> Int {
-        // ⚠️ Por ahora las recepciones no están ligadas a modelo,
-        // se usa el total general (igual que el resto de la vista)
-        return piezasRecibidas
+        recepcionesActivasPorModelo(detalle.modelo)
+            .reduce(0) { $0 + Int($1.monto) }
     }
 
     // MARK: - RECIBO
@@ -927,7 +979,7 @@ struct ReciboCompraDetalleView: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 18)
-                    .fill(Color(.secondarySystemBackground))
+                    .fill(Color(uiColor: .tertiarySystemBackground))
             )
     }
 

@@ -6,6 +6,7 @@
 //
 import SwiftUI
 import Supabase
+import Foundation
 
 // =========================
 // 🔧 MODELO UPDATE (ENCODABLE)
@@ -13,72 +14,107 @@ import Supabase
 struct PerfilUpdate: Encodable {
     let aprobado: Bool?
     let activo: Bool?
+    let rol: String?
+    let empresa_id: UUID?
 }
 
 struct UsuariosAdminView: View {
 
     @State private var usuarios: [Perfil] = []
+    @State private var empresas: [EmpresaLite] = []
 
     var body: some View {
         List {
-
             ForEach(usuarios) { u in
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
 
                     Text(u.nombre ?? u.email ?? "—")
                         .font(.headline)
 
-                    Text("Rol: \(u.rol)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Picker("Rol", selection: Binding(
+                        get: { u.rol },
+                        set: { actualizar(u, rol: $0) }
+                    )) {
+                        Text("Usuario").tag("usuario")
+                        Text("Admin").tag("admin")
+                        Text("Superadmin").tag("superadmin")
+                    }
+                    .pickerStyle(.segmented)
+
+                    Picker("Empresa", selection: Binding(
+                        get: { u.empresa?.id },
+                        set: { actualizar(u, empresaId: $0) }
+                    )) {
+                        Text("Sin empresa").tag(UUID?.none)
+                        ForEach(empresas, id: \.id) {
+                            Text($0.nombre).tag(Optional($0.id))
+                        }
+                    }
 
                     Toggle("Aprobado", isOn: Binding(
                         get: { u.aprobado },
-                        set: { nuevo in
-                            actualizar(u, aprobado: nuevo)
-                        }
+                        set: { actualizar(u, aprobado: $0) }
                     ))
 
                     Toggle("Activo", isOn: Binding(
                         get: { u.activo },
-                        set: { nuevo in
-                            actualizar(u, activo: nuevo)
-                        }
+                        set: { actualizar(u, activo: $0) }
                     ))
                 }
-                .padding(.vertical, 6)
+                .padding(.vertical, 8)
             }
         }
         .navigationTitle("Usuarios")
         .task {
-            await cargarUsuarios()
+            await cargarTodo()
         }
     }
 
     // =========================
-    // 📥 CARGAR USUARIOS
+    // 📥 CARGAR DATOS
     // =========================
-    func cargarUsuarios() async {
+    func cargarTodo() async {
         usuarios = (try? await supabase
             .from("perfiles")
-            .select()
+            .select("""
+                id,
+                nombre,
+                email,
+                rol,
+                aprobado,
+                activo,
+                empresa:empresas (
+                    id,
+                    nombre
+                )
+            """)
             .order("created_at")
+            .execute()
+            .value) ?? []
+
+        empresas = (try? await supabase
+            .from("empresas")
+            .select("id, nombre")
             .execute()
             .value) ?? []
     }
 
     // =========================
-    // ✏️ ACTUALIZAR USUARIO
+    // ✏️ ACTUALIZAR PERFIL
     // =========================
     func actualizar(
         _ perfil: Perfil,
         aprobado: Bool? = nil,
-        activo: Bool? = nil
+        activo: Bool? = nil,
+        rol: String? = nil,
+        empresaId: UUID? = nil
     ) {
         Task {
             let update = PerfilUpdate(
                 aprobado: aprobado,
-                activo: activo
+                activo: activo,
+                rol: rol,
+                empresa_id: empresaId
             )
 
             try? await supabase
@@ -87,7 +123,7 @@ struct UsuariosAdminView: View {
                 .eq("id", value: perfil.id)
                 .execute()
 
-            await cargarUsuarios()
+            await cargarTodo()
         }
     }
 }

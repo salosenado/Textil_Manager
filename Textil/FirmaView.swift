@@ -42,7 +42,7 @@ struct FirmaView: View {
                 Button("Simular firma") {
                     let renderer = UIGraphicsImageRenderer(size: CGSize(width: 300, height: 150))
                     let img = renderer.image { ctx in
-                        UIColor.black.setStroke()
+                        UIColor.label.setStroke()
                         let path = UIBezierPath()
                         path.move(to: CGPoint(x: 20, y: 80))
                         path.addCurve(

@@ -23,6 +23,9 @@ class ReciboCompra {
     // DATOS
     var fechaRecibo: Date
     var observaciones: String = ""
+    
+    // 🔥 AGREGAR ESTA LÍNEA
+        var numeroFacturaNota: String = ""
 
     // ESTADO
     var cancelado: Bool = false

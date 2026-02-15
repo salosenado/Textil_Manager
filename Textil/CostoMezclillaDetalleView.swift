@@ -60,6 +60,9 @@ struct CostoMezclillaDetalleView: View {
                 .font(.caption).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 14))
     }
 
     // MARK: - Secciones

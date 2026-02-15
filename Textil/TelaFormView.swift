@@ -83,7 +83,7 @@ struct TelaFormView: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(Color.gray.opacity(0.08))
+            .background(Color(.systemBackground))
             .navigationTitle(esNueva ? "Nueva tela" : "Editar tela")
             .toolbar {
 

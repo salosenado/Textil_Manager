@@ -69,7 +69,7 @@ struct AltaCompraInsumosView: View {
                         .foregroundStyle(.secondary)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.15))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
@@ -96,7 +96,7 @@ struct AltaCompraInsumosView: View {
                         .foregroundStyle(.secondary)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.15))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 

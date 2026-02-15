@@ -54,7 +54,7 @@ struct CosteoModeloCardView: View {
         .padding()
         .background(Color(.systemBackground)) // tarjeta blanca
         .clipShape(RoundedRectangle(cornerRadius: 18))
-        .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+        .shadow(color: Color(.separator).opacity(0.4), radius: 4, y: 2)
     }
 
     /// 🔹 Mientras Mezclilla no tenga relación al catálogo Modelo,

@@ -20,6 +20,10 @@ class VentaClienteDetalle: Identifiable {
     var costoUnitario: Double
     var unidad: String
 
+    // 👇 NUEVO
+    @Relationship
+    var marca: Marca?
+
     @Relationship
     var venta: VentaCliente?
 
@@ -31,12 +35,14 @@ class VentaClienteDetalle: Identifiable {
         cantidad: Int,
         costoUnitario: Double,
         unidad: String,
-        venta: VentaCliente?
+        venta: VentaCliente?,
+        marca: Marca? = nil   // 👈 NUEVO PARÁMETRO
     ) {
         self.modeloNombre = modeloNombre
         self.cantidad = cantidad
         self.costoUnitario = costoUnitario
         self.unidad = unidad
         self.venta = venta
+        self.marca = marca    // 👈 ASIGNACIÓN
     }
 }

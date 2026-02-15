@@ -72,6 +72,8 @@ struct ServiciosListView: View {
                     }
                 }
             }
+            .scrollContentBackground(.hidden)          // ← ESTA
+            .background(Color(.systemBackground))  
             .navigationTitle("Servicios")
             .toolbar {
 

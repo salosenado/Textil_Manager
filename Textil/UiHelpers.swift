@@ -14,7 +14,7 @@ extension View {
             .foregroundStyle(.secondary)
             .padding(8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(.systemGray6))
+            .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

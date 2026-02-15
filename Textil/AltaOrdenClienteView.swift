@@ -92,7 +92,7 @@ struct AltaOrdenClienteView: View {
                         .foregroundStyle(.secondary)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.15))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
@@ -135,7 +135,7 @@ struct AltaOrdenClienteView: View {
                         .foregroundStyle(.secondary)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.gray.opacity(0.15))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
 
@@ -230,7 +230,7 @@ struct AltaOrdenClienteView: View {
                             }
                         }
                         .padding(10)
-                        .background(Color(.systemBackground))
+                        .background(Color(.secondarySystemBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
                 }

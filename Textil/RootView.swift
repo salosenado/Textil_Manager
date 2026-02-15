@@ -11,6 +11,7 @@
 //  Created by Salomon Senado on 1/29/26.
 //
 import SwiftUI
+import SwiftData
 
 struct RootView: View {
 
@@ -20,188 +21,260 @@ struct RootView: View {
 
         TabView {
 
-            // =========================
-            // 📦 CATÁLOGOS (TODOS)
-            // =========================
-            NavigationStack {
-                CatalogosView()
-            }
-            .tabItem {
-                Label("Catálogos", systemImage: "square.grid.2x2")
-            }
-
-            // =========================
-            // 💲 COSTOS (ADMIN / SUPERADMIN)
-            // =========================
-            if authVM.esAdmin {
-
-                NavigationStack {
-                    CostosGeneralListView()
-                }
-                .tabItem {
-                    Label("Costos", systemImage: "dollarsign.circle")
-                }
-
-                NavigationStack {
-                    CostosMezclillaListView()
-                }
-                .tabItem {
-                    Label("Mezclilla", systemImage: "scissors")
-                }
-
-                NavigationStack {
-                    CosteosListView()
-                }
-                .tabItem {
-                    Label("Costeos", systemImage: "chart.line.uptrend.xyaxis")
-                }
-            }
-
-            // =========================
-            // ⚙️ PRODUCCIÓN (TODOS)
-            // =========================
-            NavigationStack {
-                ProduccionListView()
-            }
-            .tabItem {
-                Label("Producción", systemImage: "gearshape.2")
-            }
+            // =====================================================
+            // 🟢 1. OPERACIÓN
+            // =====================================================
 
             NavigationStack {
-                ReciboListView()
+                List {
+
+                    NavigationLink("Inicio") {
+                        InicioDashboardView()
+                    }
+
+                    if authVM.esAdmin {
+
+                        NavigationLink("Costos") {
+                            CostosGeneralListView()
+                        }
+
+                        NavigationLink("Mezclilla") {
+                            CostosMezclillaListView()
+                        }
+
+                        NavigationLink("Costeos") {
+                            CosteosListView()
+                        }
+                    }
+
+                    NavigationLink("Producción") {
+                        ProduccionListView()
+                    }
+
+                    NavigationLink("Recibo Producción") {
+                        ReciboListView()
+                    }
+
+                    NavigationLink("Centro Impresión") {
+                        CentroImpresionView()
+                    }
+
+                    NavigationLink("Inventarios") {
+                        InventariosView()
+                    }
+
+                    NavigationLink("Diseño y Trazo") {
+                        DisenoTrazoView()
+                    }
+                }
+                .navigationTitle("Operación")
             }
             .tabItem {
-                Label("Recibo Prod.", systemImage: "shippingbox")
+                Label("Operación", systemImage: "gearshape.2.fill")
             }
 
-            // =========================
-            // 📄 ÓRDENES / COMPRAS (TODOS)
-            // =========================
+
+            // =====================================================
+            // 🔵 2. COMPRAS
+            // =====================================================
+
             NavigationStack {
-                OrdenesClientesView()
+                List {
+
+                    NavigationLink("Compras Clientes") {
+                        ComprasClientesListView()
+                    }
+
+                    NavigationLink("Compras Insumos") {
+                        ComprasInsumosListView()
+                    }
+
+                    if authVM.esAdmin {
+
+                        NavigationLink("Servicios") {
+                            SolicitudesServiciosListView()
+                        }
+
+                        NavigationLink("Recibo Compras y Servicios") {
+                            ReciboComprasServiciosListView()
+                        }
+                    }
+                }
+                .navigationTitle("Compras")
             }
             .tabItem {
-                Label("Órdenes", systemImage: "doc.text")
+                Label("Compras", systemImage: "cart.fill")
             }
+
+
+            // =====================================================
+            // 🟣 3. VENTAS
+            // =====================================================
 
             NavigationStack {
-                ComprasClientesListView()
+                List {
+
+                    NavigationLink("Órdenes Clietes") {
+                        OrdenesClientesView()
+                    }
+
+                    if authVM.esAdmin {
+
+                        NavigationLink("Ventas") {
+                            VentasClientesListView()
+                        }
+
+                        NavigationLink("Salidas De Insumos") {
+                            SalidasInsumosListView()
+                        }
+
+                        NavigationLink("Reingresos") {
+                            ReingresosListView()
+                        }
+
+                        NavigationLink("Regalías Marcas") {
+                            RegaliasView()
+                        }
+
+                        NavigationLink("Comisiones Ventas") {
+                            ComisionesView()
+                        }
+                    }
+                }
+                .navigationTitle("Ventas")
             }
             .tabItem {
-                Label("Compras Cli.", systemImage: "cart")
+                Label("Ventas", systemImage: "creditcard.fill")
             }
+
+
+            // =====================================================
+            // 🔴 4. FINANZAS
+            // =====================================================
 
             NavigationStack {
-                ComprasInsumosListView()
+                List {
+
+                    if authVM.esAdmin {
+
+                        NavigationLink("Cuentas por Cobrar") {
+                            CuentasPorCobrarView()
+                        }
+
+                        NavigationLink("Cuentas por Pagar") {
+                            ZStack {
+                                CuentasPorPagarView()
+                                CxPTabBadgeView()
+                            }
+                        }
+
+                        NavigationLink("Bancos") {
+                            MovimientosBancosView()
+                        }
+
+                        NavigationLink("Flujo") {
+                            FlujoEfectivoView()
+                        }
+                        
+                        NavigationLink("Saldos Facturas Adelantadas") {
+                            SaldosFacturasView()
+                        }
+                        
+                        // 🔵 NUEVO MÓDULO (Nosotros prestamos)
+                        NavigationLink("Préstamos Otorgados") {
+                            PrestamosOtorgadosView()
+                        }
+
+                        // 🔥 MÓDULO CRÉDITOS (Nos prestan)
+                        NavigationLink("Creditos") {
+                            PrestamosView()
+                        }
+
+                    }
+
+                    if authVM.esSuperAdmin {
+                        NavigationLink("Dispersión") {
+                            DispersionesView()
+                        }
+                    }
+                }
+                .navigationTitle("Finanzas")
             }
             .tabItem {
-                Label("Compras Ins.", systemImage: "cart.badge.plus")
+                Label("Finanzas", systemImage: "dollarsign.circle.fill")
             }
 
-            // =========================
-            // 🔧 SERVICIOS (ADMIN+)
-            // =========================
-            if authVM.esAdmin {
 
-                NavigationStack {
-                    SolicitudesServiciosListView()
-                }
-                .tabItem {
-                    Label("Servicios", systemImage: "wrench.and.screwdriver")
-                }
+            // =====================================================
+            // 🟡 5. ADMIN
+            // =====================================================
 
-                NavigationStack {
-                    ReciboComprasServiciosListView()
-                }
-                .tabItem {
-                    Label("Recibos", systemImage: "shippingbox")
-                }
-            }
-
-            // =========================
-            // 📦 INVENTARIOS (TODOS)
-            // =========================
             NavigationStack {
-                InventariosView()
+                List {
+
+                    if authVM.esSuperAdmin {
+                        NavigationLink("Resumen Producción") {
+                            ResumenProduccionView()
+                        }
+                    }
+
+                    if authVM.esAdmin {
+
+                        NavigationLink("Resumen Compras Clientes") {
+                            ResumenComprasClientesView()
+                        }
+
+                        NavigationLink("Resumen Insumos") {
+                            ResumenComprasInsumosView()
+                        }
+
+                        NavigationLink("Resumen Servicios") {
+                            ResumenComprasServiciosView()
+                        }
+
+                        NavigationLink("Activos") {
+                            ActivosEmpresaView()
+                        }
+                    }
+
+                    NavigationLink("Catálogos") {
+                        CatalogosView()
+                    }
+
+                    if authVM.esSuperAdmin {
+                        NavigationLink("Usuarios") {
+                            UsuariosAdminView()
+                        }
+                    }
+
+                    Divider()
+
+                    NavigationLink("Perfil") {
+                        PerfilView()
+                    }
+
+                    NavigationLink("Ajustes") {
+                        AjustesView()
+                    }
+
+                    NavigationLink("Licencia") {
+                        LicenciaView()
+                    }
+
+                    NavigationLink("Contacto") {
+                        ContactoView()
+                    }
+                }
+                .navigationTitle("Administración")
             }
             .tabItem {
-                Label("Inventarios", systemImage: "archivebox")
-            }
-
-            // =========================
-            // 💳 VENTAS / MOVIMIENTOS (ADMIN+)
-            // =========================
-            if authVM.esAdmin {
-
-                NavigationStack {
-                    VentasClientesListView()
-                }
-                .tabItem {
-                    Label("Ventas", systemImage: "creditcard")
-                }
-
-                NavigationStack {
-                    SalidasInsumosListView()
-                }
-                .tabItem {
-                    Label("Salidas", systemImage: "arrow.up.square")
-                }
-
-                NavigationStack {
-                    ReingresosListView()
-                }
-                .tabItem {
-                    Label("Reingresos", systemImage: "arrow.down.square")
-                }
-            }
-
-            // =========================
-            // 👥 USUARIOS (SOLO SUPERADMIN) 🔥
-            // =========================
-            if authVM.esSuperAdmin {
-
-                NavigationStack {
-                    UsuariosAdminView()
-                }
-                .tabItem {
-                    Label("Usuarios", systemImage: "person.3.fill")
-                }
-            }
-
-            // =========================
-            // 📊 RESÚMENES (SOLO SUPERADMIN)
-            // =========================
-            if authVM.esSuperAdmin {
-
-                NavigationStack {
-                    ResumenProduccionView()
-                }
-                .tabItem {
-                    Label("Resumen Prod.", systemImage: "chart.bar.fill")
-                }
-
-                NavigationStack {
-                    ResumenComprasClienteView()
-                }
-                .tabItem {
-                    Label("Resumen Compras", systemImage: "cart.fill")
-                }
-            }
-
-            // =========================
-            // 👤 PERFIL (SIEMPRE)
-            // =========================
-            NavigationStack {
-                PerfilView()
-            }
-            .tabItem {
-                Label("Perfil", systemImage: "person.circle")
+                Label("Admin", systemImage: "building.2.fill")
             }
         }
     }
 }
-
 #Preview {
     RootView()
         .environmentObject(AuthViewModel())
 }
+    

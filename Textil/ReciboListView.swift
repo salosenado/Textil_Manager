@@ -149,14 +149,15 @@ struct ReciboListView: View {
                             // 🔥 BARRA DE PROGRESO (FINA)
                             ProgressView(
                                 value: Double(pzRecibidas(detalle)),
-                                total: Double(detalle.cantidad)
+                                total: Double(detalle.produccion?.pzCortadas ?? 0)
                             )
+
                             .padding(12)
                             .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 14))
 
                             // 🔢 PIEZAS RECIBIDAS
-                            Text("\(pzRecibidas(detalle)) / \(detalle.cantidad) PZ Recibidas")
+                            Text("\(pzRecibidas(detalle)) / \(detalle.produccion?.pzCortadas ?? 0) PZ Recibidas")
                                 .font(.caption.bold())
                                 .foregroundStyle(.secondary)
 
@@ -229,23 +230,45 @@ struct ReciboListView: View {
     }
 
     func porcentajeRecibido(_ d: OrdenClienteDetalle) -> Int {
-        guard d.cantidad > 0 else { return 0 }
-        return Int(Double(pzRecibidas(d)) / Double(d.cantidad) * 100)
+
+        guard let produccion = d.produccion,
+              produccion.pzCortadas > 0 else { return 0 }
+
+        return Int(
+            Double(pzRecibidas(d)) /
+            Double(produccion.pzCortadas) * 100
+        )
     }
 
     func statusTexto(_ d: OrdenClienteDetalle) -> String {
+
+        guard let produccion = d.produccion else {
+            return "En producción"
+        }
+
         let r = pzRecibidas(d)
+        let total = produccion.pzCortadas
+
         if r == 0 { return "En producción" }
-        if r < d.cantidad { return "Parcial" }
+        if r < total { return "Parcial" }
         return "Completa"
     }
 
+
     func statusColor(_ d: OrdenClienteDetalle) -> Color {
+
+        guard let produccion = d.produccion else {
+            return .red
+        }
+
         let r = pzRecibidas(d)
+        let total = produccion.pzCortadas
+
         if r == 0 { return .red }
-        if r < d.cantidad { return .yellow }
+        if r < total { return .yellow }
         return .green
     }
+
 
     // MARK: - UI HELPERS
 

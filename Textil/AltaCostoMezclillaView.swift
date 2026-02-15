@@ -141,7 +141,7 @@ struct AltaCostoMezclillaView: View {
                         .foregroundStyle(.secondary)
                         .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color(.systemGray6))
+                        .background(Color(.secondarySystemBackground))
                         .cornerRadius(10)
                 }
 
@@ -156,7 +156,7 @@ struct AltaCostoMezclillaView: View {
 
                 TextEditor(text: $observaciones)
                     .frame(height: 80)
-                    .background(Color(.systemGray6))
+                    .background(Color(.secondarySystemBackground))
                     .cornerRadius(8)
             }
 

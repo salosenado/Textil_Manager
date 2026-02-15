@@ -35,7 +35,7 @@ struct FormSection<Content: View>: View {
                 content
                     .padding()
             }
-            .background(Color.white)
+            .background(Color(.secondarySystemBackground))
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(.horizontal)
         }

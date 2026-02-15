@@ -53,7 +53,7 @@ struct ReingresosListView: View {
 
                             Text(reingreso.folio)
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundColor(Color(.secondaryLabel))
                         }
 
                         // RESPONSABLE
@@ -80,6 +80,9 @@ struct ReingresosListView: View {
                         }
                     }
                     .padding(.vertical, 6)
+                    .padding(.horizontal, 8)
+                    .background(Color(.systemBackground))  // 🔑 asegura fondo legible
+                    .cornerRadius(12)
                 }
             }
         }

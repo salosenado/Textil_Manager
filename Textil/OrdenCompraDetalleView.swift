@@ -228,34 +228,41 @@ struct OrdenCompraDetalleView: View {
 
     var detallesView: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Modelos").font(.headline)
+            Text("Modelos")
+                .font(.headline)
 
-            ForEach($orden.detalles) { $d in
+            ForEach(orden.detalles) { d in
                 bloqueGris {
-                    Text(d.modelo)
+
+                    // ✅ MODELO
+                    Text("Modelo: \(d.modelo)")
                         .font(.title3)
                         .fontWeight(.semibold)
 
-                    Text(d.articulo)
+                    // ✅ DESCRIPCIÓN DESDE CATÁLOGO (SIEMPRE)
+                    Text(d.modeloCatalogo?.descripcion ?? "—")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                         .padding(8)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Color(.systemGray5))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                     HStack(spacing: 12) {
-                        campoCantidad($d.cantidad)
-                        campoCosto($d.costoUnitario)
+                        campoCantidad(.constant(d.cantidad))
+                        campoCosto(.constant(d.costoUnitario))
                     }
 
                     HStack {
                         Spacer()
-                        Text("MX $ \(String(format: "%.2f", d.subtotal))")
+                        Text("MX $ \(NumberFormatter.localizedString(from: NSNumber(value: d.subtotal), number: .decimal))")
                             .font(.headline)
                     }
                 }
             }
         }
     }
+
 
     var ivaView: some View {
         bloqueGris {
@@ -333,7 +340,7 @@ struct OrdenCompraDetalleView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(10)
-                .background(Color.white)
+                .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .frame(maxWidth: .infinity)
@@ -342,11 +349,12 @@ struct OrdenCompraDetalleView: View {
     func campoCosto(_ b: Binding<Double>) -> some View {
         VStack(spacing: 6) {
             Text("Costo unitario").font(.caption).foregroundStyle(.secondary)
-            Text(String(format: "%.2f", b.wrappedValue))
+            Text("MX $ \(NumberFormatter.localizedString(from: NSNumber(value: b.wrappedValue), number: .decimal))")
                 .font(.headline)
                 .frame(maxWidth: .infinity)
                 .padding(10)
-                .background(Color.white)
+                .background(Color(.systemBackground))
+
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .frame(maxWidth: .infinity)
@@ -405,7 +413,7 @@ struct OrdenCompraDetalleView: View {
         HStack {
             Text(t).fontWeight(bold ? .bold : .regular)
             Spacer()
-            Text("MX $ \(String(format: "%.2f", v))")
+            Text("MX $ \(NumberFormatter.localizedString(from: NSNumber(value: v), number: .decimal))")
                 .fontWeight(bold ? .bold : .regular)
         }
     }

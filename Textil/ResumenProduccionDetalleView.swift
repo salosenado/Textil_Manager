@@ -108,26 +108,32 @@ struct ResumenProduccionDetalleView: View {
                 sectionTitle("Modelos")
                 ForEach(modelosResumen, id: \.modelo) { m in
                     whiteCard {
+                        VStack(alignment: .leading, spacing: 8) {
 
-                        Text("Modelo: \(m.modelo)")
-                            .font(.headline)
+                            // Modelo
+                            Text("Modelo: \(m.modelo)")
+                                .font(.headline)
+                                .foregroundStyle(.primary) // adaptativo a Dark Mode
 
-                        if let desc = m.descripcion, !desc.isEmpty {
-                            Text(desc)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                            // Descripción
+                            if let desc = m.descripcion, !desc.isEmpty {
+                                Text(desc)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Divider()
+
+                            // Detalles
+                            fila("PZ cortadas", "\(produccion.pzCortadas)")
+                            fila("Total recibido", "\(m.recibidas)", color: .green)
+                            fila("Pendiente", "\(m.pendiente)")
+                            Divider()
+                            fila("Costo unitario", formatoMX(m.costo))
+                            fila("Subtotal", formatoMX(m.subtotal))
+                            fila("IVA", formatoMX(m.iva))
+                            fila("TOTAL", formatoMX(m.total), color: .green)
                         }
-
-                        Divider()
-
-                        fila("PZ cortadas", "\(produccion.pzCortadas)")
-                        fila("Total recibido", "\(m.recibidas)", color: .green)
-                        fila("Pendiente", "\(m.pendiente)")
-                        Divider()
-                        fila("Costo unitario", formatoMX(m.costo))
-                        fila("Subtotal", formatoMX(m.subtotal))
-                        fila("IVA", formatoMX(m.iva))
-                        fila("TOTAL", formatoMX(m.total), color: .green)
                     }
                 }
 
@@ -599,7 +605,8 @@ struct ResumenProduccionDetalleView: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
+                .fill(Color(.systemBackground)) // 🔑 adaptativo
+                .shadow(color: Color.primary.opacity(0.05), radius: 2, x: 0, y: 2)
         )
     }
 

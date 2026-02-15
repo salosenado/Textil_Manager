@@ -8,14 +8,6 @@
 //  AuthViewModel.swift
 //  Textil
 //
-//  Created by Salomon Senado on 2/9/26.
-//
-//
-//  AuthViewModel.swift
-//  Textil
-//
-//  Created by Salomon Senado on 2/9/26.
-//
 
 import SwiftUI
 import Combine
@@ -25,19 +17,22 @@ import Supabase
 final class AuthViewModel: ObservableObject {
 
     // =========================
-    // 🔐 ESTADO DE SESIÓN
+    // 🔐 SESSION STATE
     // =========================
     @Published var isLoggedIn: Bool = false
     @Published var isCheckingSession: Bool = true
 
     // =========================
-    // 👤 PERFIL / ESTADOS
+    // 👤 PERFIL
     // =========================
     @Published var perfil: Perfil?
     @Published var isLoadingPerfil: Bool = false
 
+    // =========================
+    // 🚫 ESTADOS ESPECIALES
+    // =========================
     @Published var usuarioBloqueado: Bool = false
-    @Published var usuarioPendiente: Bool = false   // ⬅️ ESTA ES LA QUE FALTABA
+    @Published var usuarioPendiente: Bool = false
 
     // =========================
     // INIT
@@ -49,42 +44,75 @@ final class AuthViewModel: ObservableObject {
     }
 
     // =========================
-    // 🔐 SESIÓN
+    // 🔐 CHECK SESSION
     // =========================
     func checkSession() async {
+
         isCheckingSession = true
         usuarioBloqueado = false
         usuarioPendiente = false
 
         do {
-            _ = try await supabase.auth.session
-            await cargarPerfil()
+            let session = try await supabase.auth.session
+            let userId = session.user.id
 
-            // 🔒 BLOQUEADO
-            if perfil?.activo == false {
+            await cargarPerfil(userId: userId)
+
+            guard let perfil else {
+                limpiarSesion()
+                isCheckingSession = false
+                return
+            }
+
+            if perfil.activo == false {
                 usuarioBloqueado = true
                 isLoggedIn = false
             }
-            // ⏳ PENDIENTE DE APROBACIÓN
-            else if perfil?.aprobado == false {
+            else if perfil.aprobado == false {
                 usuarioPendiente = true
                 isLoggedIn = false
             }
-            // ✅ OK
             else {
                 isLoggedIn = true
             }
 
         } catch {
-            isLoggedIn = false
-            perfil = nil
+            limpiarSesion()
         }
 
         isCheckingSession = false
     }
 
+    // =========================
+    // 🔐 LOGOUT
+    // =========================
     func signOut() async {
-        try? await supabase.auth.signOut()
+        do {
+            try await supabase.auth.signOut()
+        } catch {
+            print("❌ Error cerrando sesión:", error)
+        }
+
+        limpiarSesion()
+    }
+
+    // =========================
+    // 🗑 ELIMINAR CUENTA
+    // =========================
+    func deleteAccount() async {
+        do {
+            // Aquí después podemos agregar endpoint real para borrar usuario
+            try await supabase.auth.signOut()
+            limpiarSesion()
+        } catch {
+            print("❌ Error eliminando cuenta:", error)
+        }
+    }
+
+    // =========================
+    // 🧹 LIMPIAR SESIÓN
+    // =========================
+    private func limpiarSesion() {
         isLoggedIn = false
         perfil = nil
         usuarioBloqueado = false
@@ -92,16 +120,14 @@ final class AuthViewModel: ObservableObject {
     }
 
     // =========================
-    // 👤 PERFIL
+    // 👤 CARGAR PERFIL
     // =========================
-    func cargarPerfil() async {
+    func cargarPerfil(userId: UUID) async {
+
         isLoadingPerfil = true
 
         do {
-            let session = try await supabase.auth.session
-            let userId = session.user.id
-
-            let perfiles: [Perfil] = try await supabase
+            let perfil: Perfil = try await supabase
                 .from("perfiles")
                 .select("""
                     id,
@@ -117,10 +143,11 @@ final class AuthViewModel: ObservableObject {
                     )
                 """)
                 .eq("id", value: userId)
+                .single()
                 .execute()
                 .value
 
-            self.perfil = perfiles.first
+            self.perfil = perfil
 
         } catch {
             print("❌ Error cargando perfil:", error)
@@ -131,10 +158,11 @@ final class AuthViewModel: ObservableObject {
     }
 
     // =========================
-    // 🔐 HELPERS DE ROL
+    // 🔐 ROLES
     // =========================
     var esAdmin: Bool {
-        perfil?.rol == "admin" || perfil?.rol == "superadmin"
+        guard let rol = perfil?.rol else { return false }
+        return rol == "admin" || rol == "superadmin"
     }
 
     var esSuperAdmin: Bool {

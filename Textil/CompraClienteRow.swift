@@ -86,11 +86,11 @@ struct CompraClienteRow: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
+        .background(Color(.secondarySystemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 18))
         .overlay(
             RoundedRectangle(cornerRadius: 18)
-                .stroke(Color(.systemGray5))
+                .stroke(Color(.separator))
         )
     }
 

@@ -77,7 +77,7 @@ struct CostosGeneralListView: View {
                                 }
                             }
                             .padding()
-                            .background(Color(.systemBackground)) // tarjeta blanca
+                            .background(Color(.secondarySystemBackground))
                             .clipShape(RoundedRectangle(cornerRadius: 18))
                             .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
                         }

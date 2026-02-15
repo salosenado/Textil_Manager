@@ -53,6 +53,8 @@ struct VentaClienteDetalleView: View {
     @State private var mensajeErrorImpresion = ""
 
     @Query private var reingresosDetalle: [ReingresoDetalle]
+    @Query private var marcas: [Marca]
+    
 
     // MARK: - BLOQUEO REAL
     var bloqueada: Bool {
@@ -80,7 +82,7 @@ struct VentaClienteDetalleView: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGray6))
+            .background(Color(.systemBackground))
             .navigationTitle("Detalle de venta")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -186,10 +188,10 @@ struct VentaClienteDetalleView: View {
                     context.insert(mov)
                     try? context.save()
                 }
-            }
-                    }   // ← ESTE
-                }       // ← Y ESTE
-
+    }
+    }
+    }
+                  
             // MARK: - DETALLE
             var detalle: some View {
 
@@ -282,6 +284,25 @@ struct VentaClienteDetalleView: View {
 
                 VStack(alignment: .leading, spacing: 12) {
 
+                    // 🔥 MARCA (ARRIBA DEL MODELO)
+                    if let marca = d.marca {
+                        HStack {
+                            Text("Marca:")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+
+                            Text(marca.nombre)
+                                .font(.caption)
+                                .bold()
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.blue.opacity(0.15))
+                                )
+                        }
+                    }
+
                     // MODELO + ELIMINAR
                     HStack {
                         Text("Modelo: \(d.modeloNombre)")
@@ -296,10 +317,10 @@ struct VentaClienteDetalleView: View {
                             } label: {
                                 Image(systemName: "trash")
                                     .foregroundStyle(.red)
-
                             }
                         }
                     }
+
 
                     // DESCRIPCIÓN
                     if let modelo = obtenerModelo(nombre: d.modeloNombre),
@@ -404,8 +425,9 @@ struct VentaClienteDetalleView: View {
                     .padding(8)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white)
+                            .fill(Color(.secondarySystemBackground))
                     )
+
             } else {
                 Text(venta.observaciones.isEmpty ? "—" : venta.observaciones)
                     .foregroundStyle(.secondary)
@@ -863,7 +885,7 @@ struct VentaClienteDetalleView: View {
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(.systemGray6))
+                        .fill(Color(.secondarySystemBackground))
                 )
         }
     }
@@ -888,7 +910,7 @@ struct VentaClienteDetalleView: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(.systemGray6))
+                    .fill(Color(.secondarySystemBackground))
             )
         }
     }
@@ -946,3 +968,4 @@ struct VentaClienteDetalleView: View {
         printController.present(animated: true)
     }
     }
+

@@ -14,10 +14,10 @@ struct CosteoGeneralCardView: View {
         HStack(alignment: .top) {
 
             // IZQUIERDA
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 8) {
 
                 Text("Modelo: \(costo.modelo)")
-                    .font(.headline)
+                    .font(.title3.bold())
 
                 if !costo.descripcion.isEmpty {
                     Text("Descripción: \(costo.descripcion)")
@@ -46,9 +46,14 @@ struct CosteoGeneralCardView: View {
                 .foregroundStyle(.green)
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-        .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.05), radius: 6, x: 0, y: 4)
+        )
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+
     }
 }

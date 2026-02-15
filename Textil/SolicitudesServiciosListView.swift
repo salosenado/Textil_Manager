@@ -43,6 +43,8 @@ struct SolicitudesServiciosListView: View {
             }
             .padding()
         }
+        .background(Color(.systemBackground))      // Dark Mode OK
+        .scrollContentBackground(.hidden)          // Dark Mode OK
         .navigationTitle("Servicios")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -104,7 +106,7 @@ struct SolicitudesServiciosListView: View {
                     // STATUS
                     Text(status.texto)
                         .font(.caption.bold())
-                        .foregroundColor(.white)
+                        .foregroundStyle(.primary)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
                         .background(status.color)

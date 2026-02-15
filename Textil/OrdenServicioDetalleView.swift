@@ -322,7 +322,7 @@ struct OrdenServicioDetalleView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(10)
-                .background(Color.white)
+                .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .frame(maxWidth: .infinity)
@@ -335,7 +335,7 @@ struct OrdenServicioDetalleView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(10)
-                .background(Color.white)
+                .background(Color(.systemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .frame(maxWidth: .infinity)

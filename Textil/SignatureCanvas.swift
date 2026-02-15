@@ -5,7 +5,6 @@
 //  Created by Salomon Senado on 2/2/26.
 //
 
-
 import UIKit
 
 final class SignatureCanvas: UIView {
@@ -16,7 +15,7 @@ final class SignatureCanvas: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .white
+        backgroundColor = .systemBackground
         path.lineWidth = 2
     }
 
@@ -49,7 +48,7 @@ final class SignatureCanvas: UIView {
     }
 
     override func draw(_ rect: CGRect) {
-        UIColor.black.setStroke()
+        UIColor.label.setStroke()
         path.stroke()
     }
 

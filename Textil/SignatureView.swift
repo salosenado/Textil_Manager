@@ -24,7 +24,8 @@ struct SignatureView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                Color.white
+                Color(.systemBackground)
+
 
                 Path { path in
                     guard points.count > 1 else { return }
@@ -33,7 +34,7 @@ struct SignatureView: View {
                         path.addLine(to: p)
                     }
                 }
-                .stroke(.black, lineWidth: 2)
+                .stroke(Color.primary, lineWidth: 2)
             }
             .contentShape(Rectangle())
             .gesture(
@@ -53,7 +54,10 @@ struct SignatureView: View {
         }
         .frame(height: 140)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(.gray))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.secondary.opacity(0.4))
+        )
     }
 
     // =====================================================
@@ -69,7 +73,7 @@ struct SignatureView: View {
         )
 
         let img = renderer.image { ctx in
-            ctx.cgContext.setStrokeColor(UIColor.black.cgColor)
+            ctx.cgContext.setStrokeColor(UIColor.label.cgColor)
             ctx.cgContext.setLineWidth(2)
             ctx.cgContext.setLineCap(.round)
 

@@ -17,6 +17,8 @@ class OrdenCompraDetalle {
     var cantidad: Int
     var costoUnitario: Double
 
+    var modeloCatalogo: Modelo?
+    
     var orden: OrdenCompra?
 
     var subtotal: Double {
