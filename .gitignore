@@ -2,7 +2,6 @@
 replit.md
 attached_assets
 .DS_Store
-*.py
 *.pyc
 __pycache__/
 venv/
@@ -14,4 +13,5 @@ env/
 *.db
 *.bak
 *.tmp
-
+node_modules/
+uploads/

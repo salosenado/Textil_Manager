@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Textil - Carga de Catálogos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Textil</h1>
+            <p class="subtitle">Carga de Catálogos</p>
+        </header>
+
+        <div class="section">
+            <h2>1. Selecciona o crea una empresa</h2>
+            <div class="empresa-row">
+                <select id="empresaSelect">
+                    <option value="">-- Selecciona empresa --</option>
+                </select>
+                <div class="nueva-empresa">
+                    <input type="text" id="nuevaEmpresa" placeholder="Nombre de nueva empresa">
+                    <button onclick="crearEmpresa()">Crear</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. Selecciona el catálogo</h2>
+            <div class="catalogo-grid" id="catalogoGrid"></div>
+        </div>
+
+        <div class="section" id="uploadSection" style="display:none">
+            <h2>3. Sube tu archivo</h2>
+            <div class="upload-info">
+                <p><strong>Catálogo:</strong> <span id="catalogoNombre"></span></p>
+                <p><strong>Columnas esperadas:</strong> <span id="columnasEsperadas"></span></p>
+                <p class="hint">Las columnas en <strong>negrita</strong> son obligatorias. Acepta archivos CSV y Excel (.xlsx)</p>
+            </div>
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="handleFileSelect()">
+                <p>Arrastra tu archivo aquí o haz clic para seleccionar</p>
+                <p class="file-types">CSV, XLSX, XLS</p>
+            </div>
+            <div id="fileName" class="file-name"></div>
+            <button id="uploadBtn" onclick="subirArchivo()" disabled>Subir y Cargar</button>
+        </div>
+
+        <div class="section" id="resultSection" style="display:none">
+            <h2>Resultado</h2>
+            <div id="resultContent"></div>
+        </div>
+
+        <div class="section">
+            <h2>Datos actuales</h2>
+            <div class="stats-grid" id="statsGrid">
+                <p class="loading">Cargando...</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Vista previa</h2>
+            <select id="previewSelect" onchange="cargarPreview()">
+                <option value="">-- Selecciona catálogo --</option>
+            </select>
+            <div id="previewTable" class="table-container"></div>
+        </div>
+
+        <div class="section migrations-section">
+            <h2>Migraciones</h2>
+            <button onclick="ejecutarMigraciones()" class="btn-secondary">Re-ejecutar migraciones</button>
+            <div id="migrationResult"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
