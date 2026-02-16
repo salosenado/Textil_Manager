@@ -328,12 +328,15 @@ Vistas consolidadas de informacion. Requiere permiso `ver_reportes`. Incluye:
 
 ---
 
-### Fase 11 — Firmas digitales y Funcionalidad avanzada (6 horas)
+### Fase 11 — Firmas digitales, Publicacion y Entrega Final (6 horas)
 
-Funciones adicionales para completar el sistema. Incluye:
+Funciones adicionales y preparacion para publicar en tiendas. Incluye:
 
 - **Firmas digitales:** Captura de firma en pantalla para recibos de produccion (confirmacion de entrega/recepcion)
 - **Ajustes finales:** Optimizacion, manejo de errores y pulido general de la app
+- **Configuracion para Google Play:** Generacion del archivo de instalacion (AAB), icono, capturas de pantalla y ficha de la tienda
+- **Configuracion para App Store:** Generacion del archivo de instalacion (IPA), icono, capturas de pantalla y ficha de la tienda
+- **Entregable final:** App lista para publicarse en ambas tiendas (Google Play y App Store)
 
 ---
 
@@ -351,7 +354,7 @@ Funciones adicionales para completar el sistema. Incluye:
 | Fase 8 | Ventas y Exportacion | 10 |
 | Fase 9 | Servicios y Solicitudes | 8 |
 | Fase 10 | Reportes | 8 |
-| Fase 11 | Firmas y Funcionalidad avanzada | 6 |
+| Fase 11 | Firmas, Publicacion y Entrega Final | 6 |
 | | | |
 | **Total Fases 1-2** | **Fundamentos del sistema** | **24 hrs** |
 | **Total Fases 3-11** | **Modulos del negocio** | **100 hrs** |
