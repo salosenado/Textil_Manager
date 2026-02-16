@@ -134,38 +134,48 @@ Cada empresa puede crear sus propios roles de acuerdo a sus necesidades. El sist
 
 ### Tabla de usuarios propia
 
-Para no depender de un proveedor especifico, el sistema tendra su propia tabla de usuarios con toda la informacion necesaria. El proveedor de autenticacion (hoy Supabase Auth) solo se usa para verificar email y contrasena. Si en el futuro se cambia de proveedor, solo se modifica esa conexion sin afectar el resto del sistema.
+El sistema maneja su propia autenticacion al 100%. No depende de ningun servicio externo. La contraseña se guarda encriptada con un algoritmo seguro (bcrypt) y las sesiones se manejan con tokens (JWT).
 
 **Tabla `usuarios`:**
 
 | Campo | Descripcion |
 |-------|------------|
 | id | Identificador unico |
-| auth_id | Referencia al proveedor de autenticacion (hoy Supabase Auth) |
 | empresa_id | Empresa a la que pertenece (null para root) |
-| email | Correo electronico |
+| email | Correo electronico (unico, se usa para iniciar sesion) |
+| password_hash | Contrasena encriptada (nunca se guarda en texto plano) |
 | nombre | Nombre completo |
 | rol_id | Rol asignado dentro de su empresa |
 | es_root | Indica si es usuario root del sistema |
 | aprobado | Si fue aprobado para usar el sistema |
 | activo | Si esta activo o desactivado |
+| ultimo_login | Fecha y hora del ultimo inicio de sesion |
 | created_at | Fecha de creacion |
 | updated_at | Fecha de ultima modificacion |
 
-De esta manera, `auth_id` es el unico campo que conecta con el proveedor externo. Todo lo demas vive en la base de datos propia.
+Todo vive en la base de datos propia. No hay dependencia de ningun servicio externo para autenticacion.
 
 ### Flujo de autenticacion
 
-1. El usuario abre la app y se verifica si hay sesion guardada
-2. Si no hay sesion, se muestra pantalla de Login (email + contrasena)
-3. Se verifica email y contrasena con el proveedor de autenticacion
-4. Con el auth_id se busca al usuario en la tabla `usuarios`
-5. Si es root, se muestra panel de administracion global
-6. Si es usuario de empresa:
+1. El usuario abre la app y se verifica si hay sesion guardada (token)
+2. Si hay token valido, se carga la sesion automaticamente
+3. Si no hay token, se muestra pantalla de Login (email + contrasena)
+4. Se busca el email en la tabla `usuarios`
+5. Se compara la contrasena encriptada
+6. Si coincide, se genera un token de sesion (JWT) y se guarda en el dispositivo
+7. Se cargan los datos del usuario (empresa, rol, permisos)
+8. Si es root → panel de administracion global
+9. Si es usuario de empresa:
    - Se verifica si esta activo y aprobado
    - Si esta desactivado → pantalla de usuario bloqueado
    - Si no esta aprobado → pantalla de pendiente
    - Si todo esta bien → se cargan sus permisos y se muestra la app filtrada
+
+### Funciones de cuenta
+
+- **Cambiar contrasena:** El usuario puede cambiar su contrasena desde su perfil
+- **Olvide mi contrasena:** Se envia un correo con un enlace para restablecer la contrasena
+- **Cerrar sesion:** Se elimina el token del dispositivo
 
 ### Modulos del sistema
 
@@ -351,9 +361,9 @@ Funciones adicionales para completar el sistema. Incluye:
 
 ## 7. Supuestos y Consideraciones
 
-1. Se cuenta con acceso al proyecto de Supabase (URL y clave ya disponibles).
+1. Se cuenta con acceso a la base de datos PostgreSQL (via Supabase u otro proveedor).
 2. Las tablas existentes (perfiles, empresas, Usuarios) se reemplazaran por el nuevo esquema con la tabla `usuarios` propia.
-3. **El sistema no depende del proveedor de autenticacion.** Supabase Auth solo verifica email y contrasena; toda la informacion del usuario vive en la tabla `usuarios` propia. Si se cambia de proveedor, solo se modifica la conexion de autenticacion.
+3. **La autenticacion es 100% propia.** No depende de ningun servicio externo. Las contrasenas se guardan encriptadas (bcrypt) y las sesiones se manejan con tokens (JWT).
 4. **Todas las tablas se crean desde la Fase 1**, no se espera a fases posteriores.
 5. **empresa_id** es la llave de todo el sistema: cada tabla tiene este campo para filtrar por empresa.
 6. Las politicas de seguridad garantizan que la Empresa A nunca vea datos de la Empresa B.
@@ -363,6 +373,7 @@ Funciones adicionales para completar el sistema. Incluye:
 10. La app se puede probar en dispositivos fisicos con Expo Go (escanear QR).
 11. Funciona en iPhone y Android con el mismo codigo.
 12. El codigo Swift existente se conserva como referencia en la carpeta legacy/.
+13. Se necesita un servicio de correo para la funcion de "olvide mi contrasena" (se puede configurar despues).
 
 ---
 
@@ -371,11 +382,11 @@ Funciones adicionales para completar el sistema. Incluye:
 | Componente | Tecnologia |
 |-----------|-----------|
 | App movil | React Native + Expo |
-| Backend | Supabase (ya existente) |
-| Autenticacion | Supabase Auth |
-| Base de datos | PostgreSQL via Supabase |
+| Backend / API | Node.js + Express |
+| Base de datos | PostgreSQL |
+| Autenticacion | Propia (bcrypt + JWT) |
 | Navegacion | React Navigation |
 | Estado global | React Context API |
-| Sesion local | AsyncStorage |
+| Sesion local | AsyncStorage + SecureStore |
 | Idioma | Espanol (Mexico) |
 | Plataformas | iPhone + Android |
