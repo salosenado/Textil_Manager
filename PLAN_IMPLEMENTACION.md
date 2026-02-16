@@ -194,42 +194,42 @@ Todo vive en la base de datos propia. No hay dependencia de ningun servicio exte
 
 ## 5. Plan de Proyecto
 
-### Fase 1 — Base del Sistema: Tablas, Auth, Roles y Multi-Tenant (40 horas)
+### Fase 1 — Base del Sistema: Tablas, Auth, Roles y Multi-Tenant (18 horas)
 
 Se construye toda la base del sistema de una sola vez: las tablas en el servidor, la autenticacion, el sistema de roles/permisos y la estructura multi-tenant.
 
 | # | Entregable | Horas |
 |---|-----------|-------|
-| E1 | Configuracion del proyecto (React Native/Expo, Supabase, navegacion) | 2 |
-| E2 | Diseno y creacion de todas las tablas en Supabase (~50 tablas con empresa_id) | 8 |
-| E3 | Politicas de seguridad multi-tenant (cada empresa solo ve sus datos) | 4 |
-| E4 | Tablas de roles y permisos (roles, permisos, rol_permisos) | 3 |
-| E5 | Pantalla de Login (email + contrasena, validaciones, errores en espanol) | 3 |
-| E6 | Sistema de autenticacion (sesion, perfil, empresa_id, carga de permisos) | 4 |
-| E7 | Pantallas de estado (usuario bloqueado y pendiente de aprobacion) | 2 |
-| E8 | Navegacion principal con filtrado dinamico por permisos | 4 |
-| E9 | Pantalla de Perfil (datos del usuario, cerrar sesion) | 2 |
-| E10 | Gestion de Usuarios de empresa (lista, aprobar, activar, asignar rol) | 4 |
-| E11 | Gestion de Roles de empresa (crear rol, asignar permisos, eliminar rol) | 4 |
-| | **Total Fase 1** | **40** |
+| E1 | Configuracion del proyecto (React Native/Expo, base de datos, navegacion) | 1 |
+| E2 | Diseno y creacion de todas las tablas en la base de datos (~50 tablas con empresa_id) | 3 |
+| E3 | Politicas de seguridad multi-tenant (cada empresa solo ve sus datos) | 2 |
+| E4 | Tablas de roles y permisos (roles, permisos, rol_permisos) | 1 |
+| E5 | Pantalla de Login (email + contrasena, validaciones, errores en espanol) | 1 |
+| E6 | Sistema de autenticacion (sesion, perfil, empresa_id, carga de permisos) | 2 |
+| E7 | Pantallas de estado (usuario bloqueado y pendiente de aprobacion) | 1 |
+| E8 | Navegacion principal con filtrado dinamico por permisos | 2 |
+| E9 | Pantalla de Perfil (datos del usuario, cerrar sesion) | 1 |
+| E10 | Gestion de Usuarios de empresa (lista, aprobar, activar, asignar rol) | 2 |
+| E11 | Gestion de Roles de empresa (crear rol, asignar permisos, eliminar rol) | 2 |
+| | **Total Fase 1** | **18** |
 
 ---
 
-### Fase 2 — Panel Root (12 horas)
+### Fase 2 — Panel Root (6 horas)
 
 Pantallas exclusivas para el usuario root que administra todo el sistema.
 
 | # | Entregable | Horas |
 |---|-----------|-------|
-| E12 | Panel principal root (vista global de empresas y usuarios) | 3 |
-| E13 | Gestion de empresas (crear, activar/desactivar, ver detalle) | 3 |
-| E14 | Aprobacion de usuarios nuevos (aprobar, rechazar, asignar empresa) | 3 |
-| E15 | Reportes globales (resumen de todas las empresas) | 3 |
-| | **Total Fase 2** | **12** |
+| E12 | Panel principal root (vista global de empresas y usuarios) | 2 |
+| E13 | Gestion de empresas (crear, activar/desactivar, ver detalle) | 1 |
+| E14 | Aprobacion de usuarios nuevos (aprobar, rechazar, asignar empresa) | 2 |
+| E15 | Reportes globales (resumen de todas las empresas) | 1 |
+| | **Total Fase 2** | **6** |
 
 ---
 
-### Fase 3 — Catalogos (40-50 horas)
+### Fase 3 — Catalogos (20 horas)
 
 Construir todas las pantallas de catalogos conectadas al servidor. Incluye:
 
@@ -246,7 +246,7 @@ Cada catalogo tendra busqueda, filtrado por empresa y validaciones.
 
 ---
 
-### Fase 4 — Ordenes y Compras (30-40 horas)
+### Fase 4 — Ordenes y Compras (14 horas)
 
 El flujo completo de ordenes de clientes y compras de insumos. Incluye:
 
@@ -259,7 +259,7 @@ El flujo completo de ordenes de clientes y compras de insumos. Incluye:
 
 ---
 
-### Fase 5 — Produccion y Recibos (25-30 horas)
+### Fase 5 — Produccion y Recibos (12 horas)
 
 Control de la produccion enviada a maquileros y recepcion de producto terminado. Incluye:
 
@@ -271,7 +271,7 @@ Control de la produccion enviada a maquileros y recepcion de producto terminado.
 
 ---
 
-### Fase 6 — Costos y Costeos (20-25 horas)
+### Fase 6 — Costos y Costeos (10 horas)
 
 Calculo de costos de produccion. Requiere permiso `ver_costos`. Incluye:
 
@@ -282,7 +282,7 @@ Calculo de costos de produccion. Requiere permiso `ver_costos`. Incluye:
 
 ---
 
-### Fase 7 — Inventarios y Movimientos (25-30 horas)
+### Fase 7 — Inventarios y Movimientos (12 horas)
 
 Control de existencias y movimientos de mercancia. Incluye:
 
@@ -294,7 +294,7 @@ Control de existencias y movimientos de mercancia. Incluye:
 
 ---
 
-### Fase 8 — Ventas y Exportacion (20-25 horas)
+### Fase 8 — Ventas y Exportacion (10 horas)
 
 Registro de ventas y generacion de documentos. Requiere permiso `ver_ventas`. Incluye:
 
@@ -306,7 +306,7 @@ Registro de ventas y generacion de documentos. Requiere permiso `ver_ventas`. In
 
 ---
 
-### Fase 9 — Servicios y Solicitudes (15-20 horas)
+### Fase 9 — Servicios y Solicitudes (8 horas)
 
 Gestion de servicios externos. Requiere permiso `ver_servicios`. Incluye:
 
@@ -317,7 +317,7 @@ Gestion de servicios externos. Requiere permiso `ver_servicios`. Incluye:
 
 ---
 
-### Fase 10 — Reportes (15-20 horas)
+### Fase 10 — Reportes (8 horas)
 
 Vistas consolidadas de informacion. Requiere permiso `ver_reportes`. Incluye:
 
@@ -328,7 +328,7 @@ Vistas consolidadas de informacion. Requiere permiso `ver_reportes`. Incluye:
 
 ---
 
-### Fase 11 — Firmas digitales y Funcionalidad avanzada (10-15 horas)
+### Fase 11 — Firmas digitales y Funcionalidad avanzada (6 horas)
 
 Funciones adicionales para completar el sistema. Incluye:
 
@@ -339,23 +339,23 @@ Funciones adicionales para completar el sistema. Incluye:
 
 ## 6. Resumen de Horas
 
-| Fase | Descripcion | Horas estimadas |
-|------|-------------|----------------|
-| Fase 1 | Base del sistema (tablas, auth, roles, multi-tenant) | 40 |
-| Fase 2 | Panel Root | 12 |
-| Fase 3 | Catalogos | 40-50 |
-| Fase 4 | Ordenes y Compras | 30-40 |
-| Fase 5 | Produccion y Recibos | 25-30 |
-| Fase 6 | Costos y Costeos | 20-25 |
-| Fase 7 | Inventarios y Movimientos | 25-30 |
-| Fase 8 | Ventas y Exportacion | 20-25 |
-| Fase 9 | Servicios y Solicitudes | 15-20 |
-| Fase 10 | Reportes | 15-20 |
-| Fase 11 | Firmas y Funcionalidad avanzada | 10-15 |
+| Fase | Descripcion | Horas |
+|------|-------------|-------|
+| Fase 1 | Base del sistema (tablas, auth, roles, multi-tenant) | 18 |
+| Fase 2 | Panel Root | 6 |
+| Fase 3 | Catalogos | 20 |
+| Fase 4 | Ordenes y Compras | 14 |
+| Fase 5 | Produccion y Recibos | 12 |
+| Fase 6 | Costos y Costeos | 10 |
+| Fase 7 | Inventarios y Movimientos | 12 |
+| Fase 8 | Ventas y Exportacion | 10 |
+| Fase 9 | Servicios y Solicitudes | 8 |
+| Fase 10 | Reportes | 8 |
+| Fase 11 | Firmas y Funcionalidad avanzada | 6 |
 | | | |
-| **Total Fases 1-2** | **Fundamentos del sistema** | **52 hrs** |
-| **Total Fases 3-11** | **Modulos del negocio** | **200-255 hrs** |
-| **Total General** | **Todo el proyecto** | **252-307 hrs** |
+| **Total Fases 1-2** | **Fundamentos del sistema** | **24 hrs** |
+| **Total Fases 3-11** | **Modulos del negocio** | **100 hrs** |
+| **Total General** | **Todo el proyecto** | **124 hrs** |
 
 ---
 
