@@ -1,3 +1,4 @@
+const dns = require('dns');
 const express = require('express');
 const multer = require('multer');
 const { parse } = require('csv-parse/sync');
@@ -9,7 +10,21 @@ const fs = require('fs');
 const app = express();
 const PORT = 5000;
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+function parseSupabaseUrl(connString) {
+  const match = connString.match(/^postgres(?:ql)?:\/\/([^:]+):(.+)@([^:\/]+):?(\d+)?\/(.+)$/);
+  if (!match) return { connectionString: connString };
+  const [, user, password, host, port, database] = match;
+  return {
+    host,
+    port: parseInt(port || '5432'),
+    database,
+    user,
+    password,
+    ssl: { rejectUnauthorized: false }
+  };
+}
+
+const pool = new Pool(parseSupabaseUrl(process.env.SUPABASE_DATABASE_URL));
 
 const upload = multer({ dest: 'uploads/' });
 
