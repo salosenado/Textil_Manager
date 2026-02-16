@@ -132,12 +132,34 @@ Cada empresa puede crear sus propios roles de acuerdo a sus necesidades. El sist
 
 **Ejemplo:** Una empresa podria crear un rol "Vendedor" que solo tenga los permisos `ver_catalogos`, `ver_ordenes`, `crear_ordenes` y `ver_ventas`. Otro rol "Jefe de Produccion" podria tener `ver_catalogos`, `ver_produccion`, `crear_produccion`, `ver_recibos` y `crear_recibos`.
 
+### Tabla de usuarios propia
+
+Para no depender de un proveedor especifico, el sistema tendra su propia tabla de usuarios con toda la informacion necesaria. El proveedor de autenticacion (hoy Supabase Auth) solo se usa para verificar email y contrasena. Si en el futuro se cambia de proveedor, solo se modifica esa conexion sin afectar el resto del sistema.
+
+**Tabla `usuarios`:**
+
+| Campo | Descripcion |
+|-------|------------|
+| id | Identificador unico |
+| auth_id | Referencia al proveedor de autenticacion (hoy Supabase Auth) |
+| empresa_id | Empresa a la que pertenece (null para root) |
+| email | Correo electronico |
+| nombre | Nombre completo |
+| rol_id | Rol asignado dentro de su empresa |
+| es_root | Indica si es usuario root del sistema |
+| aprobado | Si fue aprobado para usar el sistema |
+| activo | Si esta activo o desactivado |
+| created_at | Fecha de creacion |
+| updated_at | Fecha de ultima modificacion |
+
+De esta manera, `auth_id` es el unico campo que conecta con el proveedor externo. Todo lo demas vive en la base de datos propia.
+
 ### Flujo de autenticacion
 
 1. El usuario abre la app y se verifica si hay sesion guardada
 2. Si no hay sesion, se muestra pantalla de Login (email + contrasena)
-3. Se autentica contra Supabase Auth
-4. Se carga el perfil del usuario con su empresa y rol
+3. Se verifica email y contrasena con el proveedor de autenticacion
+4. Con el auth_id se busca al usuario en la tabla `usuarios`
 5. Si es root, se muestra panel de administracion global
 6. Si es usuario de empresa:
    - Se verifica si esta activo y aprobado
@@ -330,8 +352,8 @@ Funciones adicionales para completar el sistema. Incluye:
 ## 7. Supuestos y Consideraciones
 
 1. Se cuenta con acceso al proyecto de Supabase (URL y clave ya disponibles).
-2. Las tablas existentes (perfiles, empresas, Usuarios) se mantienen y se adaptan al nuevo esquema.
-3. La autenticacion con Supabase Auth ya esta configurada.
+2. Las tablas existentes (perfiles, empresas, Usuarios) se reemplazaran por el nuevo esquema con la tabla `usuarios` propia.
+3. **El sistema no depende del proveedor de autenticacion.** Supabase Auth solo verifica email y contrasena; toda la informacion del usuario vive en la tabla `usuarios` propia. Si se cambia de proveedor, solo se modifica la conexion de autenticacion.
 4. **Todas las tablas se crean desde la Fase 1**, no se espera a fases posteriores.
 5. **empresa_id** es la llave de todo el sistema: cada tabla tiene este campo para filtrar por empresa.
 6. Las politicas de seguridad garantizan que la Empresa A nunca vea datos de la Empresa B.
