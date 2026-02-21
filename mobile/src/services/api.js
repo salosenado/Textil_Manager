@@ -82,4 +82,33 @@ export const api = {
 
   deleteRol: (id) =>
     request(`/roles/${id}`, { method: 'DELETE' }),
+
+  getEmpresas: () => request('/empresas-admin'),
+
+  getEmpresasStats: () => request('/empresas-admin/stats'),
+
+  getEmpresa: (id) => request(`/empresas-admin/${id}`),
+
+  createEmpresa: (data) =>
+    request('/empresas-admin', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateEmpresa: (id, data) =>
+    request(`/empresas-admin/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  toggleActivoEmpresa: (id) =>
+    request(`/empresas-admin/${id}/toggle-activo`, { method: 'PUT' }),
+
+  getEmpresaReportes: (id) => request(`/empresas-admin/${id}/reportes`),
+
+  asignarEmpresa: (userId, empresaId) =>
+    request(`/usuarios/${userId}/asignar-empresa`, {
+      method: 'PUT',
+      body: JSON.stringify({ empresa_id: empresaId }),
+    }),
 };

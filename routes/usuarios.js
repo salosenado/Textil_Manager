@@ -104,6 +104,28 @@ module.exports = function(pool) {
     }
   });
 
+  router.put('/:id/asignar-empresa', authMiddleware, async (req, res) => {
+    try {
+      if (!req.user.es_root) {
+        return res.status(403).json({ error: 'Solo el administrador del sistema puede asignar empresas' });
+      }
+      const { id } = req.params;
+      const { empresa_id } = req.body;
+
+      if (empresa_id) {
+        const empresaCheck = await pool.query('SELECT id FROM empresas WHERE id = $1', [empresa_id]);
+        if (empresaCheck.rows.length === 0) {
+          return res.status(400).json({ error: 'Empresa no encontrada' });
+        }
+      }
+
+      await pool.query('UPDATE usuarios SET empresa_id = $1, aprobado = true WHERE id = $2', [empresa_id || null, id]);
+      res.json({ message: 'Empresa asignada correctamente' });
+    } catch (err) {
+      res.status(500).json({ error: 'Error del servidor' });
+    }
+  });
+
   router.put('/:id/asignar-rol', authMiddleware, async (req, res) => {
     try {
       const { id } = req.params;

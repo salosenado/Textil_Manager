@@ -19,6 +19,13 @@ import CrearUsuarioScreen from '../screens/CrearUsuarioScreen';
 import RolesScreen from '../screens/RolesScreen';
 import RolFormScreen from '../screens/RolFormScreen';
 
+import RootPanelScreen from '../screens/RootPanelScreen';
+import EmpresasScreen from '../screens/EmpresasScreen';
+import EmpresaFormScreen from '../screens/EmpresaFormScreen';
+import EmpresaDetalleScreen from '../screens/EmpresaDetalleScreen';
+import AprobacionUsuariosScreen from '../screens/AprobacionUsuariosScreen';
+import ReportesGlobalesScreen from '../screens/ReportesGlobalesScreen';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -44,7 +51,26 @@ function AdminStack() {
   );
 }
 
+function RootStack() {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="RootHome" component={RootPanelScreen} options={{ title: 'Panel Root' }} />
+      <Stack.Screen name="EmpresasScreen" component={EmpresasScreen} options={{ title: 'Empresas' }} />
+      <Stack.Screen name="EmpresaForm" component={EmpresaFormScreen} options={({ route }) => ({ title: route.params?.empresa ? 'Editar Empresa' : 'Nueva Empresa' })} />
+      <Stack.Screen name="EmpresaDetalle" component={EmpresaDetalleScreen} options={{ title: 'Detalle Empresa' }} />
+      <Stack.Screen name="AprobacionUsuarios" component={AprobacionUsuariosScreen} options={{ title: 'Usuarios Pendientes' }} />
+      <Stack.Screen name="UsuariosGlobal" component={UsuariosScreen} options={{ title: 'Todos los Usuarios' }} />
+      <Stack.Screen name="UsuarioDetalle" component={UsuarioDetalleScreen} options={{ title: 'Detalle' }} />
+      <Stack.Screen name="CrearUsuario" component={CrearUsuarioScreen} options={{ title: 'Nuevo Usuario' }} />
+      <Stack.Screen name="ReportesGlobales" component={ReportesGlobalesScreen} options={{ title: 'Reportes Globales' }} />
+      <Stack.Screen name="PerfilScreen" component={ProfileScreen} options={{ title: 'Mi Perfil' }} />
+    </Stack.Navigator>
+  );
+}
+
 function MainTabs() {
+  const { user } = useAuth();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -55,6 +81,7 @@ function MainTabs() {
           else if (route.name === 'ComprasTab') iconName = focused ? 'bag' : 'bag-outline';
           else if (route.name === 'VentasTab') iconName = focused ? 'cart' : 'cart-outline';
           else if (route.name === 'AdminTab') iconName = focused ? 'settings' : 'settings-outline';
+          else if (route.name === 'RootTab') iconName = focused ? 'shield-checkmark' : 'shield-checkmark-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: Colors.primary,
@@ -87,6 +114,9 @@ function MainTabs() {
         options={{ title: 'Ventas', headerShown: true, headerTitle: 'Ventas', ...screenOptions }}
       />
       <Tab.Screen name="AdminTab" component={AdminStack} options={{ title: 'Admin' }} />
+      {user?.es_root && (
+        <Tab.Screen name="RootTab" component={RootStack} options={{ title: 'Root' }} />
+      )}
     </Tab.Navigator>
   );
 }

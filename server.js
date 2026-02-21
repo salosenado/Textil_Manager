@@ -40,10 +40,12 @@ app.use('/app', express.static('client'));
 const authRoutes = require('./routes/auth')(pool);
 const usuariosRoutes = require('./routes/usuarios')(pool);
 const rolesRoutes = require('./routes/roles')(pool);
+const empresasRoutes = require('./routes/empresas')(pool);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/roles', rolesRoutes);
+app.use('/api/empresas-admin', empresasRoutes);
 
 const CATALOG_TABLES = {
   empresas: {

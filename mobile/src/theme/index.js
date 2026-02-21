@@ -8,6 +8,7 @@ export const Colors = {
   textTertiary: '#AEAEB2',
   separator: '#E5E5EA',
   destructive: '#FF3B30',
+  error: '#FF3B30',
   success: '#34C759',
   warning: '#FF9500',
   orange: '#FF9500',
@@ -36,6 +37,11 @@ export const FontSize = {
   xxl: 24,
   title: 28,
   largeTitle: 34,
+  caption: 12,
+  footnote: 13,
+  subheadline: 15,
+  body: 17,
+  headline: 17,
 };
 
 export const BorderRadius = {
