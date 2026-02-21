@@ -124,4 +124,27 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ empresa_id: empresaId }),
     }),
+
+  getCatalogItems: (catalogo, search) => {
+    const params = search ? `?search=${encodeURIComponent(search)}` : '';
+    return request(`/catalogos/${catalogo}${params}`);
+  },
+
+  getCatalogItem: (catalogo, id) =>
+    request(`/catalogos/${catalogo}/${id}`),
+
+  createCatalogItem: (catalogo, data) =>
+    request(`/catalogos/${catalogo}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateCatalogItem: (catalogo, id, data) =>
+    request(`/catalogos/${catalogo}/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteCatalogItem: (catalogo, id) =>
+    request(`/catalogos/${catalogo}/${id}`, { method: 'DELETE' }),
 };

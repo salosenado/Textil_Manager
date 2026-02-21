@@ -19,6 +19,10 @@ import CrearUsuarioScreen from '../screens/CrearUsuarioScreen';
 import RolesScreen from '../screens/RolesScreen';
 import RolFormScreen from '../screens/RolFormScreen';
 
+import CatalogosHomeScreen from '../screens/CatalogosHomeScreen';
+import CatalogListScreen from '../screens/CatalogListScreen';
+import CatalogFormScreen from '../screens/CatalogFormScreen';
+
 import RootPanelScreen from '../screens/RootPanelScreen';
 import EmpresasScreen from '../screens/EmpresasScreen';
 import EmpresaFormScreen from '../screens/EmpresaFormScreen';
@@ -46,6 +50,9 @@ function AdminStack() {
       <Stack.Screen name="CrearUsuario" component={CrearUsuarioScreen} options={{ title: 'Nuevo Usuario' }} />
       <Stack.Screen name="RolesScreen" component={RolesScreen} options={{ title: 'Roles' }} />
       <Stack.Screen name="RolForm" component={RolFormScreen} options={({ route }) => ({ title: route.params?.rol ? 'Editar Rol' : 'Nuevo Rol' })} />
+      <Stack.Screen name="CatalogosHome" component={CatalogosHomeScreen} options={{ title: 'Catálogos' }} />
+      <Stack.Screen name="CatalogList" component={CatalogListScreen} options={({ route }) => ({ title: route.params?.title || 'Catálogo' })} />
+      <Stack.Screen name="CatalogForm" component={CatalogFormScreen} options={({ route }) => ({ title: route.params?.item ? `Editar` : 'Nuevo' })} />
       <Stack.Screen name="PerfilScreen" component={ProfileScreen} options={{ title: 'Mi Perfil' }} />
     </Stack.Navigator>
   );

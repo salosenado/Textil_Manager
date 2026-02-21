@@ -12,6 +12,17 @@ export default function AdminScreen({ navigation }) {
 
   return (
     <ScrollView style={styles.container}>
+      <SectionHeader title="Operaciones" />
+      <Card style={styles.card}>
+        <ListRow
+          title="Catálogos"
+          subtitle="Agentes, clientes, artículos y más"
+          icon="folder-outline"
+          iconColor={Colors.orange}
+          onPress={() => navigation.navigate('CatalogosHome')}
+        />
+      </Card>
+
       <SectionHeader title="Gestión" />
       <Card style={styles.card}>
         {tienePermiso('usuarios.ver') && (

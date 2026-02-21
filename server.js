@@ -43,11 +43,13 @@ const authRoutes = require('./routes/auth')(pool);
 const usuariosRoutes = require('./routes/usuarios')(pool);
 const rolesRoutes = require('./routes/roles')(pool);
 const empresasRoutes = require('./routes/empresas')(pool);
+const catalogosRoutes = require('./routes/catalogos')(pool);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
 app.use('/api/roles', rolesRoutes);
 app.use('/api/empresas-admin', empresasRoutes);
+app.use('/api/catalogos', catalogosRoutes);
 
 const CATALOG_TABLES = {
   empresas: {
