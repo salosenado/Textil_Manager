@@ -32,6 +32,12 @@ app.use(express.json());
 app.use(express.static('public'));
 
 const CATALOG_TABLES = {
+  empresas: {
+    label: 'Empresas',
+    columns: ['nombre', 'rfc', 'direccion', 'telefono', 'logo_url'],
+    required: ['nombre'],
+    selfTable: true
+  },
   agentes: {
     label: 'Agentes',
     columns: ['nombre', 'apellido', 'comision', 'telefono', 'email'],
@@ -69,7 +75,7 @@ const CATALOG_TABLES = {
   },
   tallas: {
     label: 'Tallas',
-    columns: ['nombre', 'orden'],
+    columns: ['nombre'],
     required: ['nombre']
   },
   unidades: {
@@ -79,12 +85,12 @@ const CATALOG_TABLES = {
   },
   modelos: {
     label: 'Modelos',
-    columns: ['nombre', 'codigo', 'descripcion', 'existencia'],
+    columns: ['nombre', 'codigo', 'descripcion'],
     required: ['nombre']
   },
   articulos: {
     label: 'Artículos',
-    columns: ['nombre', 'sku', 'descripcion', 'precio_venta', 'costo'],
+    columns: ['nombre', 'sku', 'descripcion'],
     required: ['nombre']
   },
   tipos_tela: {
@@ -92,14 +98,19 @@ const CATALOG_TABLES = {
     columns: ['nombre'],
     required: ['nombre']
   },
+  telas: {
+    label: 'Telas',
+    columns: ['nombre', 'composicion', 'peso', 'descripcion'],
+    required: ['nombre']
+  },
   maquileros: {
     label: 'Maquileros',
-    columns: ['nombre', 'contacto', 'calle', 'numero_exterior', 'numero_interior', 'colonia', 'ciudad', 'estado', 'codigo_postal', 'telefono_principal', 'telefono_secundario'],
+    columns: ['nombre', 'contacto', 'email', 'calle', 'numero_exterior', 'numero_interior', 'colonia', 'ciudad', 'estado', 'codigo_postal', 'telefono_principal', 'telefono_secundario'],
     required: ['nombre']
   },
   servicios: {
     label: 'Servicios',
-    columns: ['nombre', 'descripcion', 'costo'],
+    columns: ['nombre', 'descripcion', 'costo', 'plazo_pago_dias'],
     required: ['nombre']
   }
 };
@@ -148,11 +159,11 @@ app.get('/api/empresas', async (req, res) => {
 
 app.post('/api/empresas', async (req, res) => {
   try {
-    const { nombre } = req.body;
+    const { nombre, rfc, direccion, telefono, logo_url } = req.body;
     if (!nombre) return res.status(400).json({ error: 'El nombre es requerido' });
     const result = await pool.query(
-      'INSERT INTO empresas (nombre, activo, aprobado) VALUES ($1, true, true) RETURNING id, nombre',
-      [nombre]
+      'INSERT INTO empresas (nombre, rfc, direccion, telefono, logo_url, activo, aprobado) VALUES ($1, $2, $3, $4, $5, true, true) RETURNING id, nombre',
+      [nombre, rfc || null, direccion || null, telefono || null, logo_url || null]
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -168,7 +179,9 @@ app.post('/api/upload/:table', upload.single('file'), async (req, res) => {
     return res.status(400).json({ error: `Tabla "${table}" no es válida` });
   }
 
-  if (!empresaId) {
+  const tableConfig = CATALOG_TABLES[table];
+
+  if (!empresaId && !tableConfig.selfTable) {
     return res.status(400).json({ error: 'Selecciona una empresa' });
   }
 
@@ -183,7 +196,6 @@ app.post('/api/upload/:table', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'El archivo está vacío' });
     }
 
-    const tableConfig = CATALOG_TABLES[table];
     const fileColumns = Object.keys(rows[0]).map(normalizeColumnName);
     const validColumns = tableConfig.columns.filter(col => fileColumns.includes(col));
 
@@ -217,8 +229,10 @@ app.post('/api/upload/:table', upload.single('file'), async (req, res) => {
           normalizedRow[normalizeColumnName(key)] = val;
         });
 
-        const cols = ['empresa_id', ...validColumns];
-        const vals = [empresaId, ...validColumns.map(c => normalizedRow[c] || '')];
+        const cols = tableConfig.selfTable ? validColumns : ['empresa_id', ...validColumns];
+        const vals = tableConfig.selfTable
+          ? validColumns.map(c => normalizedRow[c] || '')
+          : [empresaId, ...validColumns.map(c => normalizedRow[c] || '')];
         const placeholders = cols.map((_, idx) => `$${idx + 1}`);
 
         try {
@@ -261,11 +275,13 @@ app.get('/api/data/:table', async (req, res) => {
     return res.status(400).json({ error: `Tabla "${table}" no es válida` });
   }
 
+  const tableConfig = CATALOG_TABLES[table];
+
   try {
     let query = `SELECT * FROM ${table}`;
     let params = [];
 
-    if (empresaId) {
+    if (empresaId && !tableConfig.selfTable) {
       query += ' WHERE empresa_id = $1';
       params.push(empresaId);
     }
@@ -288,9 +304,6 @@ app.get('/api/stats', async (req, res) => {
       const result = await pool.query(`SELECT COUNT(*) as count FROM "${table}"`);
       stats[table] = parseInt(result.rows[0].count);
     }
-
-    const empresasResult = await pool.query('SELECT COUNT(*) as count FROM empresas');
-    stats.empresas = parseInt(empresasResult.rows[0].count);
 
     res.json(stats);
   } catch (err) {
