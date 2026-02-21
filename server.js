@@ -1,5 +1,6 @@
 const dns = require('dns');
 const express = require('express');
+const cors = require('cors');
 const multer = require('multer');
 const { parse } = require('csv-parse/sync');
 const XLSX = require('xlsx');
@@ -10,6 +11,7 @@ const fs = require('fs');
 const app = express();
 const PORT = 5000;
 
+app.use(cors());
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   next();

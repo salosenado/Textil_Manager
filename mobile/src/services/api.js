@@ -1,7 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
-const API_URL = (Constants.expoConfig?.extra?.apiUrl || 'http://localhost:5000') + '/api';
+function getApiUrl() {
+  const configured = Constants.expoConfig?.extra?.apiUrl;
+  if (configured) return configured + '/api';
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return 'https://4098a82a-8af8-4fd7-b3b7-1bfe9f61eb41-00-2zywlsll98xbx.picard.replit.dev/api';
+  }
+  return 'http://localhost:5000/api';
+}
+
+const API_URL = getApiUrl();
 
 async function getToken() {
   return await AsyncStorage.getItem('token');
