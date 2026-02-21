@@ -29,14 +29,6 @@ module.exports = function(pool) {
         return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
       }
 
-      if (!user.activo) {
-        return res.status(403).json({ error: 'blocked', message: 'Tu cuenta ha sido desactivada. Contacta al administrador.' });
-      }
-
-      if (!user.aprobado) {
-        return res.status(403).json({ error: 'pending', message: 'Tu cuenta está pendiente de aprobación.' });
-      }
-
       await pool.query('UPDATE usuarios SET ultimo_login = NOW() WHERE id = $1', [user.id]);
 
       let permisos = [];
@@ -72,6 +64,8 @@ module.exports = function(pool) {
           nombre: user.nombre,
           es_root: user.es_root,
           empresa_id: user.empresa_id,
+          activo: user.activo,
+          aprobado: user.aprobado,
           empresa,
           rol,
           permisos

@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Textil",
+    "slug": "textil",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#007AFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.textil.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#007AFF"
+      },
+      "package": "com.textil.app"
+    },
+    "extra": {
+      "apiUrl": "https://4098a82a-8af8-4fd7-b3b7-1bfe9f61eb41-00-2zywlsll98xbx.picard.replit.dev"
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}
