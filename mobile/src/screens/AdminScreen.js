@@ -15,18 +15,18 @@ export default function AdminScreen({ navigation }) {
       <SectionHeader title="Gestión" />
       <Card style={styles.card}>
         {tienePermiso('usuarios.ver') && (
-          <>
-            <ListRow
-              title="Usuarios"
-              subtitle="Administrar usuarios de la empresa"
-              icon="people-outline"
-              iconColor={Colors.primary}
-              onPress={() => navigation.navigate('UsuariosScreen')}
-            />
-            <View style={styles.separator} />
-          </>
+          <ListRow
+            title="Usuarios"
+            subtitle="Administrar usuarios de la empresa"
+            icon="people-outline"
+            iconColor={Colors.primary}
+            onPress={() => navigation.navigate('UsuariosScreen')}
+          />
         )}
-        {tienePermiso('usuarios.editar') && (
+        {tienePermiso('usuarios.ver') && tienePermiso('roles.ver') && (
+          <View style={styles.separator} />
+        )}
+        {tienePermiso('roles.ver') && (
           <ListRow
             title="Roles"
             subtitle="Administrar roles y permisos"

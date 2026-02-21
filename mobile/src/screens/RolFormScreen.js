@@ -10,17 +10,17 @@ import SectionHeader from '../components/SectionHeader';
 
 const CATEGORIAS_PERMISOS = {
   'Catálogos': ['catalogos.ver', 'catalogos.editar'],
-  'Órdenes de Cliente': ['ordenes_cliente.ver', 'ordenes_cliente.editar'],
+  'Órdenes': ['ordenes.ver', 'ordenes.editar'],
   'Compras': ['compras.ver', 'compras.editar'],
   'Producción': ['produccion.ver', 'produccion.editar'],
   'Ventas': ['ventas.ver', 'ventas.editar'],
-  'Salidas/Reingresos': ['salidas.ver', 'salidas.editar'],
+  'Inventarios': ['inventarios.ver', 'inventarios.editar'],
+  'Reingresos': ['reingresos.ver', 'reingresos.editar'],
   'Costos': ['costos.ver', 'costos.editar'],
-  'Finanzas': ['finanzas.ver', 'finanzas.editar'],
-  'Maquileros': ['maquileros.ver', 'maquileros.editar'],
-  'Activos': ['activos.ver', 'activos.editar'],
-  'Diseño/Trazo': ['diseno.ver', 'diseno.editar'],
+  'Financiero': ['financiero.ver', 'financiero.editar'],
+  'Servicios': ['servicios.ver', 'servicios.editar'],
   'Usuarios': ['usuarios.ver', 'usuarios.editar'],
+  'Roles': ['roles.ver', 'roles.editar'],
   'Reportes': ['reportes.ver'],
 };
 
