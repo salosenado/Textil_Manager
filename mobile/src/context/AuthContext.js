@@ -53,8 +53,9 @@ export function AuthProvider({ children }) {
   async function refreshUser() {
     try {
       const data = await api.getMe();
-      setUser(data.user);
-      setPermisos(data.permisos || []);
+      const userData = data.user || data;
+      setUser(userData);
+      setPermisos(data.permisos || userData.permisos || []);
     } catch (err) {
       // ignore
     }
