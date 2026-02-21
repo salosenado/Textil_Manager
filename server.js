@@ -10,6 +10,11 @@ const fs = require('fs');
 const app = express();
 const PORT = 5000;
 
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  next();
+});
+
 function parseSupabaseUrl(connString) {
   const match = connString.match(/^postgres(?:ql)?:\/\/([^:]+):(.+)@([^:\/]+):?(\d+)?\/(.+)$/);
   if (!match) return { connectionString: connString };
@@ -30,6 +35,15 @@ const upload = multer({ dest: 'uploads/' });
 
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/app', express.static('client'));
+
+const authRoutes = require('./routes/auth')(pool);
+const usuariosRoutes = require('./routes/usuarios')(pool);
+const rolesRoutes = require('./routes/roles')(pool);
+
+app.use('/api/auth', authRoutes);
+app.use('/api/usuarios', usuariosRoutes);
+app.use('/api/roles', rolesRoutes);
 
 const CATALOG_TABLES = {
   empresas: {
@@ -348,6 +362,12 @@ app.post('/api/migrations/run', async (req, res) => {
   }
 });
 
+app.get('/app', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
+
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Textil - Carga de Catálogos corriendo en puerto ${PORT}`);
+  console.log(`Textil corriendo en puerto ${PORT}`);
+  console.log(`  - Carga de catálogos: /`);
+  console.log(`  - App: /app`);
 });
