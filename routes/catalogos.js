@@ -60,7 +60,7 @@ const CATALOGS = {
   modelos: {
     table: 'modelos',
     label: 'Modelos',
-    columns: ['nombre', 'codigo', 'descripcion', 'activo'],
+    columns: ['nombre', 'codigo', 'descripcion', 'existencia', 'marca_id', 'activo'],
     required: ['nombre'],
     nameField: 'nombre',
     orderBy: 'nombre',
@@ -87,11 +87,11 @@ const CATALOGS = {
   departamentos: {
     table: 'departamentos',
     label: 'Departamentos',
-    columns: ['nombre', 'activo'],
+    columns: ['nombre', 'descripcion', 'activo'],
     required: ['nombre'],
     nameField: 'nombre',
     orderBy: 'nombre',
-    searchFields: ['nombre'],
+    searchFields: ['nombre', 'descripcion'],
   },
   unidades: {
     table: 'unidades',
@@ -149,6 +149,67 @@ module.exports = function(pool) {
       config[key] = { label: cat.label, columns: cat.columns, required: cat.required };
     }
     res.json(config);
+  });
+
+  router.get('/telas/:telaId/precios', authMiddleware, async (req, res) => {
+    const empresaId = req.user.empresa_id;
+    if (!empresaId && !req.user.es_root) {
+      return res.status(403).json({ error: 'No tienes empresa asignada' });
+    }
+
+    try {
+      const result = await pool.query(
+        `SELECT pt.* FROM precios_tela pt
+         JOIN telas t ON pt.tela_id = t.id
+         WHERE pt.tela_id = $1 AND t.empresa_id = $2
+         ORDER BY pt.tipo, pt.fecha DESC`,
+        [req.params.telaId, empresaId]
+      );
+      res.json(result.rows);
+    } catch (err) {
+      console.error('Error listing precios_tela:', err.message);
+      res.status(500).json({ error: 'Error del servidor' });
+    }
+  });
+
+  router.post('/telas/:telaId/precios', authMiddleware, async (req, res) => {
+    const empresaId = req.user.empresa_id;
+    if (!empresaId && !req.user.es_root) {
+      return res.status(403).json({ error: 'No tienes empresa asignada' });
+    }
+
+    try {
+      const telaCheck = await pool.query(
+        'SELECT id FROM telas WHERE id = $1 AND empresa_id = $2',
+        [req.params.telaId, empresaId]
+      );
+      if (telaCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Tela no encontrada' });
+      }
+
+      const { precios } = req.body;
+      if (!precios || !Array.isArray(precios)) {
+        return res.status(400).json({ error: 'Se requiere un array de precios' });
+      }
+
+      await pool.query('DELETE FROM precios_tela WHERE tela_id = $1', [req.params.telaId]);
+
+      const inserted = [];
+      for (const p of precios) {
+        if (p.tipo && p.precio !== undefined && p.precio !== '' && p.precio !== null) {
+          const result = await pool.query(
+            'INSERT INTO precios_tela (tela_id, tipo, precio) VALUES ($1, $2, $3) RETURNING *',
+            [req.params.telaId, p.tipo, p.precio]
+          );
+          inserted.push(result.rows[0]);
+        }
+      }
+
+      res.json(inserted);
+    } catch (err) {
+      console.error('Error saving precios_tela:', err.message);
+      res.status(500).json({ error: 'Error del servidor' });
+    }
   });
 
   router.get('/:catalogo', authMiddleware, async (req, res) => {

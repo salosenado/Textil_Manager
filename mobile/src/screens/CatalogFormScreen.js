@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Switch } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert, Switch, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { api } from '../services/api';
 import Input from '../components/Input';
@@ -39,6 +39,7 @@ const CATALOG_FIELDS = {
       { key: 'colonia', label: 'Colonia' },
       { key: 'ciudad', label: 'Ciudad' },
       { key: 'estado', label: 'Estado' },
+      { key: 'pais', label: 'País' },
       { key: 'codigo_postal', label: 'Código Postal', keyboard: 'number-pad' },
     ]},
     { section: 'Notas', fields: [
@@ -94,6 +95,7 @@ const CATALOG_FIELDS = {
       { key: 'nombre', label: 'Nombre', required: true },
       { key: 'codigo', label: 'Código' },
       { key: 'descripcion', label: 'Descripción', multiline: true },
+      { key: 'existencia', label: 'Existencia', keyboard: 'number-pad' },
     ]},
   ],
   marcas: [
@@ -112,6 +114,7 @@ const CATALOG_FIELDS = {
   departamentos: [
     { section: 'Datos', fields: [
       { key: 'nombre', label: 'Nombre', required: true },
+      { key: 'descripcion', label: 'Descripción' },
     ]},
   ],
   unidades: [
@@ -167,12 +170,19 @@ const CATALOG_ACTIVE_FIELD = {
 
 const CATALOGS_WITHOUT_ACTIVE = ['unidades', 'tallas'];
 
+const TELA_PRECIO_TIPOS = [
+  'Blanco', 'Claro', 'Medio', 'Obscuro', 'Jaspe', 'Negro', 'Único precio'
+];
+
 export default function CatalogFormScreen({ route, navigation }) {
   const { catalogo, title, item } = route.params;
   const isEditing = !!item;
 
   const activeField = CATALOG_ACTIVE_FIELD[catalogo] || 'activo';
   const hasActive = !CATALOGS_WITHOUT_ACTIVE.includes(catalogo);
+  const needsMarcaSelector = catalogo === 'modelos';
+  const needsProveedorSelector = catalogo === 'telas';
+  const needsPrecios = catalogo === 'telas';
 
   const sections = CATALOG_FIELDS[catalogo] || [{ section: 'Datos', fields: [{ key: 'nombre', label: 'Nombre', required: true }] }];
 
@@ -184,13 +194,59 @@ export default function CatalogFormScreen({ route, navigation }) {
   if (hasActive) {
     initialValues[activeField] = item?.[activeField] !== false;
   }
+  if (needsMarcaSelector) {
+    initialValues.marca_id = item?.marca_id || '';
+  }
+  if (needsProveedorSelector) {
+    initialValues.proveedor_id = item?.proveedor_id || '';
+  }
 
   const [values, setValues] = useState(initialValues);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [marcas, setMarcas] = useState([]);
+  const [proveedores, setProveedores] = useState([]);
+  const [precios, setPrecios] = useState({});
+  const [loadingRelated, setLoadingRelated] = useState(false);
+
+  useEffect(() => {
+    const loadRelated = async () => {
+      setLoadingRelated(true);
+      try {
+        if (needsMarcaSelector) {
+          const data = await api.getCatalogItems('marcas');
+          setMarcas(data.filter(m => m.activo !== false));
+        }
+        if (needsProveedorSelector) {
+          const data = await api.getCatalogItems('proveedores');
+          setProveedores(data.filter(p => p.activo !== false));
+        }
+        if (needsPrecios && isEditing && item?.id) {
+          const data = await api.getTelaPrecios(item.id);
+          const preciosMap = {};
+          for (const p of data) {
+            preciosMap[p.tipo] = String(p.precio);
+          }
+          setPrecios(preciosMap);
+        }
+      } catch (err) {
+        console.error('Error loading related data:', err);
+      } finally {
+        setLoadingRelated(false);
+      }
+    };
+
+    if (needsMarcaSelector || needsProveedorSelector || needsPrecios) {
+      loadRelated();
+    }
+  }, []);
 
   const setValue = (key, val) => {
     setValues(prev => ({ ...prev, [key]: val }));
+  };
+
+  const setPrecio = (tipo, val) => {
+    setPrecios(prev => ({ ...prev, [tipo]: val }));
   };
 
   React.useLayoutEffect(() => {
@@ -221,12 +277,30 @@ export default function CatalogFormScreen({ route, navigation }) {
       if (hasActive) {
         data[activeField] = values[activeField];
       }
-
-      if (isEditing) {
-        await api.updateCatalogItem(catalogo, item.id, data);
-      } else {
-        await api.createCatalogItem(catalogo, data);
+      if (needsMarcaSelector) {
+        data.marca_id = values.marca_id || null;
       }
+      if (needsProveedorSelector) {
+        data.proveedor_id = values.proveedor_id || null;
+      }
+
+      let savedItem;
+      if (isEditing) {
+        savedItem = await api.updateCatalogItem(catalogo, item.id, data);
+      } else {
+        savedItem = await api.createCatalogItem(catalogo, data);
+      }
+
+      if (needsPrecios && savedItem?.id) {
+        const preciosArray = TELA_PRECIO_TIPOS
+          .filter(tipo => precios[tipo] && precios[tipo].trim())
+          .map(tipo => ({ tipo, precio: parseFloat(precios[tipo]) || 0 }));
+
+        if (preciosArray.length > 0) {
+          await api.saveTelaPrecios(savedItem.id, preciosArray);
+        }
+      }
+
       navigation.goBack();
     } catch (err) {
       setError(err.message);
@@ -258,6 +332,47 @@ export default function CatalogFormScreen({ route, navigation }) {
     );
   };
 
+  const renderPickerSection = (label, selectedId, options, nameField, onSelect) => {
+    const selected = options.find(o => o.id === selectedId);
+    return (
+      <View style={styles.pickerSection}>
+        <Text style={styles.pickerLabel}>{label}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pickerScroll}>
+          <TouchableOpacity
+            style={[styles.pickerOption, !selectedId && styles.pickerOptionSelected]}
+            onPress={() => onSelect('')}
+          >
+            <Text style={[styles.pickerOptionText, !selectedId && styles.pickerOptionTextSelected]}>
+              Sin asignar
+            </Text>
+          </TouchableOpacity>
+          {options.map(opt => (
+            <TouchableOpacity
+              key={opt.id}
+              style={[styles.pickerOption, selectedId === opt.id && styles.pickerOptionSelected]}
+              onPress={() => onSelect(opt.id)}
+            >
+              <Text style={[styles.pickerOptionText, selectedId === opt.id && styles.pickerOptionTextSelected]}>
+                {opt[nameField]}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        {selected && (
+          <Text style={styles.pickerSelected}>{selected[nameField]}</Text>
+        )}
+      </View>
+    );
+  };
+
+  if (loadingRelated) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       {sections.map((section) => (
@@ -281,6 +396,50 @@ export default function CatalogFormScreen({ route, navigation }) {
           </View>
         </React.Fragment>
       ))}
+
+      {needsMarcaSelector && marcas.length > 0 && (
+        <>
+          <SectionHeader title="Marca" />
+          <View style={styles.card}>
+            {renderPickerSection('Marca', values.marca_id, marcas, 'nombre', (id) => setValue('marca_id', id))}
+          </View>
+        </>
+      )}
+
+      {needsProveedorSelector && proveedores.length > 0 && (
+        <>
+          <SectionHeader title="Proveedor" />
+          <View style={styles.card}>
+            {renderPickerSection('Proveedor', values.proveedor_id, proveedores, 'nombre', (id) => setValue('proveedor_id', id))}
+          </View>
+        </>
+      )}
+
+      {needsPrecios && (
+        <>
+          <SectionHeader title="Precios de Referencia (MX)" />
+          <View style={styles.card}>
+            {TELA_PRECIO_TIPOS.map((tipo, i) => (
+              <React.Fragment key={tipo}>
+                {i > 0 && <View style={styles.divider} />}
+                <View style={styles.precioRow}>
+                  <Text style={styles.precioLabel}>{tipo}</Text>
+                  <View style={styles.precioInputWrap}>
+                    <Text style={styles.precioPrefix}>$</Text>
+                    <Input
+                      value={precios[tipo] || ''}
+                      onChangeText={(text) => setPrecio(tipo, text)}
+                      placeholder="0.00"
+                      keyboardType="decimal-pad"
+                      style={styles.precioInput}
+                    />
+                  </View>
+                </View>
+              </React.Fragment>
+            ))}
+          </View>
+        </>
+      )}
 
       {hasActive && (
         <>
@@ -331,6 +490,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+  },
   card: {
     backgroundColor: Colors.card,
     borderRadius: BorderRadius.lg,
@@ -363,5 +528,67 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: Spacing.md,
     marginTop: Spacing.lg,
+  },
+  pickerSection: {
+    paddingVertical: Spacing.xs,
+  },
+  pickerLabel: {
+    fontSize: FontSize.footnote,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+  },
+  pickerScroll: {
+    flexGrow: 0,
+  },
+  pickerOption: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: Colors.background,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: Colors.separator,
+  },
+  pickerOptionSelected: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  pickerOptionText: {
+    fontSize: FontSize.footnote,
+    color: Colors.text,
+  },
+  pickerOptionTextSelected: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  pickerSelected: {
+    fontSize: FontSize.caption,
+    color: Colors.primary,
+    marginTop: 4,
+  },
+  precioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  precioLabel: {
+    fontSize: FontSize.body,
+    color: Colors.text,
+    flex: 1,
+  },
+  precioInputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 120,
+  },
+  precioPrefix: {
+    fontSize: FontSize.body,
+    color: Colors.textSecondary,
+    marginRight: 4,
+  },
+  precioInput: {
+    flex: 1,
+    textAlign: 'right',
   },
 });

@@ -147,4 +147,13 @@ export const api = {
 
   deleteCatalogItem: (catalogo, id) =>
     request(`/catalogos/${catalogo}/${id}`, { method: 'DELETE' }),
+
+  getTelaPrecios: (telaId) =>
+    request(`/catalogos/telas/${telaId}/precios`),
+
+  saveTelaPrecios: (telaId, precios) =>
+    request(`/catalogos/telas/${telaId}/precios`, {
+      method: 'POST',
+      body: JSON.stringify({ precios }),
+    }),
 };
