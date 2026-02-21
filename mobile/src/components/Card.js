@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors, BorderRadius, Spacing } from '../theme';
 
-export default function Card({ children, style }) {
+export default function Card({ children, style, onPress }) {
+  const Wrapper = onPress ? TouchableOpacity : View;
   return (
-    <View style={[styles.card, style]}>
+    <Wrapper style={[styles.card, style]} onPress={onPress} activeOpacity={0.7}>
       {children}
-    </View>
+    </Wrapper>
   );
 }
 
