@@ -116,6 +116,9 @@ export const api = {
 
   getEmpresaReportes: (id) => request(`/empresas-admin/${id}/reportes`),
 
+  deleteEmpresa: (id) =>
+    request(`/empresas-admin/${id}`, { method: 'DELETE' }),
+
   asignarEmpresa: (userId, empresaId) =>
     request(`/usuarios/${userId}/asignar-empresa`, {
       method: 'PUT',

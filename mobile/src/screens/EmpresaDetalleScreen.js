@@ -2,20 +2,20 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, FontSize } from '../theme';
+import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { api } from '../services/api';
 import Card from '../components/Card';
-import ListRow from '../components/ListRow';
 import SectionHeader from '../components/SectionHeader';
 import Button from '../components/Button';
 
 export default function EmpresaDetalleScreen({ route, navigation }) {
-  const { empresaId, onRefresh: parentRefresh } = route.params;
+  const { empresaId } = route.params;
   const [empresa, setEmpresa] = useState(null);
   const [reportes, setReportes] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [toggling, setToggling] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const loadData = async () => {
     try {
@@ -54,11 +54,36 @@ export default function EmpresaDetalleScreen({ route, navigation }) {
             try {
               const result = await api.toggleActivoEmpresa(empresaId);
               setEmpresa(prev => ({ ...prev, activo: result.activo }));
-              if (parentRefresh) parentRefresh();
             } catch (err) {
               Alert.alert('Error', err.message);
             } finally {
               setToggling(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleEliminar = () => {
+    Alert.alert(
+      'Eliminar empresa',
+      `¿Estás seguro de eliminar "${empresa.nombre}"? Esta acción no se puede deshacer.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await api.deleteEmpresa(empresaId);
+              Alert.alert('Listo', `Empresa "${empresa.nombre}" eliminada`);
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Error', err.message);
+            } finally {
+              setDeleting(false);
             }
           },
         },
@@ -170,7 +195,7 @@ export default function EmpresaDetalleScreen({ route, navigation }) {
       <View style={styles.actions}>
         <Button
           title="Editar Empresa"
-          onPress={() => navigation.navigate('EmpresaForm', { empresa, onRefresh: loadData })}
+          onPress={() => navigation.navigate('EmpresaForm', { empresa })}
           variant="secondary"
         />
         <View style={{ height: Spacing.sm }} />
@@ -179,6 +204,13 @@ export default function EmpresaDetalleScreen({ route, navigation }) {
           onPress={handleToggleActivo}
           loading={toggling}
           variant={empresa.activo ? 'destructive' : 'primary'}
+        />
+        <View style={{ height: Spacing.sm }} />
+        <Button
+          title="Eliminar Empresa"
+          onPress={handleEliminar}
+          loading={deleting}
+          variant="destructive"
         />
       </View>
 
@@ -284,11 +316,6 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
     alignItems: 'center',
     gap: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
   },
   statValue: {
     fontSize: 20,

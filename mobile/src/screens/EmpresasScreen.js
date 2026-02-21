@@ -2,9 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, FontSize } from '../theme';
+import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { api } from '../services/api';
-import Card from '../components/Card';
 
 export default function EmpresasScreen({ navigation }) {
   const [empresas, setEmpresas] = useState([]);
@@ -32,7 +31,7 @@ export default function EmpresasScreen({ navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={() => navigation.navigate('EmpresaForm', { onRefresh: loadEmpresas })}>
+        <TouchableOpacity onPress={() => navigation.navigate('EmpresaForm')}>
           <Ionicons name="add" size={28} color={Colors.primary} />
         </TouchableOpacity>
       ),
@@ -40,9 +39,10 @@ export default function EmpresasScreen({ navigation }) {
   }, [navigation]);
 
   const renderItem = ({ item }) => (
-    <Card
+    <TouchableOpacity
+      activeOpacity={0.7}
       style={styles.card}
-      onPress={() => navigation.navigate('EmpresaDetalle', { empresaId: item.id, onRefresh: loadEmpresas })}
+      onPress={() => navigation.navigate('EmpresaDetalle', { empresaId: item.id })}
     >
       <View style={styles.row}>
         <View style={[styles.icon, { backgroundColor: item.activo ? Colors.primary + '20' : Colors.error + '20' }]}>
@@ -64,7 +64,7 @@ export default function EmpresasScreen({ navigation }) {
         </View>
         <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
       </View>
-    </Card>
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -82,7 +82,7 @@ export default function EmpresasScreen({ navigation }) {
         <Text style={styles.emptyText}>No hay empresas registradas</Text>
         <TouchableOpacity
           style={styles.emptyButton}
-          onPress={() => navigation.navigate('EmpresaForm', { onRefresh: loadEmpresas })}
+          onPress={() => navigation.navigate('EmpresaForm')}
         >
           <Text style={styles.emptyButtonText}>Crear primera empresa</Text>
         </TouchableOpacity>
@@ -119,7 +119,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   card: {
-    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   row: {
     flexDirection: 'row',

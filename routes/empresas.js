@@ -155,5 +155,28 @@ module.exports = function(pool) {
     }
   });
 
+  router.delete('/:id', authMiddleware, rootOnly, async (req, res) => {
+    try {
+      const empresaId = req.params.id;
+
+      const usuarios = await pool.query('SELECT COUNT(*) as total FROM usuarios WHERE empresa_id = $1', [empresaId]);
+      if (parseInt(usuarios.rows[0].total) > 0) {
+        return res.status(400).json({ error: 'No se puede eliminar una empresa que tiene usuarios asignados. Elimina o reasigna los usuarios primero.' });
+      }
+
+      const result = await pool.query('DELETE FROM empresas WHERE id = $1 RETURNING nombre', [empresaId]);
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Empresa no encontrada' });
+      }
+
+      res.json({ message: `Empresa "${result.rows[0].nombre}" eliminada` });
+    } catch (err) {
+      if (err.code === '23503') {
+        return res.status(400).json({ error: 'No se puede eliminar la empresa porque tiene datos asociados (roles, órdenes, etc.). Desactívala en su lugar.' });
+      }
+      res.status(500).json({ error: 'Error del servidor' });
+    }
+  });
+
   return router;
 };
