@@ -32,7 +32,7 @@ export default function Input({ label, value, onChangeText, placeholder, secureT
             <Ionicons
               name={hidden ? 'eye-off-outline' : 'eye-outline'}
               size={22}
-              color={Colors.textTertiary}
+              color={Colors.textSecondary}
             />
           </TouchableOpacity>
         )}
