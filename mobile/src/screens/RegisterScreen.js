@@ -5,24 +5,35 @@ import { useAuth } from '../context/AuthContext';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
-export default function LoginScreen({ navigation }) {
-  const { login } = useAuth();
+export default function RegisterScreen({ navigation }) {
+  const { register } = useAuth();
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleLogin() {
-    if (!email.trim() || !password.trim()) {
-      setError('Ingresa tu correo y contraseña');
+  async function handleRegister() {
+    if (!nombre.trim() || !email.trim() || !password.trim()) {
+      setError('Completa todos los campos');
       return;
     }
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+
     setError('');
     setLoading(true);
     try {
-      await login(email.trim(), password);
+      await register(nombre.trim(), email.trim(), password);
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesión');
+      setError(err.message || 'Error al crear la cuenta');
     } finally {
       setLoading(false);
     }
@@ -35,14 +46,18 @@ export default function LoginScreen({ navigation }) {
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>T</Text>
-          </View>
-          <Text style={styles.title}>Textil</Text>
-          <Text style={styles.subtitle}>Gestión Textil</Text>
+          <Text style={styles.title}>Crear Cuenta</Text>
+          <Text style={styles.subtitle}>Regístrate para acceder al sistema</Text>
         </View>
 
         <View style={styles.form}>
+          <Input
+            label="Nombre completo"
+            value={nombre}
+            onChangeText={setNombre}
+            placeholder="Tu nombre"
+            autoCapitalize="words"
+          />
           <Input
             label="Correo electrónico"
             value={email}
@@ -55,7 +70,14 @@ export default function LoginScreen({ navigation }) {
             label="Contraseña"
             value={password}
             onChangeText={setPassword}
-            placeholder="••••••••"
+            placeholder="Mínimo 6 caracteres"
+            secureTextEntry
+          />
+          <Input
+            label="Confirmar contraseña"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder="Repite tu contraseña"
             secureTextEntry
           />
 
@@ -66,26 +88,25 @@ export default function LoginScreen({ navigation }) {
           ) : null}
 
           <Button
-            title="Iniciar Sesión"
-            onPress={handleLogin}
+            title="Crear Cuenta"
+            onPress={handleRegister}
             loading={loading}
-            style={styles.loginButton}
+            style={styles.registerButton}
           />
 
-          <TouchableOpacity
-            style={styles.forgotLink}
-            onPress={() => navigation.navigate('ForgotPassword')}
-          >
-            <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
-          </TouchableOpacity>
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoText}>
+              Tu cuenta quedará pendiente de aprobación por un administrador.
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity
-          style={styles.registerLink}
-          onPress={() => navigation.navigate('Register')}
+          style={styles.loginLink}
+          onPress={() => navigation.navigate('Login')}
         >
-          <Text style={styles.registerText}>
-            ¿No tienes cuenta? <Text style={styles.registerBold}>Regístrate</Text>
+          <Text style={styles.loginLinkText}>
+            ¿Ya tienes cuenta? <Text style={styles.loginLinkBold}>Inicia sesión</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -105,21 +126,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.xxxl,
-  },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.lg,
-  },
-  logoText: {
-    fontSize: 40,
-    fontWeight: '700',
-    color: Colors.white,
+    marginBottom: Spacing.xxl,
   },
   title: {
     fontSize: FontSize.largeTitle,
@@ -147,27 +154,31 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     textAlign: 'center',
   },
-  loginButton: {
+  registerButton: {
     marginTop: Spacing.sm,
   },
-  forgotLink: {
-    alignItems: 'center',
+  infoContainer: {
     marginTop: Spacing.lg,
+    padding: Spacing.md,
+    backgroundColor: Colors.primary + '10',
+    borderRadius: BorderRadius.sm,
   },
-  forgotText: {
-    fontSize: FontSize.md,
-    color: Colors.primary,
+  infoText: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 18,
   },
-  registerLink: {
+  loginLink: {
     alignItems: 'center',
     marginTop: Spacing.xl,
     paddingVertical: Spacing.md,
   },
-  registerText: {
+  loginLinkText: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
   },
-  registerBold: {
+  loginLinkBold: {
     color: Colors.primary,
     fontWeight: '600',
   },

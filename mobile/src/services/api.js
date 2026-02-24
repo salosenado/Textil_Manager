@@ -3,11 +3,11 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
 function getApiUrl() {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return window.location.origin + '/api';
+  }
   const configured = Constants.expoConfig?.extra?.apiUrl;
   if (configured) return configured + '/api';
-  if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    return 'https://4098a82a-8af8-4fd7-b3b7-1bfe9f61eb41-00-2zywlsll98xbx.picard.replit.dev/api';
-  }
   return 'http://localhost:5000/api';
 }
 
@@ -25,12 +25,22 @@ async function request(endpoint, options = {}) {
     ...options.headers,
   };
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+  } catch (networkError) {
+    throw new Error('Sin conexión a internet. Verifica tu red e intenta de nuevo.');
+  }
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch (parseError) {
+    throw new Error('Error de comunicación con el servidor');
+  }
 
   if (!response.ok) {
     throw new Error(data.error || 'Error del servidor');
@@ -44,6 +54,18 @@ export const api = {
     request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+    }),
+
+  registro: (nombre, email, password) =>
+    request('/auth/registro', {
+      method: 'POST',
+      body: JSON.stringify({ nombre, email, password }),
+    }),
+
+  recuperarPassword: (email) =>
+    request('/auth/recuperar-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
     }),
 
   getMe: () => request('/auth/me'),

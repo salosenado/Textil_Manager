@@ -1,31 +1,54 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
-import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 
-export default function LoginScreen({ navigation }) {
-  const { login } = useAuth();
+export default function ForgotPasswordScreen({ navigation }) {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
 
-  async function handleLogin() {
-    if (!email.trim() || !password.trim()) {
-      setError('Ingresa tu correo y contraseña');
+  async function handleRecover() {
+    if (!email.trim()) {
+      setError('Ingresa tu correo electrónico');
       return;
     }
+
     setError('');
     setLoading(true);
     try {
-      await login(email.trim(), password);
+      await api.recuperarPassword(email.trim());
+      setSent(true);
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesión');
+      setError(err.message || 'Error al enviar la solicitud');
     } finally {
       setLoading(false);
     }
+  }
+
+  if (sent) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.sentContent}>
+          <View style={styles.iconCircle}>
+            <Ionicons name="mail-outline" size={48} color={Colors.primary} />
+          </View>
+          <Text style={styles.sentTitle}>Revisa tu correo</Text>
+          <Text style={styles.sentMessage}>
+            Si existe una cuenta con ese correo, recibirás instrucciones para restablecer tu contraseña.
+          </Text>
+          <Button
+            title="Volver a Iniciar Sesión"
+            onPress={() => navigation.navigate('Login')}
+            style={styles.backButton}
+          />
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -35,11 +58,13 @@ export default function LoginScreen({ navigation }) {
     >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>T</Text>
+          <View style={styles.iconCircle}>
+            <Ionicons name="lock-open-outline" size={48} color={Colors.primary} />
           </View>
-          <Text style={styles.title}>Textil</Text>
-          <Text style={styles.subtitle}>Gestión Textil</Text>
+          <Text style={styles.title}>Recuperar Contraseña</Text>
+          <Text style={styles.subtitle}>
+            Ingresa el correo asociado a tu cuenta y te enviaremos instrucciones.
+          </Text>
         </View>
 
         <View style={styles.form}>
@@ -51,13 +76,6 @@ export default function LoginScreen({ navigation }) {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <Input
-            label="Contraseña"
-            value={password}
-            onChangeText={setPassword}
-            placeholder="••••••••"
-            secureTextEntry
-          />
 
           {error ? (
             <View style={styles.errorContainer}>
@@ -66,26 +84,18 @@ export default function LoginScreen({ navigation }) {
           ) : null}
 
           <Button
-            title="Iniciar Sesión"
-            onPress={handleLogin}
+            title="Enviar Instrucciones"
+            onPress={handleRecover}
             loading={loading}
-            style={styles.loginButton}
           />
-
-          <TouchableOpacity
-            style={styles.forgotLink}
-            onPress={() => navigation.navigate('ForgotPassword')}
-          >
-            <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
-          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          style={styles.registerLink}
-          onPress={() => navigation.navigate('Register')}
+          style={styles.loginLink}
+          onPress={() => navigation.navigate('Login')}
         >
-          <Text style={styles.registerText}>
-            ¿No tienes cuenta? <Text style={styles.registerBold}>Regístrate</Text>
+          <Text style={styles.loginLinkText}>
+            <Text style={styles.loginLinkBold}>Volver a Iniciar Sesión</Text>
           </Text>
         </TouchableOpacity>
       </ScrollView>
@@ -105,31 +115,29 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.xxxl,
+    marginBottom: Spacing.xxl,
   },
-  logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: Colors.primary,
+  iconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: Colors.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.lg,
   },
-  logoText: {
-    fontSize: 40,
-    fontWeight: '700',
-    color: Colors.white,
-  },
   title: {
-    fontSize: FontSize.largeTitle,
+    fontSize: FontSize.xxl,
     fontWeight: '700',
     color: Colors.text,
   },
   subtitle: {
-    fontSize: FontSize.lg,
+    fontSize: FontSize.md,
     color: Colors.textSecondary,
-    marginTop: Spacing.xs,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+    lineHeight: 22,
+    paddingHorizontal: Spacing.lg,
   },
   form: {
     backgroundColor: Colors.card,
@@ -147,28 +155,39 @@ const styles = StyleSheet.create({
     fontSize: FontSize.md,
     textAlign: 'center',
   },
-  loginButton: {
-    marginTop: Spacing.sm,
-  },
-  forgotLink: {
-    alignItems: 'center',
-    marginTop: Spacing.lg,
-  },
-  forgotText: {
-    fontSize: FontSize.md,
-    color: Colors.primary,
-  },
-  registerLink: {
+  loginLink: {
     alignItems: 'center',
     marginTop: Spacing.xl,
     paddingVertical: Spacing.md,
   },
-  registerText: {
+  loginLinkText: {
     fontSize: FontSize.md,
     color: Colors.textSecondary,
   },
-  registerBold: {
+  loginLinkBold: {
     color: Colors.primary,
     fontWeight: '600',
+  },
+  sentContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xxxl,
+  },
+  sentTitle: {
+    fontSize: FontSize.xxl,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.md,
+  },
+  sentMessage: {
+    fontSize: FontSize.lg,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: Spacing.xxxl,
+  },
+  backButton: {
+    minWidth: 250,
   },
 });

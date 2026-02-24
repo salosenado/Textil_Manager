@@ -77,6 +77,87 @@ module.exports = function(pool) {
     }
   });
 
+  router.post('/registro', async (req, res) => {
+    try {
+      const { nombre, email, password } = req.body;
+
+      if (!nombre || !email || !password) {
+        return res.status(400).json({ error: 'Nombre, correo y contraseña son requeridos' });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'El correo electrónico no es válido' });
+      }
+
+      const existing = await pool.query(
+        'SELECT id FROM usuarios WHERE email = $1',
+        [email.toLowerCase().trim()]
+      );
+
+      if (existing.rows.length > 0) {
+        return res.status(409).json({ error: 'Ya existe una cuenta con este correo' });
+      }
+
+      const hash = await bcrypt.hash(password, 10);
+
+      const result = await pool.query(
+        `INSERT INTO usuarios (nombre, email, password_hash, activo, aprobado, es_root)
+         VALUES ($1, $2, $3, true, false, false)
+         RETURNING id, nombre, email, activo, aprobado, es_root, empresa_id`,
+        [nombre.trim(), email.toLowerCase().trim(), hash]
+      );
+
+      const user = result.rows[0];
+      const token = generateToken(user);
+
+      res.status(201).json({
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          nombre: user.nombre,
+          es_root: false,
+          empresa_id: null,
+          activo: true,
+          aprobado: false,
+          empresa: null,
+          rol: null,
+          permisos: []
+        }
+      });
+    } catch (err) {
+      console.error('Register error:', err);
+      res.status(500).json({ error: 'Error del servidor' });
+    }
+  });
+
+  router.post('/recuperar-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({ error: 'Ingresa tu correo electrónico' });
+      }
+
+      const result = await pool.query(
+        'SELECT id, nombre FROM usuarios WHERE email = $1',
+        [email.toLowerCase().trim()]
+      );
+
+      res.json({
+        message: 'Si el correo existe en nuestro sistema, recibirás instrucciones para restablecer tu contraseña.'
+      });
+    } catch (err) {
+      console.error('Password recovery error:', err);
+      res.status(500).json({ error: 'Error del servidor' });
+    }
+  });
+
   router.get('/me', authMiddleware, async (req, res) => {
     try {
       const result = await pool.query('SELECT * FROM usuarios WHERE id = $1', [req.user.id]);

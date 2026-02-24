@@ -38,6 +38,15 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  async function register(nombre, email, password) {
+    const data = await api.registro(nombre, email, password);
+    await AsyncStorage.setItem('token', data.token);
+    const userData = data.user || data;
+    setUser(userData);
+    setPermisos(userData.permisos || []);
+    return data;
+  }
+
   async function logout() {
     await AsyncStorage.removeItem('token');
     setUser(null);
@@ -67,6 +76,7 @@ export function AuthProvider({ children }) {
       permisos,
       loading,
       login,
+      register,
       logout,
       tienePermiso,
       refreshUser,

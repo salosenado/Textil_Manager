@@ -142,8 +142,7 @@ function renderLogin() {
       <button type="submit" class="btn-primary" id="loginBtn">Iniciar sesión</button>
     </form>
     <div style="text-align:center; margin-top:24px">
-      <div class="footnote">Credenciales de prueba:</div>
-      <div class="caption" style="margin-top:4px">root@textil.app / Admin123!</div>
+      <div class="footnote" style="color:#8E8E93">Sistema de gestión textil</div>
     </div>
   `;
 }

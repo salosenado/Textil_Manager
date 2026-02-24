@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'textil_secret_key_change_in_production_2026';
+const JWT_SECRET = process.env.JWT_SECRET || process.env.SESSION_SECRET || 'fallback_dev_only';
 
 function generateToken(user) {
   return jwt.sign(

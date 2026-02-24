@@ -368,6 +368,10 @@ app.post('/api/migrations/run', async (req, res) => {
   }
 });
 
+app.get('/privacidad', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacidad.html'));
+});
+
 app.get('/app', (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'index.html'));
 });
