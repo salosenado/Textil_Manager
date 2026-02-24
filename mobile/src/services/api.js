@@ -8,6 +8,11 @@ function getApiUrl() {
   }
   const configured = Constants.expoConfig?.extra?.apiUrl;
   if (configured) return configured + '/api';
+  const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost;
+  if (debuggerHost) {
+    const host = debuggerHost.split(':')[0];
+    return `http://${host}:5000/api`;
+  }
   return 'http://localhost:5000/api';
 }
 

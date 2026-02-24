@@ -17,7 +17,7 @@
       "bundleIdentifier": "com.textil.app",
       "infoPlist": {
         "NSAppTransportSecurity": {
-          "NSAllowsArbitraryLoads": false
+          "NSAllowsArbitraryLoads": true
         }
       }
     },
@@ -27,6 +27,9 @@
         "backgroundColor": "#007AFF"
       },
       "package": "com.textil.app"
+    },
+    "extra": {
+      "apiUrl": "https://4098a82a-8af8-4fd7-b3b7-1bfe9f61eb41-00-2zywlsll98xbx.picard.replit.dev"
     },
     "plugins": [
       "expo-asset"
