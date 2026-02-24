@@ -10,9 +10,9 @@ export default function Input({ label, value, onChangeText, placeholder, secureT
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.inputRow}>
+      <View style={[styles.inputRow, isPassword && styles.inputRowPassword]}>
         <TextInput
-          style={[styles.input, multiline && styles.multiline, !editable && styles.disabled, isPassword && styles.inputWithIcon, style]}
+          style={[styles.input, isPassword && styles.inputPassword, multiline && styles.multiline, !editable && styles.disabled, style]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
@@ -27,7 +27,7 @@ export default function Input({ label, value, onChangeText, placeholder, secureT
           <TouchableOpacity
             style={styles.eyeButton}
             onPress={() => setHidden(prev => !prev)}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            activeOpacity={0.6}
           >
             <Ionicons
               name={hidden ? 'eye-off-outline' : 'eye-outline'}
@@ -54,8 +54,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   inputRow: {
-    position: 'relative',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inputRowPassword: {
+    backgroundColor: Colors.inputBg,
+    borderRadius: BorderRadius.sm,
   },
   input: {
     backgroundColor: Colors.inputBg,
@@ -65,9 +69,11 @@ const styles = StyleSheet.create({
     fontSize: FontSize.lg,
     color: Colors.text,
     minHeight: 44,
+    flex: 1,
   },
-  inputWithIcon: {
-    paddingRight: 44,
+  inputPassword: {
+    backgroundColor: 'transparent',
+    borderRadius: 0,
   },
   multiline: {
     minHeight: 80,
@@ -77,9 +83,9 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   eyeButton: {
-    position: 'absolute',
-    right: 12,
+    width: 44,
     height: 44,
+    alignItems: 'center',
     justifyContent: 'center',
   },
 });

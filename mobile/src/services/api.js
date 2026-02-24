@@ -6,13 +6,15 @@ function getApiUrl() {
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
     return window.location.origin + '/api';
   }
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (hostUri) {
+    const host = hostUri.split(':')[0];
+    if (host && host !== 'localhost' && host !== '127.0.0.1') {
+      return `http://${host}:5000/api`;
+    }
+  }
   const configured = Constants.expoConfig?.extra?.apiUrl;
   if (configured) return configured + '/api';
-  const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost;
-  if (debuggerHost) {
-    const host = debuggerHost.split(':')[0];
-    return `http://${host}:5000/api`;
-  }
   return 'http://localhost:5000/api';
 }
 
