@@ -29,7 +29,10 @@
       "package": "com.textil.app"
     },
     "extra": {
-      "apiUrl": "https://4098a82a-8af8-4fd7-b3b7-1bfe9f61eb41-00-2zywlsll98xbx.picard.replit.dev"
+      "apiUrl": "https://4098a82a-8af8-4fd7-b3b7-1bfe9f61eb41-00-2zywlsll98xbx.picard.replit.dev",
+      "router": {
+        "origin": "https://4098a82a-8af8-4fd7-b3b7-1bfe9f61eb41-00-2zywlsll98xbx.picard.replit.dev:8080"
+      }
     },
     "plugins": [
       "expo-asset"
