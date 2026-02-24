@@ -192,20 +192,31 @@ module.exports = function(pool) {
         return res.status(400).json({ error: 'Se requiere un array de precios' });
       }
 
-      await pool.query('DELETE FROM precios_tela WHERE tela_id = $1', [req.params.telaId]);
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
 
-      const inserted = [];
-      for (const p of precios) {
-        if (p.tipo && p.precio !== undefined && p.precio !== '' && p.precio !== null) {
-          const result = await pool.query(
-            'INSERT INTO precios_tela (tela_id, tipo, precio) VALUES ($1, $2, $3) RETURNING *',
-            [req.params.telaId, p.tipo, p.precio]
-          );
-          inserted.push(result.rows[0]);
+        await client.query('DELETE FROM precios_tela WHERE tela_id = $1', [req.params.telaId]);
+
+        const inserted = [];
+        for (const p of precios) {
+          if (p.tipo && p.precio !== undefined && p.precio !== '' && p.precio !== null) {
+            const result = await client.query(
+              'INSERT INTO precios_tela (tela_id, tipo, precio) VALUES ($1, $2, $3) RETURNING *',
+              [req.params.telaId, p.tipo, p.precio]
+            );
+            inserted.push(result.rows[0]);
+          }
         }
-      }
 
-      res.json(inserted);
+        await client.query('COMMIT');
+        res.json(inserted);
+      } catch (txErr) {
+        await client.query('ROLLBACK');
+        throw txErr;
+      } finally {
+        client.release();
+      }
     } catch (err) {
       console.error('Error saving precios_tela:', err.message);
       res.status(500).json({ error: 'Error del servidor' });
