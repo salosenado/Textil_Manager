@@ -10,6 +10,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import SectionHeader from '../components/SectionHeader';
 import CatalogPicker from '../components/CatalogPicker';
+import DatePicker from '../components/DatePicker';
 
 function formatMX(value) {
   const num = parseFloat(value) || 0;
@@ -222,11 +223,11 @@ export default function OrdenClienteFormScreen({ route, navigation }) {
           placeholder="Referencia del cliente"
         />
         <View style={styles.divider} />
-        <Input
-          label="Fecha de Entrega (AAAA-MM-DD)"
+        <DatePicker
+          label="Fecha de Entrega"
           value={fechaEntrega}
-          onChangeText={setFechaEntrega}
-          placeholder="2025-12-31"
+          onChange={setFechaEntrega}
+          placeholder="Seleccionar fecha"
         />
         <View style={styles.divider} />
         <View style={styles.toggleRow}>

@@ -7,6 +7,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import SectionHeader from '../components/SectionHeader';
 import CatalogPicker from '../components/CatalogPicker';
+import DatePicker from '../components/DatePicker';
 
 function formatMoney(value) {
   const num = parseFloat(value) || 0;
@@ -165,12 +166,11 @@ export default function CompraClienteFormScreen({ route, navigation }) {
 
       <SectionHeader title="Datos de la Orden" />
       <View style={styles.card}>
-        <Input
-          label="Fecha de Recepción (AAAA-MM-DD)"
+        <DatePicker
+          label="Fecha de Recepción"
           value={fechaRecepcion}
-          onChangeText={setFechaRecepcion}
-          placeholder="2025-01-15"
-          keyboardType="default"
+          onChange={setFechaRecepcion}
+          placeholder="Seleccionar fecha"
         />
         <View style={styles.divider} />
         <View style={styles.toggleRow}>

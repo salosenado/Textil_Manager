@@ -7,6 +7,7 @@ import Input from '../components/Input';
 import Button from '../components/Button';
 import SectionHeader from '../components/SectionHeader';
 import CatalogPicker from '../components/CatalogPicker';
+import DatePicker from '../components/DatePicker';
 
 const EMPTY_DETALLE = {
   articulo: '',
@@ -175,11 +176,11 @@ export default function ComprasInsumoFormScreen({ route, navigation }) {
           placeholder="Seleccionar proveedor"
         />
         <View style={styles.divider} />
-        <Input
-          label="Fecha de Recepción (YYYY-MM-DD)"
+        <DatePicker
+          label="Fecha de Recepción"
           value={fecha_recepcion}
-          onChangeText={setFechaRecepcion}
-          placeholder="2025-01-15"
+          onChange={setFechaRecepcion}
+          placeholder="Seleccionar fecha"
         />
         <View style={styles.divider} />
         <Input
