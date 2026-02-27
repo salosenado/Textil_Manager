@@ -190,4 +190,88 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ precios }),
     }),
+
+  getOrdenesCliente: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.estado) query.append('estado', params.estado);
+    if (params.periodo) query.append('periodo', params.periodo);
+    const qs = query.toString();
+    return request(`/ordenes-cliente${qs ? '?' + qs : ''}`);
+  },
+
+  getOrdenCliente: (id) => request(`/ordenes-cliente/${id}`),
+
+  createOrdenCliente: (data) =>
+    request('/ordenes-cliente', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateOrdenCliente: (id, data) =>
+    request(`/ordenes-cliente/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  cancelarOrdenCliente: (id) =>
+    request(`/ordenes-cliente/${id}/cancelar`, { method: 'PUT' }),
+
+  deleteOrdenCliente: (id) =>
+    request(`/ordenes-cliente/${id}`, { method: 'DELETE' }),
+
+  getOrdenesCompra: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.estado) query.append('estado', params.estado);
+    if (params.periodo) query.append('periodo', params.periodo);
+    const qs = query.toString();
+    return request(`/ordenes-compra${qs ? '?' + qs : ''}`);
+  },
+
+  getOrdenCompra: (id) => request(`/ordenes-compra/${id}`),
+
+  createOrdenCompra: (data) =>
+    request('/ordenes-compra', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateOrdenCompra: (id, data) =>
+    request(`/ordenes-compra/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  cancelarOrdenCompra: (id) =>
+    request(`/ordenes-compra/${id}/cancelar`, { method: 'PUT' }),
+
+  deleteOrdenCompra: (id) =>
+    request(`/ordenes-compra/${id}`, { method: 'DELETE' }),
+
+  getComprasInsumo: (search, periodo) => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (periodo) params.append('periodo', periodo);
+    const qs = params.toString();
+    return request(`/compras-insumo${qs ? '?' + qs : ''}`);
+  },
+
+  getCompraInsumo: (id) =>
+    request(`/compras-insumo/${id}`),
+
+  createCompraInsumo: (data) =>
+    request('/compras-insumo', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateCompraInsumo: (id, data) =>
+    request(`/compras-insumo/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteCompraInsumo: (id) =>
+    request(`/compras-insumo/${id}`, { method: 'DELETE' }),
 };

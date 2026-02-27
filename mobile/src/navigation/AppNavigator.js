@@ -1,10 +1,10 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, FontSize } from '../theme';
+import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { useAuth } from '../context/AuthContext';
 
 import LoginScreen from '../screens/LoginScreen';
@@ -32,6 +32,16 @@ import EmpresaDetalleScreen from '../screens/EmpresaDetalleScreen';
 import AprobacionUsuariosScreen from '../screens/AprobacionUsuariosScreen';
 import ReportesGlobalesScreen from '../screens/ReportesGlobalesScreen';
 
+import OrdenesClienteListScreen from '../screens/OrdenesClienteListScreen';
+import OrdenClienteFormScreen from '../screens/OrdenClienteFormScreen';
+import OrdenClienteDetalleScreen from '../screens/OrdenClienteDetalleScreen';
+import ComprasClienteListScreen from '../screens/ComprasClienteListScreen';
+import CompraClienteFormScreen from '../screens/CompraClienteFormScreen';
+import CompraClienteDetalleScreen from '../screens/CompraClienteDetalleScreen';
+import ComprasInsumoListScreen from '../screens/ComprasInsumoListScreen';
+import ComprasInsumoFormScreen from '../screens/ComprasInsumoFormScreen';
+import ComprasInsumoDetalleScreen from '../screens/ComprasInsumoDetalleScreen';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -42,6 +52,85 @@ const screenOptions = {
   headerShadowVisible: false,
   headerBackTitleVisible: false,
 };
+
+function NavMenuScreen({ navigation, items }) {
+  return (
+    <ScrollView style={navStyles.container} contentContainerStyle={navStyles.content}>
+      <View style={navStyles.card}>
+        {items.map((item, i) => (
+          <React.Fragment key={item.key}>
+            {i > 0 && <View style={navStyles.divider} />}
+            <TouchableOpacity
+              style={navStyles.row}
+              activeOpacity={0.6}
+              onPress={() => navigation.navigate(item.key)}
+            >
+              <View style={navStyles.rowLeft}>
+                <View style={[navStyles.iconBadge, { backgroundColor: item.color + '20' }]}>
+                  <Ionicons name={item.icon} size={20} color={item.color} />
+                </View>
+                <View style={navStyles.rowTexts}>
+                  <Text style={navStyles.rowLabel}>{item.label}</Text>
+                  <Text style={navStyles.rowDesc}>{item.description}</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} />
+            </TouchableOpacity>
+          </React.Fragment>
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
+const navStyles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: Spacing.md },
+  card: { backgroundColor: Colors.card, borderRadius: BorderRadius.lg, paddingHorizontal: Spacing.md },
+  divider: { height: 1, backgroundColor: Colors.separator },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14 },
+  rowLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
+  iconBadge: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  rowTexts: { flex: 1 },
+  rowLabel: { fontSize: FontSize.body, color: Colors.text },
+  rowDesc: { fontSize: FontSize.caption, color: Colors.textSecondary, marginTop: 2 },
+});
+
+function ComprasHomeScreen({ navigation }) {
+  return (
+    <NavMenuScreen
+      navigation={navigation}
+      items={[
+        { key: 'ComprasClienteList', label: 'Compras de Cliente', icon: 'people-outline', description: 'Órdenes de compra a proveedores', color: Colors.teal },
+        { key: 'ComprasInsumoList', label: 'Compras de Insumo', icon: 'cube-outline', description: 'Compras de materiales e insumos', color: Colors.orange },
+      ]}
+    />
+  );
+}
+
+function VentasStack() {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="OrdenesClienteList" component={OrdenesClienteListScreen} options={{ title: 'Órdenes de Cliente' }} />
+      <Stack.Screen name="OrdenClienteForm" component={OrdenClienteFormScreen} options={({ route }) => ({ title: route.params?.orden ? 'Editar Orden' : 'Nueva Orden' })} />
+      <Stack.Screen name="OrdenClienteDetalle" component={OrdenClienteDetalleScreen} options={{ title: 'Detalle de Orden' }} />
+    </Stack.Navigator>
+  );
+}
+
+function ComprasStack() {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="ComprasHome" component={ComprasHomeScreen} options={{ title: 'Compras' }} />
+      <Stack.Screen name="ComprasClienteList" component={ComprasClienteListScreen} options={{ title: 'Compras de Cliente' }} />
+      <Stack.Screen name="CompraClienteForm" component={CompraClienteFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Compra' : 'Nueva Compra' })} />
+      <Stack.Screen name="CompraClienteDetalle" component={CompraClienteDetalleScreen} options={{ title: 'Detalle de Compra' }} />
+      <Stack.Screen name="ComprasInsumoList" component={ComprasInsumoListScreen} options={{ title: 'Compras de Insumo' }} />
+      <Stack.Screen name="ComprasInsumoForm" component={ComprasInsumoFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Compra' : 'Nueva Compra' })} />
+      <Stack.Screen name="ComprasInsumoDetalle" component={ComprasInsumoDetalleScreen} options={{ title: 'Detalle de Compra' }} />
+    </Stack.Navigator>
+  );
+}
 
 function AdminStack() {
   return (
@@ -110,18 +199,8 @@ function MainTabs() {
         initialParams={{ title: 'Operación', icon: 'construct-outline', color: Colors.orange }}
         options={{ title: 'Operación', headerShown: true, headerTitle: 'Operación', ...screenOptions }}
       />
-      <Tab.Screen
-        name="ComprasTab"
-        component={PlaceholderScreen}
-        initialParams={{ title: 'Compras', icon: 'bag-outline', color: Colors.teal }}
-        options={{ title: 'Compras', headerShown: true, headerTitle: 'Compras', ...screenOptions }}
-      />
-      <Tab.Screen
-        name="VentasTab"
-        component={PlaceholderScreen}
-        initialParams={{ title: 'Ventas', icon: 'cart-outline', color: Colors.purple }}
-        options={{ title: 'Ventas', headerShown: true, headerTitle: 'Ventas', ...screenOptions }}
-      />
+      <Tab.Screen name="ComprasTab" component={ComprasStack} options={{ title: 'Compras' }} />
+      <Tab.Screen name="VentasTab" component={VentasStack} options={{ title: 'Ventas' }} />
       <Tab.Screen name="AdminTab" component={AdminStack} options={{ title: 'Admin' }} />
       {user?.es_root && (
         <Tab.Screen name="RootTab" component={RootStack} options={{ title: 'Root' }} />

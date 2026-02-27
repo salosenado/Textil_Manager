@@ -5,12 +5,12 @@ import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { useAuth } from '../context/AuthContext';
 
 const quickLinks = [
-  { id: 'catalogos', title: 'Catálogos', icon: 'list-outline', color: Colors.primary, permiso: 'catalogos.ver', screen: 'OperacionTab' },
-  { id: 'ordenes', title: 'Órdenes', icon: 'document-text-outline', color: Colors.orange, permiso: 'ordenes.ver', screen: 'OperacionTab' },
-  { id: 'produccion', title: 'Producción', icon: 'construct-outline', color: Colors.success, permiso: 'produccion.ver', screen: 'OperacionTab' },
-  { id: 'ventas', title: 'Ventas', icon: 'cart-outline', color: Colors.purple, permiso: 'ventas.ver', screen: 'VentasTab' },
-  { id: 'compras', title: 'Compras', icon: 'bag-outline', color: Colors.teal, permiso: 'compras.ver', screen: 'ComprasTab' },
-  { id: 'usuarios', title: 'Usuarios', icon: 'people-outline', color: Colors.warning, permiso: 'usuarios.ver', screen: 'AdminTab' },
+  { id: 'catalogos', title: 'Catálogos', icon: 'list-outline', color: Colors.primary, permiso: 'catalogos.ver', tab: 'AdminTab', screen: 'CatalogosHome' },
+  { id: 'ordenes', title: 'Órdenes', icon: 'document-text-outline', color: Colors.orange, permiso: 'ordenes.ver', tab: 'VentasTab' },
+  { id: 'produccion', title: 'Producción', icon: 'construct-outline', color: Colors.success, permiso: 'produccion.ver', tab: 'OperacionTab' },
+  { id: 'ventas', title: 'Ventas', icon: 'cart-outline', color: Colors.purple, permiso: 'ventas.ver', tab: 'VentasTab' },
+  { id: 'compras', title: 'Compras', icon: 'bag-outline', color: Colors.teal, permiso: 'compras.ver', tab: 'ComprasTab' },
+  { id: 'usuarios', title: 'Usuarios', icon: 'people-outline', color: Colors.warning, permiso: 'usuarios.ver', tab: 'AdminTab', screen: 'UsuariosScreen' },
 ];
 
 export default function HomeScreen({ navigation }) {
@@ -40,10 +40,10 @@ export default function HomeScreen({ navigation }) {
             style={styles.gridItem}
             activeOpacity={0.7}
             onPress={() => {
-              if (link.screen === 'AdminTab') {
-                navigation.navigate('AdminTab', { screen: 'UsuariosScreen' });
+              if (link.screen) {
+                navigation.navigate(link.tab, { screen: link.screen });
               } else {
-                navigation.navigate(link.screen);
+                navigation.navigate(link.tab);
               }
             }}
           >
