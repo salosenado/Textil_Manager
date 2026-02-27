@@ -166,6 +166,22 @@ function RootStack() {
   );
 }
 
+function HomeStack() {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="HomeMain" component={HomeScreen} options={{ title: 'Textil' }} />
+    </Stack.Navigator>
+  );
+}
+
+function OperacionStack() {
+  return (
+    <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="OperacionHome" component={PlaceholderScreen} initialParams={{ title: 'Operación', icon: 'construct-outline', color: Colors.orange }} options={{ title: 'Operación' }} />
+    </Stack.Navigator>
+  );
+}
+
 function MainTabs() {
   const { user } = useAuth();
 
@@ -188,17 +204,8 @@ function MainTabs() {
         headerShown: false,
       })}
     >
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeScreen}
-        options={{ title: 'Inicio', headerShown: true, headerTitle: 'Textil', ...screenOptions }}
-      />
-      <Tab.Screen
-        name="OperacionTab"
-        component={PlaceholderScreen}
-        initialParams={{ title: 'Operación', icon: 'construct-outline', color: Colors.orange }}
-        options={{ title: 'Operación', headerShown: true, headerTitle: 'Operación', ...screenOptions }}
-      />
+      <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Inicio' }} />
+      <Tab.Screen name="OperacionTab" component={OperacionStack} options={{ title: 'Operación' }} />
       <Tab.Screen name="ComprasTab" component={ComprasStack} options={{ title: 'Compras' }} />
       <Tab.Screen name="VentasTab" component={VentasStack} options={{ title: 'Ventas' }} />
       <Tab.Screen name="AdminTab" component={AdminStack} options={{ title: 'Admin' }} />

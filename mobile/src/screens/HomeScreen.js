@@ -6,10 +6,10 @@ import { useAuth } from '../context/AuthContext';
 
 const quickLinks = [
   { id: 'catalogos', title: 'Catálogos', icon: 'list-outline', color: Colors.primary, permiso: 'catalogos.ver', tab: 'AdminTab', screen: 'CatalogosHome' },
-  { id: 'ordenes', title: 'Órdenes', icon: 'document-text-outline', color: Colors.orange, permiso: 'ordenes.ver', tab: 'VentasTab' },
+  { id: 'ordenes', title: 'Órdenes', icon: 'document-text-outline', color: Colors.orange, permiso: 'ordenes.ver', tab: 'VentasTab', screen: 'OrdenesClienteList' },
   { id: 'produccion', title: 'Producción', icon: 'construct-outline', color: Colors.success, permiso: 'produccion.ver', tab: 'OperacionTab' },
-  { id: 'ventas', title: 'Ventas', icon: 'cart-outline', color: Colors.purple, permiso: 'ventas.ver', tab: 'VentasTab' },
-  { id: 'compras', title: 'Compras', icon: 'bag-outline', color: Colors.teal, permiso: 'compras.ver', tab: 'ComprasTab' },
+  { id: 'ventas', title: 'Ventas', icon: 'cart-outline', color: Colors.purple, permiso: 'ventas.ver', tab: 'VentasTab', screen: 'OrdenesClienteList' },
+  { id: 'compras', title: 'Compras', icon: 'bag-outline', color: Colors.teal, permiso: 'compras.ver', tab: 'ComprasTab', screen: 'ComprasHome' },
   { id: 'usuarios', title: 'Usuarios', icon: 'people-outline', color: Colors.warning, permiso: 'usuarios.ver', tab: 'AdminTab', screen: 'UsuariosScreen' },
 ];
 
@@ -17,6 +17,19 @@ export default function HomeScreen({ navigation }) {
   const { user, tienePermiso } = useAuth();
 
   const visibleLinks = quickLinks.filter(link => tienePermiso(link.permiso));
+
+  const handleQuickLink = (link) => {
+    const tabNav = navigation.getParent();
+    if (tabNav) {
+      if (link.screen) {
+        tabNav.navigate(link.tab, { screen: link.screen });
+      } else {
+        tabNav.navigate(link.tab);
+      }
+    } else {
+      navigation.navigate(link.tab, link.screen ? { screen: link.screen } : undefined);
+    }
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -39,13 +52,7 @@ export default function HomeScreen({ navigation }) {
             key={link.id}
             style={styles.gridItem}
             activeOpacity={0.7}
-            onPress={() => {
-              if (link.screen) {
-                navigation.navigate(link.tab, { screen: link.screen });
-              } else {
-                navigation.navigate(link.tab);
-              }
-            }}
+            onPress={() => handleQuickLink(link)}
           >
             <View style={[styles.gridIcon, { backgroundColor: link.color + '20' }]}>
               <Ionicons name={link.icon} size={28} color={link.color} />
