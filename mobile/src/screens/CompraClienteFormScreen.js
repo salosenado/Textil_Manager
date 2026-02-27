@@ -6,13 +6,14 @@ import { api } from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import SectionHeader from '../components/SectionHeader';
+import CatalogPicker from '../components/CatalogPicker';
 
 function formatMoney(value) {
   const num = parseFloat(value) || 0;
   return 'MX $' + num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-const EMPTY_DETALLE = { articulo: '', modelo: '', cantidad: '', costo_unitario: '' };
+const EMPTY_DETALLE = { articulo: '', modelo: '', modelo_id: null, cantidad: '', costo_unitario: '' };
 
 export default function CompraClienteFormScreen({ route, navigation }) {
   const editId = route.params?.id;
@@ -24,33 +25,29 @@ export default function CompraClienteFormScreen({ route, navigation }) {
   const [aplicaIva, setAplicaIva] = useState(false);
   const [observaciones, setObservaciones] = useState('');
   const [detalles, setDetalles] = useState([{ ...EMPTY_DETALLE }]);
-  const [proveedores, setProveedores] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
+  const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    if (!isEditing) return;
     const loadData = async () => {
+      setLoadingData(true);
       try {
-        const provs = await api.getCatalogItems('proveedores');
-        setProveedores(provs.filter(p => p.activo !== false));
-
-        if (isEditing) {
-          const orden = await api.getOrdenCompra(editId);
-          setProveedorNombre(orden.proveedor_nombre || '');
-          setProveedorId(orden.proveedor_id || null);
-          setFechaRecepcion(orden.fecha_recepcion ? orden.fecha_recepcion.split('T')[0] : '');
-          setAplicaIva(orden.aplica_iva || false);
-          setObservaciones(orden.observaciones || '');
-          if (orden.detalles && orden.detalles.length > 0) {
-            setDetalles(orden.detalles.map(d => ({
-              articulo: d.articulo || '',
-              modelo: d.modelo || '',
-              modelo_id: d.modelo_id || null,
-              cantidad: d.cantidad != null ? String(d.cantidad) : '',
-              costo_unitario: d.costo_unitario != null ? String(d.costo_unitario) : '',
-            })));
-          }
+        const orden = await api.getOrdenCompra(editId);
+        setProveedorNombre(orden.proveedor_nombre || '');
+        setProveedorId(orden.proveedor_id || null);
+        setFechaRecepcion(orden.fecha_recepcion ? orden.fecha_recepcion.split('T')[0] : '');
+        setAplicaIva(orden.aplica_iva || false);
+        setObservaciones(orden.observaciones || '');
+        if (orden.detalles && orden.detalles.length > 0) {
+          setDetalles(orden.detalles.map(d => ({
+            articulo: d.articulo || '',
+            modelo: d.modelo || '',
+            modelo_id: d.modelo_id || null,
+            cantidad: d.cantidad != null ? String(d.cantidad) : '',
+            costo_unitario: d.costo_unitario != null ? String(d.costo_unitario) : '',
+          })));
         }
       } catch (err) {
         console.error('Error loading data:', err);
@@ -135,11 +132,6 @@ export default function CompraClienteFormScreen({ route, navigation }) {
     }
   };
 
-  const selectProveedor = (prov) => {
-    setProveedorId(prov.id);
-    setProveedorNombre(prov.nombre);
-  };
-
   if (loadingData) {
     return (
       <View style={styles.centered}>
@@ -152,30 +144,23 @@ export default function CompraClienteFormScreen({ route, navigation }) {
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <SectionHeader title="Proveedor" />
       <View style={styles.card}>
-        <Input
-          label="Nombre del Proveedor"
-          value={proveedorNombre}
-          onChangeText={setProveedorNombre}
-          placeholder="Nombre del proveedor"
+        <CatalogPicker
+          label="Proveedor"
+          catalogo="proveedores"
+          value={proveedorId}
+          displayValue={proveedorNombre || undefined}
+          displayField="nombre"
+          placeholder="Seleccionar proveedor"
+          onSelect={(item) => {
+            if (item) {
+              setProveedorId(item.id);
+              setProveedorNombre(item.nombre);
+            } else {
+              setProveedorId(null);
+              setProveedorNombre('');
+            }
+          }}
         />
-        {proveedores.length > 0 && (
-          <View style={styles.pickerSection}>
-            <Text style={styles.pickerLabel}>Seleccionar del catálogo</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pickerScroll}>
-              {proveedores.map(prov => (
-                <TouchableOpacity
-                  key={prov.id}
-                  style={[styles.pickerOption, proveedorId === prov.id && styles.pickerOptionSelected]}
-                  onPress={() => selectProveedor(prov)}
-                >
-                  <Text style={[styles.pickerOptionText, proveedorId === prov.id && styles.pickerOptionTextSelected]}>
-                    {prov.nombre}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
       </View>
 
       <SectionHeader title="Datos de la Orden" />
@@ -218,17 +203,35 @@ export default function CompraClienteFormScreen({ route, navigation }) {
               </TouchableOpacity>
             )}
           </View>
-          <Input
+          <CatalogPicker
             label="Artículo"
-            value={det.articulo}
-            onChangeText={(v) => updateDetalle(index, 'articulo', v)}
-            placeholder="Nombre del artículo"
+            catalogo="articulos"
+            displayValue={det.articulo || undefined}
+            displayField="nombre"
+            placeholder="Seleccionar artículo"
+            onSelect={(item) => {
+              if (item) {
+                updateDetalle(index, 'articulo', item.nombre);
+              } else {
+                updateDetalle(index, 'articulo', '');
+              }
+            }}
           />
-          <Input
+          <CatalogPicker
             label="Modelo"
-            value={det.modelo}
-            onChangeText={(v) => updateDetalle(index, 'modelo', v)}
-            placeholder="Modelo"
+            catalogo="modelos"
+            displayValue={det.modelo || undefined}
+            displayField="nombre"
+            placeholder="Seleccionar modelo"
+            onSelect={(item) => {
+              if (item) {
+                updateDetalle(index, 'modelo', item.nombre);
+                updateDetalle(index, 'modelo_id', item.id);
+              } else {
+                updateDetalle(index, 'modelo', '');
+                updateDetalle(index, 'modelo_id', null);
+              }
+            }}
           />
           <View style={styles.rowInputs}>
             <View style={styles.halfInput}>
@@ -333,38 +336,6 @@ const styles = StyleSheet.create({
   toggleLabel: {
     fontSize: FontSize.body,
     color: Colors.text,
-  },
-  pickerSection: {
-    paddingVertical: Spacing.xs,
-  },
-  pickerLabel: {
-    fontSize: FontSize.footnote,
-    color: Colors.textSecondary,
-    marginBottom: 6,
-  },
-  pickerScroll: {
-    flexGrow: 0,
-  },
-  pickerOption: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: Colors.separator,
-  },
-  pickerOptionSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  pickerOptionText: {
-    fontSize: FontSize.footnote,
-    color: Colors.text,
-  },
-  pickerOptionTextSelected: {
-    color: '#fff',
-    fontWeight: '600',
   },
   detalleHeader: {
     flexDirection: 'row',

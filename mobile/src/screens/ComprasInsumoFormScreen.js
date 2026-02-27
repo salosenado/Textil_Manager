@@ -6,6 +6,7 @@ import { api } from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import SectionHeader from '../components/SectionHeader';
+import CatalogPicker from '../components/CatalogPicker';
 
 const EMPTY_DETALLE = {
   articulo: '',
@@ -159,11 +160,19 @@ export default function ComprasInsumoFormScreen({ route, navigation }) {
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <SectionHeader title="Datos Generales" />
       <View style={styles.card}>
-        <Input
+        <CatalogPicker
           label="Proveedor"
-          value={proveedor_cliente}
-          onChangeText={setProveedorCliente}
-          placeholder="Nombre del proveedor"
+          catalogo="proveedores"
+          displayField="nombre"
+          displayValue={proveedor_cliente || ''}
+          onSelect={(item) => {
+            if (item) {
+              setProveedorCliente(item.nombre);
+            } else {
+              setProveedorCliente('');
+            }
+          }}
+          placeholder="Seleccionar proveedor"
         />
         <View style={styles.divider} />
         <Input
@@ -203,51 +212,99 @@ export default function ComprasInsumoFormScreen({ route, navigation }) {
               </TouchableOpacity>
             )}
           </View>
-          <Input
+          <CatalogPicker
             label="Artículo"
-            value={det.articulo}
-            onChangeText={(v) => updateDetalle(index, 'articulo', v)}
-            placeholder="Artículo"
+            catalogo="articulos"
+            displayField="nombre"
+            displayValue={det.articulo || ''}
+            onSelect={(item) => {
+              if (item) {
+                updateDetalle(index, 'articulo', item.nombre);
+              } else {
+                updateDetalle(index, 'articulo', '');
+              }
+            }}
+            placeholder="Seleccionar artículo"
           />
           <View style={styles.divider} />
-          <Input
+          <CatalogPicker
             label="Línea"
-            value={det.linea}
-            onChangeText={(v) => updateDetalle(index, 'linea', v)}
-            placeholder="Línea"
+            catalogo="lineas"
+            displayField="nombre"
+            displayValue={det.linea || ''}
+            onSelect={(item) => {
+              if (item) {
+                updateDetalle(index, 'linea', item.nombre);
+              } else {
+                updateDetalle(index, 'linea', '');
+              }
+            }}
+            placeholder="Seleccionar línea"
           />
           <View style={styles.divider} />
-          <Input
+          <CatalogPicker
             label="Modelo"
-            value={det.modelo}
-            onChangeText={(v) => updateDetalle(index, 'modelo', v)}
-            placeholder="Modelo"
+            catalogo="modelos"
+            displayField="nombre"
+            displayValue={det.modelo || ''}
+            onSelect={(item) => {
+              if (item) {
+                updateDetalle(index, 'modelo', item.nombre);
+              } else {
+                updateDetalle(index, 'modelo', '');
+              }
+            }}
+            placeholder="Seleccionar modelo"
           />
           <View style={styles.divider} />
           <View style={styles.rowInputs}>
             <View style={styles.halfInput}>
-              <Input
+              <CatalogPicker
                 label="Color"
-                value={det.color}
-                onChangeText={(v) => updateDetalle(index, 'color', v)}
+                catalogo="colores"
+                displayField="nombre"
+                displayValue={det.color || ''}
+                onSelect={(item) => {
+                  if (item) {
+                    updateDetalle(index, 'color', item.nombre);
+                  } else {
+                    updateDetalle(index, 'color', '');
+                  }
+                }}
                 placeholder="Color"
               />
             </View>
             <View style={styles.halfInput}>
-              <Input
+              <CatalogPicker
                 label="Talla"
-                value={det.talla}
-                onChangeText={(v) => updateDetalle(index, 'talla', v)}
+                catalogo="tallas"
+                displayField="nombre"
+                displayValue={det.talla || ''}
+                onSelect={(item) => {
+                  if (item) {
+                    updateDetalle(index, 'talla', item.nombre);
+                  } else {
+                    updateDetalle(index, 'talla', '');
+                  }
+                }}
                 placeholder="Talla"
               />
             </View>
           </View>
           <View style={styles.divider} />
-          <Input
+          <CatalogPicker
             label="Unidad"
-            value={det.unidad}
-            onChangeText={(v) => updateDetalle(index, 'unidad', v)}
-            placeholder="Unidad"
+            catalogo="unidades"
+            displayField="nombre"
+            displayValue={det.unidad || ''}
+            onSelect={(item) => {
+              if (item) {
+                updateDetalle(index, 'unidad', item.nombre);
+              } else {
+                updateDetalle(index, 'unidad', '');
+              }
+            }}
+            placeholder="Seleccionar unidad"
           />
           <View style={styles.divider} />
           <View style={styles.rowInputs}>

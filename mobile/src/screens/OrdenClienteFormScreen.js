@@ -9,6 +9,7 @@ import { api } from '../services/api';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import SectionHeader from '../components/SectionHeader';
+import CatalogPicker from '../components/CatalogPicker';
 
 function formatMX(value) {
   const num = parseFloat(value) || 0;
@@ -33,45 +34,37 @@ export default function OrdenClienteFormScreen({ route, navigation }) {
   const [clienteId, setClienteId] = useState(orden?.cliente_id || '');
   const [clienteNombre, setClienteNombre] = useState(orden?.cliente_nombre || '');
   const [agenteId, setAgenteId] = useState(orden?.agente_id || '');
+  const [agenteNombre, setAgenteNombre] = useState(orden?.agente_nombre || '');
   const [numeroPedidoCliente, setNumeroPedidoCliente] = useState(orden?.numero_pedido_cliente || '');
   const [fechaEntrega, setFechaEntrega] = useState(orden?.fecha_entrega ? orden.fecha_entrega.split('T')[0] : '');
   const [aplicaIva, setAplicaIva] = useState(orden?.aplica_iva || false);
   const [detalles, setDetalles] = useState([{ ...EMPTY_DETALLE }]);
 
-  const [clientes, setClientes] = useState([]);
-  const [agentes, setAgentes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
+  const [loadingData, setLoadingData] = useState(!!isEditing);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadData();
+    if (isEditing && orden?.id) {
+      loadData();
+    }
   }, []);
 
   const loadData = async () => {
     setLoadingData(true);
     try {
-      const [clientesData, agentesData] = await Promise.all([
-        api.getCatalogItems('clientes'),
-        api.getCatalogItems('agentes'),
-      ]);
-      setClientes(clientesData.filter(c => c.activo !== false));
-      setAgentes(agentesData.filter(a => a.activo !== false));
-
-      if (isEditing && orden?.id) {
-        const full = await api.getOrdenCliente(orden.id);
-        if (full.detalles && full.detalles.length > 0) {
-          setDetalles(full.detalles.map(d => ({
-            articulo: d.articulo || '',
-            linea: d.linea || '',
-            modelo: d.modelo || '',
-            color: d.color || '',
-            talla: d.talla || '',
-            unidad: d.unidad || '',
-            cantidad: String(d.cantidad || ''),
-            precio_unitario: String(d.precio_unitario || ''),
-          })));
-        }
+      const full = await api.getOrdenCliente(orden.id);
+      if (full.detalles && full.detalles.length > 0) {
+        setDetalles(full.detalles.map(d => ({
+          articulo: d.articulo || '',
+          linea: d.linea || '',
+          modelo: d.modelo || '',
+          color: d.color || '',
+          talla: d.talla || '',
+          unidad: d.unidad || '',
+          cantidad: String(d.cantidad || ''),
+          precio_unitario: String(d.precio_unitario || ''),
+        })));
       }
     } catch (err) {
       console.error('Error loading data:', err);
@@ -167,14 +160,6 @@ export default function OrdenClienteFormScreen({ route, navigation }) {
     }
   };
 
-  const selectCliente = (id) => {
-    setClienteId(id);
-    const found = clientes.find(c => c.id === id);
-    if (found) {
-      setClienteNombre(found.nombre_comercial);
-    }
-  };
-
   if (loadingData) {
     return (
       <View style={styles.centered}>
@@ -187,60 +172,45 @@ export default function OrdenClienteFormScreen({ route, navigation }) {
     <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <SectionHeader title="Cliente" />
       <View style={styles.card}>
-        <Text style={styles.pickerLabel}>Seleccionar Cliente</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pickerScroll}>
-          <TouchableOpacity
-            style={[styles.pickerOption, !clienteId && styles.pickerOptionSelected]}
-            onPress={() => { setClienteId(''); setClienteNombre(''); }}
-          >
-            <Text style={[styles.pickerOptionText, !clienteId && styles.pickerOptionTextSelected]}>
-              Sin asignar
-            </Text>
-          </TouchableOpacity>
-          {clientes.map(c => (
-            <TouchableOpacity
-              key={c.id}
-              style={[styles.pickerOption, clienteId === c.id && styles.pickerOptionSelected]}
-              onPress={() => selectCliente(c.id)}
-            >
-              <Text style={[styles.pickerOptionText, clienteId === c.id && styles.pickerOptionTextSelected]}>
-                {c.nombre_comercial}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-        <View style={styles.divider} />
-        <Input
-          label="Nombre del Cliente (manual)"
-          value={clienteNombre}
-          onChangeText={setClienteNombre}
-          placeholder="Nombre del cliente"
+        <CatalogPicker
+          label="Seleccionar Cliente"
+          catalogo="clientes"
+          value={clienteId}
+          displayValue={clienteNombre}
+          displayField="nombre_comercial"
+          placeholder="Seleccionar cliente..."
+          onSelect={(item) => {
+            if (item) {
+              setClienteId(item.id);
+              setClienteNombre(item.nombre_comercial || item.nombre || '');
+            } else {
+              setClienteId('');
+              setClienteNombre('');
+            }
+          }}
         />
       </View>
 
       <SectionHeader title="Agente" />
       <View style={styles.card}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pickerScroll}>
-          <TouchableOpacity
-            style={[styles.pickerOption, !agenteId && styles.pickerOptionSelected]}
-            onPress={() => setAgenteId('')}
-          >
-            <Text style={[styles.pickerOptionText, !agenteId && styles.pickerOptionTextSelected]}>
-              Sin agente
-            </Text>
-          </TouchableOpacity>
-          {agentes.map(a => (
-            <TouchableOpacity
-              key={a.id}
-              style={[styles.pickerOption, agenteId === a.id && styles.pickerOptionSelected]}
-              onPress={() => setAgenteId(a.id)}
-            >
-              <Text style={[styles.pickerOptionText, agenteId === a.id && styles.pickerOptionTextSelected]}>
-                {a.nombre} {a.apellido || ''}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <CatalogPicker
+          label="Seleccionar Agente"
+          catalogo="agentes"
+          value={agenteId}
+          displayValue={agenteNombre}
+          displayField="nombre"
+          secondaryField="apellido"
+          placeholder="Sin agente"
+          onSelect={(item) => {
+            if (item) {
+              setAgenteId(item.id);
+              setAgenteNombre(`${item.nombre || ''}${item.apellido ? ' ' + item.apellido : ''}`);
+            } else {
+              setAgenteId('');
+              setAgenteNombre('');
+            }
+          }}
+        />
       </View>
 
       <SectionHeader title="Datos de la Orden" />
@@ -281,55 +251,79 @@ export default function OrdenClienteFormScreen({ route, navigation }) {
               </TouchableOpacity>
             )}
           </View>
-          <Input
+          <CatalogPicker
             label="Artículo"
-            value={det.articulo}
-            onChangeText={(v) => updateDetalle(index, 'articulo', v)}
-            placeholder="Nombre del artículo"
+            catalogo="articulos"
+            displayValue={det.articulo}
+            displayField="nombre"
+            placeholder="Seleccionar artículo"
+            onSelect={(item) => {
+              updateDetalle(index, 'articulo', item ? item.nombre : '');
+            }}
           />
           <View style={styles.row}>
             <View style={styles.halfField}>
-              <Input
+              <CatalogPicker
                 label="Modelo"
-                value={det.modelo}
-                onChangeText={(v) => updateDetalle(index, 'modelo', v)}
+                catalogo="modelos"
+                displayValue={det.modelo}
+                displayField="nombre"
                 placeholder="Modelo"
+                onSelect={(item) => {
+                  updateDetalle(index, 'modelo', item ? item.nombre : '');
+                }}
               />
             </View>
             <View style={styles.halfField}>
-              <Input
+              <CatalogPicker
                 label="Línea"
-                value={det.linea}
-                onChangeText={(v) => updateDetalle(index, 'linea', v)}
+                catalogo="lineas"
+                displayValue={det.linea}
+                displayField="nombre"
                 placeholder="Línea"
+                onSelect={(item) => {
+                  updateDetalle(index, 'linea', item ? item.nombre : '');
+                }}
               />
             </View>
           </View>
           <View style={styles.row}>
             <View style={styles.halfField}>
-              <Input
+              <CatalogPicker
                 label="Color"
-                value={det.color}
-                onChangeText={(v) => updateDetalle(index, 'color', v)}
+                catalogo="colores"
+                displayValue={det.color}
+                displayField="nombre"
                 placeholder="Color"
+                onSelect={(item) => {
+                  updateDetalle(index, 'color', item ? item.nombre : '');
+                }}
               />
             </View>
             <View style={styles.halfField}>
-              <Input
+              <CatalogPicker
                 label="Talla"
-                value={det.talla}
-                onChangeText={(v) => updateDetalle(index, 'talla', v)}
+                catalogo="tallas"
+                displayValue={det.talla}
+                displayField="nombre"
                 placeholder="Talla"
+                onSelect={(item) => {
+                  updateDetalle(index, 'talla', item ? item.nombre : '');
+                }}
               />
             </View>
           </View>
           <View style={styles.row}>
             <View style={styles.halfField}>
-              <Input
+              <CatalogPicker
                 label="Unidad"
-                value={det.unidad}
-                onChangeText={(v) => updateDetalle(index, 'unidad', v)}
+                catalogo="unidades"
+                displayValue={det.unidad}
+                displayField="nombre"
                 placeholder="Pza, Kg..."
+                onSelect={(item) => {
+                  updateDetalle(index, 'unidad', item ? item.nombre : '');
+                }}
               />
             </View>
             <View style={styles.halfField}>
@@ -421,37 +415,6 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.separator,
     marginVertical: Spacing.xs,
-  },
-  pickerLabel: {
-    fontSize: FontSize.footnote,
-    color: Colors.textSecondary,
-    marginBottom: 6,
-    marginTop: Spacing.xs,
-  },
-  pickerScroll: {
-    flexGrow: 0,
-    marginBottom: Spacing.sm,
-  },
-  pickerOption: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: Colors.separator,
-  },
-  pickerOptionSelected: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  pickerOptionText: {
-    fontSize: FontSize.footnote,
-    color: Colors.text,
-  },
-  pickerOptionTextSelected: {
-    color: '#fff',
-    fontWeight: '600',
   },
   toggleRow: {
     flexDirection: 'row',
