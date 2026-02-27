@@ -4,22 +4,16 @@ import Constants from 'expo-constants';
 
 function getApiUrl() {
   const configured = Constants.expoConfig?.extra?.apiUrl;
+  if (configured) {
+    return configured + '/api';
+  }
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    if (configured) return configured + '/api';
     const origin = window.location.origin;
     if (origin.includes(':8080')) {
       return origin.replace(':8080', ':5000') + '/api';
     }
     return origin + '/api';
   }
-  const hostUri = Constants.expoConfig?.hostUri;
-  if (hostUri) {
-    const host = hostUri.split(':')[0];
-    if (host && host !== 'localhost' && host !== '127.0.0.1') {
-      return `http://${host}:5000/api`;
-    }
-  }
-  if (configured) return configured + '/api';
   return 'http://localhost:5000/api';
 }
 
