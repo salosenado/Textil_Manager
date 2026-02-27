@@ -3,8 +3,14 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
 function getApiUrl() {
+  const configured = Constants.expoConfig?.extra?.apiUrl;
   if (Platform.OS === 'web' && typeof window !== 'undefined') {
-    return window.location.origin + '/api';
+    if (configured) return configured + '/api';
+    const origin = window.location.origin;
+    if (origin.includes(':8080')) {
+      return origin.replace(':8080', ':5000') + '/api';
+    }
+    return origin + '/api';
   }
   const hostUri = Constants.expoConfig?.hostUri;
   if (hostUri) {
@@ -13,7 +19,6 @@ function getApiUrl() {
       return `http://${host}:5000/api`;
     }
   }
-  const configured = Constants.expoConfig?.extra?.apiUrl;
   if (configured) return configured + '/api';
   return 'http://localhost:5000/api';
 }
