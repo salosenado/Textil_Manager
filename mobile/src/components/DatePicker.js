@@ -183,9 +183,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
   modalContent: {
-    backgroundColor: Colors.card,
+    backgroundColor: '#fff',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
+    overflow: 'hidden',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -208,5 +209,6 @@ const styles = StyleSheet.create({
   },
   iosPicker: {
     height: 220,
+    backgroundColor: '#fff',
   },
 });
