@@ -24,7 +24,12 @@ function authMiddleware(req, res, next) {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    req.user = { ...decoded };
+
+    if (decoded.es_root && req.headers['x-empresa-id']) {
+      req.user.empresa_id = req.headers['x-empresa-id'];
+    }
+
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Sesión expirada, inicia sesión de nuevo' });

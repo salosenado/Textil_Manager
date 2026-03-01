@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [permisos, setPermisos] = useState([]);
+  const [empresaActiva, setEmpresaActivaState] = useState(null);
 
   useEffect(() => {
     checkAuth();
@@ -21,6 +22,17 @@ export function AuthProvider({ children }) {
         const userData = data.user || data;
         setUser(userData);
         setPermisos(data.permisos || userData.permisos || []);
+
+        if (userData.es_root) {
+          const saved = await AsyncStorage.getItem('empresaActiva');
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved);
+              setEmpresaActivaState(parsed);
+              api.setEmpresaActiva(parsed.id);
+            } catch (e) {}
+          }
+        }
       }
     } catch (err) {
       await AsyncStorage.removeItem('token');
@@ -35,6 +47,11 @@ export function AuthProvider({ children }) {
     const userData = data.user || data;
     setUser(userData);
     setPermisos(userData.permisos || []);
+    if (!userData.es_root) {
+      setEmpresaActivaState(null);
+      await AsyncStorage.removeItem('empresaActiva');
+      api.setEmpresaActiva(null);
+    }
     return data;
   }
 
@@ -44,13 +61,19 @@ export function AuthProvider({ children }) {
     const userData = data.user || data;
     setUser(userData);
     setPermisos(userData.permisos || []);
+    setEmpresaActivaState(null);
+    await AsyncStorage.removeItem('empresaActiva');
+    api.setEmpresaActiva(null);
     return data;
   }
 
   async function logout() {
     await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('empresaActiva');
     setUser(null);
     setPermisos([]);
+    setEmpresaActivaState(null);
+    api.setEmpresaActiva(null);
   }
 
   function tienePermiso(permiso) {
@@ -66,7 +89,17 @@ export function AuthProvider({ children }) {
       setUser(userData);
       setPermisos(data.permisos || userData.permisos || []);
     } catch (err) {
-      // ignore
+    }
+  }
+
+  async function setEmpresaActiva(empresa) {
+    setEmpresaActivaState(empresa);
+    if (empresa) {
+      await AsyncStorage.setItem('empresaActiva', JSON.stringify(empresa));
+      api.setEmpresaActiva(empresa.id);
+    } else {
+      await AsyncStorage.removeItem('empresaActiva');
+      api.setEmpresaActiva(null);
     }
   }
 
@@ -80,6 +113,8 @@ export function AuthProvider({ children }) {
       logout,
       tienePermiso,
       refreshUser,
+      empresaActiva,
+      setEmpresaActiva,
     }}>
       {children}
     </AuthContext.Provider>

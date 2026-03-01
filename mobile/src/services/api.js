@@ -19,6 +19,8 @@ function getApiUrl() {
 
 const API_URL = getApiUrl();
 
+let _empresaActivaId = null;
+
 async function getToken() {
   return await AsyncStorage.getItem('token');
 }
@@ -28,6 +30,7 @@ async function request(endpoint, options = {}) {
   const headers = {
     'Content-Type': 'application/json',
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+    ...(_empresaActivaId ? { 'X-Empresa-Id': _empresaActivaId } : {}),
     ...options.headers,
   };
 
@@ -56,6 +59,8 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  setEmpresaActiva: (id) => { _empresaActivaId = id; },
+
   login: (email, password) =>
     request('/auth/login', {
       method: 'POST',

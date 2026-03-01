@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { useAuth } from '../context/AuthContext';
+import EmpresaSelector from '../components/EmpresaSelector';
 
 const quickLinks = [
   { id: 'catalogos', title: 'Catálogos', icon: 'list-outline', color: Colors.primary, permiso: 'catalogos.ver', tab: 'AdminTab', screen: 'CatalogosHome' },
@@ -39,9 +40,12 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {user?.es_root && (
-        <View style={styles.rootBadge}>
-          <Ionicons name="shield-checkmark" size={16} color={Colors.white} />
-          <Text style={styles.rootText}>Administrador del Sistema</Text>
+        <View style={styles.rootSection}>
+          <View style={styles.rootBadge}>
+            <Ionicons name="shield-checkmark" size={16} color={Colors.white} />
+            <Text style={styles.rootText}>Administrador del Sistema</Text>
+          </View>
+          <EmpresaSelector />
         </View>
       )}
 
@@ -91,6 +95,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.text,
   },
+  rootSection: {
+    marginBottom: Spacing.lg,
+    gap: Spacing.sm,
+  },
   rootBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -99,7 +107,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.sm,
     alignSelf: 'flex-start',
-    marginBottom: Spacing.xl,
     gap: 6,
   },
   rootText: {
