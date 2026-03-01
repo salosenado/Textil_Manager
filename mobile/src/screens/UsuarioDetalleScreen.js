@@ -13,11 +13,14 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
   const { usuario, onRefresh } = route.params;
   const { user: currentUser } = useAuth();
   const [roles, setRoles] = useState([]);
+  const [empresas, setEmpresas] = useState([]);
   const [selectedRol, setSelectedRol] = useState(usuario.rol_id);
+  const [selectedEmpresa, setSelectedEmpresa] = useState(usuario.empresa_id);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     loadRoles();
+    if (currentUser?.es_root) loadEmpresas();
   }, []);
 
   async function loadRoles() {
@@ -26,6 +29,30 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
       setRoles(data);
     } catch (err) {
       // ignore
+    }
+  }
+
+  async function loadEmpresas() {
+    try {
+      const data = await api.getEmpresas();
+      setEmpresas(data);
+    } catch (err) {
+      // ignore
+    }
+  }
+
+  async function handleAsignarEmpresa(empresaId) {
+    try {
+      setLoading(true);
+      await api.asignarEmpresa(usuario.id, empresaId);
+      setSelectedEmpresa(empresaId);
+      const empresaNombre = empresas.find(e => e.id === empresaId)?.nombre || 'Sin empresa';
+      Alert.alert('Listo', `Empresa asignada: ${empresaNombre}`);
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -135,6 +162,35 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
         <View style={styles.separator} />
         <ListRow title="Rol" rightText={usuario.rol_nombre || 'Sin rol'} showChevron={false} />
       </Card>
+
+      {!isCurrentUser && currentUser?.es_root && (
+        <>
+          <SectionHeader title="Asignar Empresa" />
+          <Card style={styles.rolesCard}>
+            <ListRow
+              title="Sin empresa (Root)"
+              icon={!selectedEmpresa ? 'checkmark-circle' : 'ellipse-outline'}
+              iconColor={!selectedEmpresa ? Colors.primary : Colors.textTertiary}
+              onPress={() => handleAsignarEmpresa(null)}
+              showChevron={false}
+            />
+            {empresas.map(emp => (
+              <ListRow
+                key={emp.id}
+                title={emp.nombre}
+                subtitle={emp.activa === false ? 'Inactiva' : undefined}
+                icon={selectedEmpresa === emp.id ? 'checkmark-circle' : 'ellipse-outline'}
+                iconColor={selectedEmpresa === emp.id ? Colors.primary : Colors.textTertiary}
+                onPress={() => handleAsignarEmpresa(emp.id)}
+                showChevron={false}
+              />
+            ))}
+            {empresas.length === 0 && (
+              <Text style={styles.noRoles}>No hay empresas disponibles</Text>
+            )}
+          </Card>
+        </>
+      )}
 
       {!isCurrentUser && (
         <>
