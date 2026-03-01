@@ -202,11 +202,12 @@ module.exports = function(pool) {
         fechaOrdenMaquila = new Date();
       }
 
+      const usuarioNombre = req.user.nombre || req.user.email || 'usuario';
       const result = await client.query(
-        `INSERT INTO producciones (empresa_id, maquilero_id, maquilero_nombre, detalle_orden_id, pz_cortadas, costo_maquila, orden_maquila, fecha_orden_maquila)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO producciones (empresa_id, maquilero_id, maquilero_nombre, detalle_orden_id, pz_cortadas, costo_maquila, orden_maquila, fecha_orden_maquila, usuario_creacion)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          RETURNING *`,
-        [empresaId, maquilero_id || null, maquilero_nombre, detalle_orden_id || null, pzVal, costoVal, ordenMaquila, fechaOrdenMaquila]
+        [empresaId, maquilero_id || null, maquilero_nombre, detalle_orden_id || null, pzVal, costoVal, ordenMaquila, fechaOrdenMaquila, usuarioNombre]
       );
 
       await client.query('COMMIT');
@@ -421,11 +422,12 @@ module.exports = function(pool) {
         return res.status(400).json({ error: 'La cantidad debe ser mayor a 0' });
       }
 
+      const usuarioNombre = req.user.nombre || req.user.email || 'usuario';
       const reciboResult = await client.query(
-        `INSERT INTO recibos_produccion (produccion_id, cantidad, observaciones, nombre_entrega, nombre_recepcion)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO recibos_produccion (produccion_id, cantidad, observaciones, nombre_entrega, nombre_recepcion, usuario_creacion)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [req.params.id, parseInt(cantidad) || 0, observaciones || null, nombre_entrega || null, nombre_recepcion || null]
+        [req.params.id, parseInt(cantidad) || 0, observaciones || null, nombre_entrega || null, nombre_recepcion || null, usuarioNombre]
       );
       const recibo = reciboResult.rows[0];
 
@@ -527,11 +529,12 @@ module.exports = function(pool) {
         return res.status(400).json({ error: `El saldo pendiente es ${saldoDisponible.toFixed(2)}. No puedes pagar más de esa cantidad` });
       }
 
+      const usuarioNombre = req.user.nombre || req.user.email || 'usuario';
       const result = await pool.query(
-        `INSERT INTO pagos_recibo (recibo_id, monto, observaciones)
-         VALUES ($1, $2, $3)
+        `INSERT INTO pagos_recibo (recibo_id, monto, observaciones, usuario_creacion)
+         VALUES ($1, $2, $3, $4)
          RETURNING *`,
-        [req.params.reciboId, montoNum, observaciones || null]
+        [req.params.reciboId, montoNum, observaciones || null, usuarioNombre]
       );
 
       res.json(result.rows[0]);

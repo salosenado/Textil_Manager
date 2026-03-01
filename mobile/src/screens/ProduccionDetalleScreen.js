@@ -271,16 +271,19 @@ export default function ProduccionDetalleScreen({ route, navigation }) {
 
   const movimientos = [];
   if (produccion.created_at) {
-    movimientos.push({ texto: 'Producción creada', fecha: produccion.created_at });
+    const creadoPor = produccion.usuario_creacion ? ` por ${produccion.usuario_creacion}` : '';
+    movimientos.push({ texto: `Producción creada${creadoPor}`, fecha: produccion.created_at });
   }
   if (produccion.fecha_orden_maquila) {
     movimientos.push({ texto: `Orden de Maquila ${produccion.orden_maquila} generada`, fecha: produccion.fecha_orden_maquila });
   }
   recibos.forEach(r => {
-    movimientos.push({ texto: `Recepción de ${r.cantidad} pz`, fecha: r.fecha_recibo || r.created_at });
+    const porUsuario = r.usuario_creacion ? ` por ${r.usuario_creacion}` : '';
+    movimientos.push({ texto: `Recepción de ${r.cantidad} pz${porUsuario}`, fecha: r.fecha_recibo || r.created_at });
   });
   pagos.forEach(p => {
-    movimientos.push({ texto: `Pago de ${formatMX(p.monto)}`, fecha: p.fecha_pago || p.created_at });
+    const porUsuario = p.usuario_creacion ? ` por ${p.usuario_creacion}` : '';
+    movimientos.push({ texto: `Pago de ${formatMX(p.monto)}${porUsuario}`, fecha: p.fecha_pago || p.created_at });
   });
   if (produccion.fecha_cancelacion) {
     movimientos.push({ texto: `Cancelada por ${produccion.usuario_cancelacion || '—'}`, fecha: produccion.fecha_cancelacion });
