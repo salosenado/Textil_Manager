@@ -453,7 +453,7 @@ export default function ProduccionDetalleScreen({ route, navigation }) {
           ) : (
             <Text style={styles.emptyText}>Sin recepciones</Text>
           )}
-          {!isCancelled && (
+          {!isCancelled && pzPendientes > 0 && (
             <>
               <View style={styles.divider} />
               <TouchableOpacity
@@ -461,8 +461,17 @@ export default function ProduccionDetalleScreen({ route, navigation }) {
                 onPress={() => setReciboModalVisible(true)}
               >
                 <Ionicons name="add-circle-outline" size={20} color={Colors.primary} />
-                <Text style={styles.addButtonText}>Registrar Recepción</Text>
+                <Text style={styles.addButtonText}>Registrar Recepción ({pzPendientes} pendientes)</Text>
               </TouchableOpacity>
+            </>
+          )}
+          {!isCancelled && pzPendientes <= 0 && pzCortadas > 0 && (
+            <>
+              <View style={styles.divider} />
+              <View style={styles.completeBanner}>
+                <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
+                <Text style={[styles.addButtonText, { color: Colors.success }]}>Recepción completa</Text>
+              </View>
             </>
           )}
         </View>
@@ -573,12 +582,19 @@ export default function ProduccionDetalleScreen({ route, navigation }) {
               </TouchableOpacity>
             </View>
             <View style={styles.modalBody}>
-              <Text style={styles.inputLabel}>Cantidad *</Text>
+              <Text style={styles.inputLabel}>Cantidad * (máximo {pzPendientes})</Text>
               <TextInput
                 style={styles.modalInput}
                 value={reciboCantidad}
-                onChangeText={setReciboCantidad}
-                placeholder="Cantidad de piezas"
+                onChangeText={(text) => {
+                  const num = parseInt(text) || 0;
+                  if (num > pzPendientes) {
+                    setReciboCantidad(String(pzPendientes));
+                  } else {
+                    setReciboCantidad(text.replace(/[^0-9]/g, ''));
+                  }
+                }}
+                placeholder={`Hasta ${pzPendientes} piezas`}
                 placeholderTextColor={Colors.textTertiary}
                 keyboardType="number-pad"
               />
@@ -811,6 +827,13 @@ const styles = StyleSheet.create({
     fontSize: FontSize.body,
     color: Colors.primary,
     fontWeight: '600',
+  },
+  completeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.md,
+    gap: 6,
   },
   movRow: {
     flexDirection: 'row',

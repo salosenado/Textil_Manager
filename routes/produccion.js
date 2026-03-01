@@ -391,6 +391,36 @@ module.exports = function(pool) {
         return res.status(404).json({ error: 'Producción no encontrada' });
       }
 
+      const prod = existing.rows[0];
+      if (prod.cancelada) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'No se pueden registrar recepciones en una producción cancelada' });
+      }
+
+      const pzCortadas = parseInt(prod.pz_cortadas) || 0;
+      const recibidoResult = await client.query(
+        'SELECT COALESCE(SUM(cantidad), 0) as total FROM recibos_produccion WHERE produccion_id = $1',
+        [req.params.id]
+      );
+      const yaRecibido = parseInt(recibidoResult.rows[0].total) || 0;
+      const disponible = pzCortadas - yaRecibido;
+      const cantidadSolicitada = parseInt(cantidad) || 0;
+
+      if (disponible <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'Ya se recibieron todas las piezas cortadas' });
+      }
+
+      if (cantidadSolicitada > disponible) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: `Solo quedan ${disponible} piezas por recibir` });
+      }
+
+      if (cantidadSolicitada <= 0) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ error: 'La cantidad debe ser mayor a 0' });
+      }
+
       const reciboResult = await client.query(
         `INSERT INTO recibos_produccion (produccion_id, cantidad, observaciones, nombre_entrega, nombre_recepcion)
          VALUES ($1, $2, $3, $4, $5)
