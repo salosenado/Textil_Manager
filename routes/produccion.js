@@ -483,9 +483,17 @@ module.exports = function(pool) {
     }
 
     const { monto, observaciones } = req.body;
+    const montoNum = parseFloat(monto) || 0;
+
+    if (montoNum <= 0) {
+      return res.status(400).json({ error: 'El monto debe ser mayor a 0' });
+    }
 
     try {
-      let verifyQ = `SELECT rp.* FROM recibos_produccion rp
+      let verifyQ = `SELECT rp.*, p.pz_cortadas, p.costo_maquila, p.cancelada,
+          (SELECT COALESCE(SUM(cantidad), 0) FROM recibos_produccion WHERE produccion_id = p.id) as total_recibido,
+          (SELECT COALESCE(bool_or(oc.aplica_iva), false) FROM orden_cliente_detalles d JOIN ordenes_cliente oc ON d.orden_id = oc.id WHERE d.id = p.detalle_orden_id) as aplica_iva
+        FROM recibos_produccion rp
         JOIN producciones p ON rp.produccion_id = p.id
         WHERE rp.id = $1`;
       const verifyP = [req.params.reciboId];
@@ -496,11 +504,34 @@ module.exports = function(pool) {
         return res.status(404).json({ error: 'Recibo no encontrado' });
       }
 
+      const rec = verify.rows[0];
+      const totalRecibido = parseInt(rec.total_recibido) || 0;
+      const costoMaquila = parseFloat(rec.costo_maquila) || 0;
+      const subtotal = totalRecibido * costoMaquila;
+      const totalOrden = rec.aplica_iva ? subtotal * 1.16 : subtotal;
+
+      const pagosResult = await pool.query(
+        `SELECT COALESCE(SUM(monto), 0) as total_pagado FROM pagos_recibo
+         WHERE recibo_id IN (SELECT id FROM recibos_produccion WHERE produccion_id = (SELECT produccion_id FROM recibos_produccion WHERE id = $1))
+         AND fecha_eliminacion IS NULL`,
+        [req.params.reciboId]
+      );
+      const yaPagado = parseFloat(pagosResult.rows[0].total_pagado) || 0;
+      const saldoDisponible = Math.round((totalOrden - yaPagado) * 100) / 100;
+
+      if (saldoDisponible <= 0) {
+        return res.status(400).json({ error: 'Ya se pagó el total de la producción' });
+      }
+
+      if (montoNum > saldoDisponible) {
+        return res.status(400).json({ error: `El saldo pendiente es ${saldoDisponible.toFixed(2)}. No puedes pagar más de esa cantidad` });
+      }
+
       const result = await pool.query(
         `INSERT INTO pagos_recibo (recibo_id, monto, observaciones)
          VALUES ($1, $2, $3)
          RETURNING *`,
-        [req.params.reciboId, parseFloat(monto) || 0, observaciones || null]
+        [req.params.reciboId, montoNum, observaciones || null]
       );
 
       res.json(result.rows[0]);

@@ -513,7 +513,7 @@ export default function ProduccionDetalleScreen({ route, navigation }) {
               {formatMX(saldoPendiente)}
             </Text>
           </View>
-          {!isCancelled && recibos.length > 0 && (
+          {!isCancelled && recibos.length > 0 && saldoPendiente > 0 && (
             <>
               <View style={styles.divider} />
               <TouchableOpacity
@@ -521,8 +521,17 @@ export default function ProduccionDetalleScreen({ route, navigation }) {
                 onPress={() => openPagoModal(recibos[0].id)}
               >
                 <Ionicons name="add-circle-outline" size={20} color={Colors.primary} />
-                <Text style={styles.addButtonText}>Registrar Pago</Text>
+                <Text style={styles.addButtonText}>Registrar Pago (saldo: {formatMX(saldoPendiente)})</Text>
               </TouchableOpacity>
+            </>
+          )}
+          {!isCancelled && recibos.length > 0 && saldoPendiente <= 0 && totalPagado > 0 && (
+            <>
+              <View style={styles.divider} />
+              <View style={styles.completeBanner}>
+                <Ionicons name="checkmark-circle" size={18} color={Colors.success} />
+                <Text style={[styles.addButtonText, { color: Colors.success }]}>Pago completo</Text>
+              </View>
             </>
           )}
         </View>
@@ -649,12 +658,20 @@ export default function ProduccionDetalleScreen({ route, navigation }) {
               </TouchableOpacity>
             </View>
             <View style={styles.modalBody}>
-              <Text style={styles.inputLabel}>Monto *</Text>
+              <Text style={styles.inputLabel}>Monto * (máximo {formatMX(saldoPendiente)})</Text>
               <TextInput
                 style={styles.modalInput}
                 value={pagoMonto}
-                onChangeText={setPagoMonto}
-                placeholder="Monto del pago"
+                onChangeText={(text) => {
+                  const clean = text.replace(/[^0-9.]/g, '');
+                  const num = parseFloat(clean) || 0;
+                  if (num > saldoPendiente) {
+                    setPagoMonto(saldoPendiente.toFixed(2));
+                  } else {
+                    setPagoMonto(clean);
+                  }
+                }}
+                placeholder={`Hasta ${formatMX(saldoPendiente)}`}
                 placeholderTextColor={Colors.textTertiary}
                 keyboardType="decimal-pad"
               />
