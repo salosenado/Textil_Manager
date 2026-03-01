@@ -107,6 +107,9 @@ export const api = {
       body: JSON.stringify({ rol_id: rolId }),
     }),
 
+  toggleRootUsuario: (id) =>
+    request(`/usuarios/${id}/toggle-root`, { method: 'PUT' }),
+
   getRoles: () => request('/roles'),
 
   getPermisos: () => request('/roles/permisos'),

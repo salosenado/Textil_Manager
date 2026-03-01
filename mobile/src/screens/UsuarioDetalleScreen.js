@@ -59,6 +59,34 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
     }
   }
 
+  async function handleToggleRoot() {
+    const action = usuario.es_root ? 'quitar acceso root a' : 'designar como root a';
+    Alert.alert(
+      'Confirmar',
+      `¿${action} ${usuario.nombre}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          style: usuario.es_root ? 'destructive' : 'default',
+          onPress: async () => {
+            try {
+              setLoading(true);
+              const result = await api.toggleRootUsuario(usuario.id);
+              Alert.alert('Listo', result.message);
+              if (onRefresh) onRefresh();
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Error', err.message);
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  }
+
   async function handleAsignarRol(rolId) {
     try {
       await api.asignarRol(usuario.id, rolId);
@@ -89,6 +117,11 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
           {!usuario.aprobado && (
             <View style={[styles.badge, { backgroundColor: Colors.warning }]}>
               <Text style={styles.badgeText}>Pendiente</Text>
+            </View>
+          )}
+          {usuario.es_root && (
+            <View style={[styles.badge, { backgroundColor: Colors.primary }]}>
+              <Text style={styles.badgeText}>Root</Text>
             </View>
           )}
         </View>
@@ -140,6 +173,15 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
               loading={loading}
               style={styles.actionBtn}
             />
+            {currentUser?.es_root && (
+              <Button
+                title={usuario.es_root ? 'Quitar Acceso Root' : 'Designar como Root'}
+                onPress={handleToggleRoot}
+                variant={usuario.es_root ? 'destructive' : 'secondary'}
+                loading={loading}
+                style={styles.actionBtn}
+              />
+            )}
           </View>
         </>
       )}

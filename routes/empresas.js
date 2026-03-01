@@ -76,21 +76,125 @@ module.exports = function(pool) {
     }
   });
 
+  const ROLES_PREDETERMINADOS = [
+    {
+      nombre: 'Administrador',
+      descripcion: 'Acceso completo a todos los módulos de la empresa',
+      permisos: [
+        'catalogos.ver', 'catalogos.editar',
+        'costos.ver', 'costos.editar',
+        'produccion.ver', 'produccion.editar',
+        'ordenes.ver', 'ordenes.editar',
+        'ventas.ver', 'ventas.editar',
+        'inventarios.ver', 'inventarios.editar',
+        'servicios.ver', 'servicios.editar',
+        'reportes.ver',
+        'financiero.ver', 'financiero.editar',
+        'usuarios.ver', 'usuarios.editar',
+        'roles.ver', 'roles.editar',
+        'compras.ver', 'compras.editar',
+        'reingresos.ver', 'reingresos.editar',
+      ],
+    },
+    {
+      nombre: 'Ventas',
+      descripcion: 'Gestión de órdenes, ventas y clientes',
+      permisos: [
+        'catalogos.ver',
+        'ordenes.ver', 'ordenes.editar',
+        'ventas.ver', 'ventas.editar',
+        'reportes.ver',
+      ],
+    },
+    {
+      nombre: 'Producción',
+      descripcion: 'Gestión de producción e inventarios',
+      permisos: [
+        'catalogos.ver',
+        'produccion.ver', 'produccion.editar',
+        'inventarios.ver', 'inventarios.editar',
+        'ordenes.ver',
+      ],
+    },
+    {
+      nombre: 'Compras',
+      descripcion: 'Gestión de compras y proveedores',
+      permisos: [
+        'catalogos.ver',
+        'compras.ver', 'compras.editar',
+        'inventarios.ver',
+        'costos.ver',
+      ],
+    },
+    {
+      nombre: 'Consulta',
+      descripcion: 'Solo lectura en todos los módulos',
+      permisos: [
+        'catalogos.ver',
+        'costos.ver',
+        'produccion.ver',
+        'ordenes.ver',
+        'ventas.ver',
+        'inventarios.ver',
+        'servicios.ver',
+        'reportes.ver',
+        'financiero.ver',
+        'compras.ver',
+        'reingresos.ver',
+      ],
+    },
+  ];
+
   router.post('/', authMiddleware, rootOnly, async (req, res) => {
+    const client = await pool.connect();
     try {
       const { nombre, rfc, direccion, telefono } = req.body;
       if (!nombre || !nombre.trim()) {
+        client.release();
         return res.status(400).json({ error: 'El nombre es requerido' });
       }
 
-      const result = await pool.query(
+      await client.query('BEGIN');
+
+      const result = await client.query(
         `INSERT INTO empresas (nombre, rfc, direccion, telefono, activo, aprobado)
          VALUES ($1, $2, $3, $4, true, true) RETURNING *`,
         [nombre.trim(), rfc || null, direccion || null, telefono || null]
       );
-      res.json(result.rows[0]);
+      const empresa = result.rows[0];
+
+      const permisosResult = await client.query('SELECT id, clave FROM permisos');
+      const permisosMap = {};
+      for (const p of permisosResult.rows) {
+        permisosMap[p.clave] = p.id;
+      }
+
+      for (const rolDef of ROLES_PREDETERMINADOS) {
+        const rolResult = await client.query(
+          'INSERT INTO roles (nombre, descripcion, empresa_id) VALUES ($1, $2, $3) RETURNING id',
+          [rolDef.nombre, rolDef.descripcion, empresa.id]
+        );
+        const rolId = rolResult.rows[0].id;
+
+        for (const clave of rolDef.permisos) {
+          const permisoId = permisosMap[clave];
+          if (permisoId) {
+            await client.query(
+              'INSERT INTO rol_permisos (rol_id, permiso_id) VALUES ($1, $2)',
+              [rolId, permisoId]
+            );
+          }
+        }
+      }
+
+      await client.query('COMMIT');
+      res.json(empresa);
     } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('Error creating empresa:', err);
       res.status(500).json({ error: 'Error del servidor' });
+    } finally {
+      client.release();
     }
   });
 

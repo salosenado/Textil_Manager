@@ -126,6 +126,34 @@ module.exports = function(pool) {
     }
   });
 
+  router.put('/:id/toggle-root', authMiddleware, async (req, res) => {
+    try {
+      if (!req.user.es_root) {
+        return res.status(403).json({ error: 'Solo un administrador root puede realizar esta acción' });
+      }
+
+      const { id } = req.params;
+
+      if (String(id) === String(req.user.id)) {
+        return res.status(400).json({ error: 'No puedes quitarte el acceso root a ti mismo' });
+      }
+
+      const userCheck = await pool.query('SELECT id, nombre, es_root FROM usuarios WHERE id = $1', [id]);
+      if (userCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+      }
+
+      const newValue = !userCheck.rows[0].es_root;
+      await pool.query('UPDATE usuarios SET es_root = $1 WHERE id = $2', [newValue, id]);
+
+      const estado = newValue ? 'designado como root' : 'removido de root';
+      res.json({ message: `${userCheck.rows[0].nombre} ${estado}`, es_root: newValue });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Error del servidor' });
+    }
+  });
+
   router.put('/:id/asignar-rol', authMiddleware, async (req, res) => {
     try {
       const { id } = req.params;
