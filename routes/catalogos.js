@@ -288,9 +288,9 @@ module.exports = function(pool) {
       return res.status(404).json({ error: 'Catálogo no encontrado' });
     }
 
-    const empresaId = req.user.empresa_id;
-    if (!empresaId && !req.user.es_root) {
-      return res.status(403).json({ error: 'No tienes empresa asignada' });
+    const empresaId = req.body.empresa_id || req.user.empresa_id;
+    if (!empresaId) {
+      return res.status(400).json({ error: 'Se requiere empresa para crear registros' });
     }
 
     for (const field of catalog.required) {
