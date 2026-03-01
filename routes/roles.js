@@ -15,7 +15,7 @@ module.exports = function(pool) {
 
   router.get('/', authMiddleware, async (req, res) => {
     try {
-      const empresaId = req.user.es_root ? req.query.empresa_id : req.user.empresa_id;
+      const empresaId = req.user.empresa_id;
 
       if (!empresaId) {
         return res.json([]);
@@ -50,7 +50,7 @@ module.exports = function(pool) {
   router.post('/', authMiddleware, async (req, res) => {
     try {
       const { nombre, descripcion, permisos } = req.body;
-      const empresaId = req.user.es_root ? req.body.empresa_id : req.user.empresa_id;
+      const empresaId = req.body.empresa_id || req.user.empresa_id;
 
       if (!nombre) return res.status(400).json({ error: 'El nombre del rol es requerido' });
       if (!empresaId) return res.status(400).json({ error: 'Se requiere una empresa' });
