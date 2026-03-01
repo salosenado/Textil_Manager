@@ -254,12 +254,27 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
               placeholderTextColor={Colors.textTertiary}
               autoFocus
             />
+            <TouchableOpacity
+              style={styles.modalRow}
+              onPress={() => {
+                setEmpresaModalVisible(false);
+                handleAsignarEmpresa(null);
+              }}
+            >
+              <View style={styles.modalRowLeft}>
+                <Ionicons name="remove-circle-outline" size={20} color={!selectedEmpresa ? Colors.primary : Colors.textSecondary} />
+                <Text style={[styles.modalRowText, !selectedEmpresa && { color: Colors.primary, fontWeight: '600' }]}>
+                  Sin empresa (Root)
+                </Text>
+              </View>
+              {!selectedEmpresa && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
+            </TouchableOpacity>
+            <View style={styles.modalSeparator} />
             <FlatList
-              data={[
-                { id: null, nombre: 'Sin empresa (Root)', isNone: true },
-                ...empresas.filter(e => e.nombre?.toLowerCase().includes(empresaSearch.toLowerCase()))
-              ]}
-              keyExtractor={(item) => item.id || 'none'}
+              data={empresaSearch.trim().length > 0
+                ? empresas.filter(e => e.nombre?.toLowerCase().includes(empresaSearch.trim().toLowerCase()))
+                : []}
+              keyExtractor={(item) => item.id}
               style={styles.modalList}
               keyboardShouldPersistTaps="handled"
               renderItem={({ item }) => (
@@ -271,24 +286,29 @@ export default function UsuarioDetalleScreen({ route, navigation }) {
                   }}
                 >
                   <View style={styles.modalRowLeft}>
-                    <Ionicons
-                      name={item.isNone ? 'remove-circle-outline' : 'business-outline'}
-                      size={20}
-                      color={selectedEmpresa === item.id || (!selectedEmpresa && item.isNone) ? Colors.primary : Colors.textSecondary}
-                    />
-                    <Text style={[
-                      styles.modalRowText,
-                      (selectedEmpresa === item.id || (!selectedEmpresa && item.isNone)) && { color: Colors.primary, fontWeight: '600' }
-                    ]}>
+                    <Ionicons name="business-outline" size={20} color={selectedEmpresa === item.id ? Colors.primary : Colors.textSecondary} />
+                    <Text style={[styles.modalRowText, selectedEmpresa === item.id && { color: Colors.primary, fontWeight: '600' }]}>
                       {item.nombre}
                     </Text>
                   </View>
-                  {(selectedEmpresa === item.id || (!selectedEmpresa && item.isNone)) && (
-                    <Ionicons name="checkmark" size={20} color={Colors.primary} />
-                  )}
+                  {selectedEmpresa === item.id && <Ionicons name="checkmark" size={20} color={Colors.primary} />}
                 </TouchableOpacity>
               )}
               ItemSeparatorComponent={() => <View style={styles.modalSeparator} />}
+              ListEmptyComponent={
+                <View style={styles.modalEmptyContainer}>
+                  <Ionicons
+                    name={empresaSearch.trim().length > 0 ? 'search-outline' : 'business-outline'}
+                    size={36}
+                    color={Colors.textTertiary}
+                  />
+                  <Text style={styles.modalEmptyText}>
+                    {empresaSearch.trim().length > 0
+                      ? 'No se encontraron empresas'
+                      : 'Escribe el nombre de la empresa'}
+                  </Text>
+                </View>
+              }
             />
           </View>
         </KeyboardAvoidingView>
@@ -448,5 +468,15 @@ const styles = StyleSheet.create({
   modalSeparator: {
     height: 1,
     backgroundColor: Colors.separator,
+  },
+  modalEmptyContainer: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xxl,
+    gap: Spacing.sm,
+  },
+  modalEmptyText: {
+    textAlign: 'center',
+    color: Colors.textSecondary,
+    fontSize: FontSize.body,
   },
 });

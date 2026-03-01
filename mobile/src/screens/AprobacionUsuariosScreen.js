@@ -69,9 +69,9 @@ export default function AprobacionUsuariosScreen({ navigation }) {
     }
   };
 
-  const filteredEmpresas = empresas.filter(e =>
-    e.nombre?.toLowerCase().includes(empresaSearch.toLowerCase())
-  );
+  const filteredEmpresas = empresaSearch.trim().length > 0
+    ? empresas.filter(e => e.nombre?.toLowerCase().includes(empresaSearch.trim().toLowerCase()))
+    : [];
 
   const handleRechazar = (usuario) => {
     Alert.alert(
@@ -198,7 +198,18 @@ export default function AprobacionUsuariosScreen({ navigation }) {
               )}
               ItemSeparatorComponent={() => <View style={styles.empresaSeparator} />}
               ListEmptyComponent={
-                <Text style={styles.empresaEmpty}>No se encontraron empresas</Text>
+                <View style={styles.empresaEmptyContainer}>
+                  <Ionicons
+                    name={empresaSearch.trim().length > 0 ? 'search-outline' : 'business-outline'}
+                    size={36}
+                    color={Colors.textTertiary}
+                  />
+                  <Text style={styles.empresaEmpty}>
+                    {empresaSearch.trim().length > 0
+                      ? 'No se encontraron empresas'
+                      : 'Escribe el nombre de la empresa'}
+                  </Text>
+                </View>
               }
             />
           </View>
@@ -356,10 +367,14 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: Colors.separator,
   },
+  empresaEmptyContainer: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xxl,
+    gap: Spacing.sm,
+  },
   empresaEmpty: {
     textAlign: 'center',
     color: Colors.textSecondary,
-    padding: Spacing.lg,
     fontSize: FontSize.body,
   },
 });
