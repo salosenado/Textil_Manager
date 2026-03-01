@@ -9,6 +9,8 @@ const quickLinks = [
   { id: 'catalogos', title: 'Catálogos', icon: 'list-outline', color: Colors.primary, permiso: 'catalogos.ver', tab: 'AdminTab', screen: 'CatalogosHome' },
   { id: 'ordenes', title: 'Órdenes', icon: 'document-text-outline', color: Colors.orange, permiso: 'ordenes.ver', tab: 'VentasTab', screen: 'OrdenesClienteList' },
   { id: 'produccion', title: 'Producción', icon: 'hammer-outline', color: Colors.orange, permiso: 'produccion.ver', tab: 'OperacionTab', screen: 'ProduccionList' },
+  { id: 'costos', title: 'Costos', icon: 'calculator-outline', color: Colors.purple, permiso: 'costos.ver', tab: 'OperacionTab', screen: 'CostosHome' },
+  { id: 'salidas', title: 'Salidas', icon: 'arrow-up-circle-outline', color: Colors.destructive, permiso: 'salidas.ver', tab: 'OperacionTab', screen: 'SalidasInsumoList' },
   { id: 'ventas', title: 'Ventas', icon: 'cart-outline', color: Colors.purple, permiso: 'ventas.ver', tab: 'VentasTab', screen: 'OrdenesClienteList' },
   { id: 'compras', title: 'Compras', icon: 'bag-outline', color: Colors.teal, permiso: 'compras.ver', tab: 'ComprasTab', screen: 'ComprasHome' },
   { id: 'usuarios', title: 'Usuarios', icon: 'people-outline', color: Colors.warning, permiso: 'usuarios.ver', tab: 'AdminTab', screen: 'UsuariosScreen' },

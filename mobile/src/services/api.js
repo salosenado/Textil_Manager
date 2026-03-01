@@ -310,4 +310,84 @@ export const api = {
 
   deletePagoRecibo: (pagoId) =>
     request(`/producciones/pagos/${pagoId}`, { method: 'DELETE' }),
+
+  getCostosGenerales: (search) => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    const qs = params.toString();
+    return request(`/costos/generales${qs ? '?' + qs : ''}`);
+  },
+
+  getCostoGeneral: (id) => request(`/costos/generales/${id}`),
+
+  createCostoGeneral: (data) =>
+    request('/costos/generales', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateCostoGeneral: (id, data) =>
+    request(`/costos/generales/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteCostoGeneral: (id) =>
+    request(`/costos/generales/${id}`, { method: 'DELETE' }),
+
+  getCostosMezclilla: (search) => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    const qs = params.toString();
+    return request(`/costos/mezclilla${qs ? '?' + qs : ''}`);
+  },
+
+  getCostoMezclilla: (id) => request(`/costos/mezclilla/${id}`),
+
+  createCostoMezclilla: (data) =>
+    request('/costos/mezclilla', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateCostoMezclilla: (id, data) =>
+    request(`/costos/mezclilla/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  deleteCostoMezclilla: (id) =>
+    request(`/costos/mezclilla/${id}`, { method: 'DELETE' }),
+
+  getSalidasInsumo: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.estado) query.append('estado', params.estado);
+    const qs = query.toString();
+    return request(`/salidas${qs ? '?' + qs : ''}`);
+  },
+
+  getSalidaInsumo: (id) => request(`/salidas/${id}`),
+
+  createSalidaInsumo: (data) =>
+    request('/salidas', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateSalidaInsumo: (id, data) =>
+    request(`/salidas/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  cancelarSalidaInsumo: (id) =>
+    request(`/salidas/${id}/cancelar`, { method: 'PUT' }),
+
+  deleteSalidaInsumo: (id) =>
+    request(`/salidas/${id}`, { method: 'DELETE' }),
+
+  getReingresos: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.estado) query.append('estado', params.estado);
+    const qs = query.toString();
+    return request(`/reingresos${qs ? '?' + qs : ''}`);
+  },
+
+  getReingreso: (id) => request(`/reingresos/${id}`),
+
+  createReingreso: (data) =>
+    request('/reingresos', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateReingreso: (id, data) =>
+    request(`/reingresos/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  cancelarReingreso: (id) =>
+    request(`/reingresos/${id}/cancelar`, { method: 'PUT' }),
+
+  deleteReingreso: (id) =>
+    request(`/reingresos/${id}`, { method: 'DELETE' }),
 };

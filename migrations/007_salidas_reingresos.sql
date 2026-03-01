@@ -106,3 +106,6 @@ CREATE INDEX idx_reingreso_mov_reingreso ON reingreso_movimientos(reingreso_id);
 -- ----------------------------------------------------------
 CREATE TRIGGER trg_salidas_insumo_updated BEFORE UPDATE ON salidas_insumo FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
 CREATE TRIGGER trg_reingresos_updated BEFORE UPDATE ON reingresos FOR EACH ROW EXECUTE FUNCTION actualizar_updated_at();
+
+ALTER TABLE salidas_insumo ADD COLUMN IF NOT EXISTS usuario_creacion VARCHAR(255);
+ALTER TABLE reingresos ADD COLUMN IF NOT EXISTS usuario_creacion VARCHAR(255);

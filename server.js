@@ -47,6 +47,8 @@ const catalogosRoutes = require('./routes/catalogos')(pool);
 const ordenesRoutes = require('./routes/ordenes')(pool);
 const comprasRoutes = require('./routes/compras')(pool);
 const produccionRoutes = require('./routes/produccion')(pool);
+const costosRoutes = require('./routes/costos')(pool);
+const salidasRoutes = require('./routes/salidas')(pool);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', usuariosRoutes);
@@ -56,6 +58,8 @@ app.use('/api/catalogos', catalogosRoutes);
 app.use('/api/ordenes-cliente', ordenesRoutes);
 app.use('/api', comprasRoutes);
 app.use('/api/producciones', produccionRoutes);
+app.use('/api/costos', costosRoutes);
+app.use('/api', salidasRoutes);
 
 const CATALOG_TABLES = {
   empresas: {

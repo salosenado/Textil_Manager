@@ -45,6 +45,22 @@ import ProduccionListScreen from '../screens/ProduccionListScreen';
 import ProduccionFormScreen from '../screens/ProduccionFormScreen';
 import ProduccionDetalleScreen from '../screens/ProduccionDetalleScreen';
 
+import CostosHomeScreen from '../screens/CostosHomeScreen';
+import CostosGeneralesListScreen from '../screens/CostosGeneralesListScreen';
+import CostoGeneralFormScreen from '../screens/CostoGeneralFormScreen';
+import CostoGeneralDetalleScreen from '../screens/CostoGeneralDetalleScreen';
+import CostosMezclillaListScreen from '../screens/CostosMezclillaListScreen';
+import CostoMezclillaFormScreen from '../screens/CostoMezclillaFormScreen';
+import CostoMezclillaDetalleScreen from '../screens/CostoMezclillaDetalleScreen';
+
+import SalidasInsumoListScreen from '../screens/SalidasInsumoListScreen';
+import SalidaInsumoFormScreen from '../screens/SalidaInsumoFormScreen';
+import SalidaInsumoDetalleScreen from '../screens/SalidaInsumoDetalleScreen';
+
+import ReingresosListScreen from '../screens/ReingresosListScreen';
+import ReingresoFormScreen from '../screens/ReingresoFormScreen';
+import ReingresoDetalleScreen from '../screens/ReingresoDetalleScreen';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -183,6 +199,9 @@ function OperacionHomeScreen({ navigation }) {
       navigation={navigation}
       items={[
         { key: 'ProduccionList', label: 'Producción', icon: 'hammer-outline', description: 'Control de producción y maquileros', color: Colors.orange },
+        { key: 'CostosHome', label: 'Costos', icon: 'calculator-outline', description: 'Costos generales y de mezclilla', color: Colors.purple },
+        { key: 'SalidasInsumoList', label: 'Salidas de Insumo', icon: 'arrow-up-circle-outline', description: 'Material que sale del almacén', color: Colors.destructive },
+        { key: 'ReingresosList', label: 'Reingresos', icon: 'arrow-down-circle-outline', description: 'Mercancía que regresa al almacén', color: Colors.success },
       ]}
     />
   );
@@ -195,6 +214,19 @@ function OperacionStack() {
       <Stack.Screen name="ProduccionList" component={ProduccionListScreen} options={{ title: 'Producción' }} />
       <Stack.Screen name="ProduccionForm" component={ProduccionFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Producción' : 'Nueva Producción' })} />
       <Stack.Screen name="ProduccionDetalle" component={ProduccionDetalleScreen} options={{ title: 'Detalle Producción' }} />
+      <Stack.Screen name="CostosHome" component={CostosHomeScreen} options={{ title: 'Costos' }} />
+      <Stack.Screen name="CostosGeneralesList" component={CostosGeneralesListScreen} options={{ title: 'Costos Generales' }} />
+      <Stack.Screen name="CostoGeneralForm" component={CostoGeneralFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Costo' : 'Nuevo Costo General' })} />
+      <Stack.Screen name="CostoGeneralDetalle" component={CostoGeneralDetalleScreen} options={{ title: 'Detalle Costo' }} />
+      <Stack.Screen name="CostosMezclillaList" component={CostosMezclillaListScreen} options={{ title: 'Costos Mezclilla' }} />
+      <Stack.Screen name="CostoMezclillaForm" component={CostoMezclillaFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Costo' : 'Nuevo Costo Mezclilla' })} />
+      <Stack.Screen name="CostoMezclillaDetalle" component={CostoMezclillaDetalleScreen} options={{ title: 'Detalle Costo' }} />
+      <Stack.Screen name="SalidasInsumoList" component={SalidasInsumoListScreen} options={{ title: 'Salidas de Insumo' }} />
+      <Stack.Screen name="SalidaInsumoForm" component={SalidaInsumoFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Salida' : 'Nueva Salida' })} />
+      <Stack.Screen name="SalidaInsumoDetalle" component={SalidaInsumoDetalleScreen} options={{ title: 'Detalle Salida' }} />
+      <Stack.Screen name="ReingresosList" component={ReingresosListScreen} options={{ title: 'Reingresos' }} />
+      <Stack.Screen name="ReingresoForm" component={ReingresoFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Reingreso' : 'Nuevo Reingreso' })} />
+      <Stack.Screen name="ReingresoDetalle" component={ReingresoDetalleScreen} options={{ title: 'Detalle Reingreso' }} />
     </Stack.Navigator>
   );
 }
