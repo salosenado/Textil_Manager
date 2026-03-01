@@ -11,7 +11,7 @@ const quickLinks = [
   { id: 'produccion', title: 'Producción', icon: 'hammer-outline', color: Colors.orange, permiso: 'produccion.ver', tab: 'OperacionTab', screen: 'ProduccionList' },
   { id: 'costos', title: 'Costos', icon: 'calculator-outline', color: Colors.purple, permiso: 'costos.ver', tab: 'OperacionTab', screen: 'CostosHome' },
   { id: 'salidas', title: 'Salidas', icon: 'arrow-up-circle-outline', color: Colors.destructive, permiso: 'salidas.ver', tab: 'OperacionTab', screen: 'SalidasInsumoList' },
-  { id: 'ventas', title: 'Ventas', icon: 'cart-outline', color: Colors.purple, permiso: 'ventas.ver', tab: 'VentasTab', screen: 'OrdenesClienteList' },
+  { id: 'ventas', title: 'Ventas', icon: 'cash-outline', color: Colors.success, permiso: 'ventas.ver', tab: 'VentasTab', screen: 'VentasClienteList' },
   { id: 'compras', title: 'Compras', icon: 'bag-outline', color: Colors.teal, permiso: 'compras.ver', tab: 'ComprasTab', screen: 'ComprasHome' },
   { id: 'usuarios', title: 'Usuarios', icon: 'people-outline', color: Colors.warning, permiso: 'usuarios.ver', tab: 'AdminTab', screen: 'UsuariosScreen' },
 ];

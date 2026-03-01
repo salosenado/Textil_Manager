@@ -61,6 +61,10 @@ import ReingresosListScreen from '../screens/ReingresosListScreen';
 import ReingresoFormScreen from '../screens/ReingresoFormScreen';
 import ReingresoDetalleScreen from '../screens/ReingresoDetalleScreen';
 
+import VentasClienteListScreen from '../screens/VentasClienteListScreen';
+import VentaClienteFormScreen from '../screens/VentaClienteFormScreen';
+import VentaClienteDetalleScreen from '../screens/VentaClienteDetalleScreen';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -127,12 +131,28 @@ function ComprasHomeScreen({ navigation }) {
   );
 }
 
+function VentasHomeScreen({ navigation }) {
+  return (
+    <NavMenuScreen
+      navigation={navigation}
+      items={[
+        { key: 'OrdenesClienteList', label: 'Órdenes de Cliente', icon: 'document-text-outline', description: 'Órdenes de venta a clientes', color: Colors.orange },
+        { key: 'VentasClienteList', label: 'Ventas', icon: 'cash-outline', description: 'Ventas y cobros a clientes', color: Colors.success },
+      ]}
+    />
+  );
+}
+
 function VentasStack() {
   return (
     <Stack.Navigator screenOptions={screenOptions}>
+      <Stack.Screen name="VentasHome" component={VentasHomeScreen} options={{ title: 'Ventas' }} />
       <Stack.Screen name="OrdenesClienteList" component={OrdenesClienteListScreen} options={{ title: 'Órdenes de Cliente' }} />
       <Stack.Screen name="OrdenClienteForm" component={OrdenClienteFormScreen} options={({ route }) => ({ title: route.params?.orden ? 'Editar Orden' : 'Nueva Orden' })} />
       <Stack.Screen name="OrdenClienteDetalle" component={OrdenClienteDetalleScreen} options={{ title: 'Detalle de Orden' }} />
+      <Stack.Screen name="VentasClienteList" component={VentasClienteListScreen} options={{ title: 'Ventas' }} />
+      <Stack.Screen name="VentaClienteForm" component={VentaClienteFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Venta' : 'Nueva Venta' })} />
+      <Stack.Screen name="VentaClienteDetalle" component={VentaClienteDetalleScreen} options={{ title: 'Detalle de Venta' }} />
     </Stack.Navigator>
   );
 }
@@ -266,7 +286,7 @@ function MainTabs() {
       />
       <Tab.Screen name="VentasTab" component={VentasStack} options={{ title: 'Ventas' }}
         listeners={({ navigation }) => ({
-          tabPress: (e) => { navigation.navigate('VentasTab', { screen: 'OrdenesClienteList' }); },
+          tabPress: (e) => { navigation.navigate('VentasTab', { screen: 'VentasHome' }); },
         })}
       />
       <Tab.Screen name="AdminTab" component={AdminStack} options={{ title: 'Admin' }}

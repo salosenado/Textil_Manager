@@ -390,4 +390,35 @@ export const api = {
 
   deleteReingreso: (id) =>
     request(`/reingresos/${id}`, { method: 'DELETE' }),
+
+  getVentasCliente: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.estado) query.append('estado', params.estado);
+    const qs = query.toString();
+    return request(`/ventas${qs ? '?' + qs : ''}`);
+  },
+
+  getVentaCliente: (id) => request(`/ventas/${id}`),
+
+  createVentaCliente: (data) =>
+    request('/ventas', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateVentaCliente: (id, data) =>
+    request(`/ventas/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  cancelarVentaCliente: (id) =>
+    request(`/ventas/${id}/cancelar`, { method: 'PUT' }),
+
+  enviarVentaCliente: (id) =>
+    request(`/ventas/${id}/enviar`, { method: 'PUT' }),
+
+  deleteVentaCliente: (id) =>
+    request(`/ventas/${id}`, { method: 'DELETE' }),
+
+  createCobroVenta: (ventaId, data) =>
+    request(`/ventas/${ventaId}/cobros`, { method: 'POST', body: JSON.stringify(data) }),
+
+  deleteCobroVenta: (ventaId, cobroId) =>
+    request(`/ventas/${ventaId}/cobros/${cobroId}`, { method: 'DELETE' }),
 };
