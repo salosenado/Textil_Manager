@@ -74,6 +74,14 @@ export default function ProduccionFormScreen({ route, navigation }) {
       setError('Se requiere seleccionar un maquilero');
       return;
     }
+    if (pzNum <= 0) {
+      setError('Las piezas cortadas deben ser mayor a 0');
+      return;
+    }
+    if (costoNum < 0) {
+      setError('El costo de maquila no puede ser negativo');
+      return;
+    }
 
     setLoading(true);
     setError('');

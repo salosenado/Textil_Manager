@@ -101,6 +101,20 @@ export default function CompraClienteFormScreen({ route, navigation }) {
       return;
     }
 
+    for (let i = 0; i < validDetalles.length; i++) {
+      const d = validDetalles[i];
+      const cant = parseFloat(d.cantidad) || 0;
+      const costo = parseFloat(d.costo_unitario) || 0;
+      if (cant <= 0) {
+        setError(`La cantidad del detalle ${i + 1} debe ser mayor a 0`);
+        return;
+      }
+      if (costo < 0) {
+        setError(`El costo unitario del detalle ${i + 1} no puede ser negativo`);
+        return;
+      }
+    }
+
     setLoading(true);
     setError('');
 
