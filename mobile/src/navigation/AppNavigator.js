@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationState } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -206,11 +206,27 @@ function MainTabs() {
     >
       <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Inicio' }} />
       <Tab.Screen name="OperacionTab" component={OperacionStack} options={{ title: 'Operación' }} />
-      <Tab.Screen name="ComprasTab" component={ComprasStack} options={{ title: 'Compras' }} />
-      <Tab.Screen name="VentasTab" component={VentasStack} options={{ title: 'Ventas' }} />
-      <Tab.Screen name="AdminTab" component={AdminStack} options={{ title: 'Admin' }} />
+      <Tab.Screen name="ComprasTab" component={ComprasStack} options={{ title: 'Compras' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { navigation.navigate('ComprasTab', { screen: 'ComprasHome' }); },
+        })}
+      />
+      <Tab.Screen name="VentasTab" component={VentasStack} options={{ title: 'Ventas' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { navigation.navigate('VentasTab', { screen: 'OrdenesClienteList' }); },
+        })}
+      />
+      <Tab.Screen name="AdminTab" component={AdminStack} options={{ title: 'Admin' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { navigation.navigate('AdminTab', { screen: 'AdminHome' }); },
+        })}
+      />
       {user?.es_root && (
-        <Tab.Screen name="RootTab" component={RootStack} options={{ title: 'Root' }} />
+        <Tab.Screen name="RootTab" component={RootStack} options={{ title: 'Root' }}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => { navigation.navigate('RootTab', { screen: 'RootHome' }); },
+          })}
+        />
       )}
     </Tab.Navigator>
   );
