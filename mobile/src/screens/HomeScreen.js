@@ -8,7 +8,7 @@ import EmpresaSelector from '../components/EmpresaSelector';
 const quickLinks = [
   { id: 'catalogos', title: 'Catálogos', icon: 'list-outline', color: Colors.primary, permiso: 'catalogos.ver', tab: 'AdminTab', screen: 'CatalogosHome' },
   { id: 'ordenes', title: 'Órdenes', icon: 'document-text-outline', color: Colors.orange, permiso: 'ordenes.ver', tab: 'VentasTab', screen: 'OrdenesClienteList' },
-  { id: 'produccion', title: 'Producción', icon: 'construct-outline', color: Colors.success, permiso: 'produccion.ver', tab: 'OperacionTab' },
+  { id: 'produccion', title: 'Producción', icon: 'hammer-outline', color: Colors.orange, permiso: 'produccion.ver', tab: 'OperacionTab', screen: 'ProduccionList' },
   { id: 'ventas', title: 'Ventas', icon: 'cart-outline', color: Colors.purple, permiso: 'ventas.ver', tab: 'VentasTab', screen: 'OrdenesClienteList' },
   { id: 'compras', title: 'Compras', icon: 'bag-outline', color: Colors.teal, permiso: 'compras.ver', tab: 'ComprasTab', screen: 'ComprasHome' },
   { id: 'usuarios', title: 'Usuarios', icon: 'people-outline', color: Colors.warning, permiso: 'usuarios.ver', tab: 'AdminTab', screen: 'UsuariosScreen' },

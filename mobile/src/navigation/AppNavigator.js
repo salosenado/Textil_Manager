@@ -12,7 +12,6 @@ import RegisterScreen from '../screens/RegisterScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import BlockedScreen from '../screens/BlockedScreen';
 import HomeScreen from '../screens/HomeScreen';
-import PlaceholderScreen from '../screens/PlaceholderScreen';
 import AdminScreen from '../screens/AdminScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import UsuariosScreen from '../screens/UsuariosScreen';
@@ -41,6 +40,10 @@ import CompraClienteDetalleScreen from '../screens/CompraClienteDetalleScreen';
 import ComprasInsumoListScreen from '../screens/ComprasInsumoListScreen';
 import ComprasInsumoFormScreen from '../screens/ComprasInsumoFormScreen';
 import ComprasInsumoDetalleScreen from '../screens/ComprasInsumoDetalleScreen';
+
+import ProduccionListScreen from '../screens/ProduccionListScreen';
+import ProduccionFormScreen from '../screens/ProduccionFormScreen';
+import ProduccionDetalleScreen from '../screens/ProduccionDetalleScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -174,10 +177,24 @@ function HomeStack() {
   );
 }
 
+function OperacionHomeScreen({ navigation }) {
+  return (
+    <NavMenuScreen
+      navigation={navigation}
+      items={[
+        { key: 'ProduccionList', label: 'Producción', icon: 'hammer-outline', description: 'Control de producción y maquileros', color: Colors.orange },
+      ]}
+    />
+  );
+}
+
 function OperacionStack() {
   return (
     <Stack.Navigator screenOptions={screenOptions}>
-      <Stack.Screen name="OperacionHome" component={PlaceholderScreen} initialParams={{ title: 'Operación', icon: 'construct-outline', color: Colors.orange }} options={{ title: 'Operación' }} />
+      <Stack.Screen name="OperacionHome" component={OperacionHomeScreen} options={{ title: 'Operación' }} />
+      <Stack.Screen name="ProduccionList" component={ProduccionListScreen} options={{ title: 'Producción' }} />
+      <Stack.Screen name="ProduccionForm" component={ProduccionFormScreen} options={({ route }) => ({ title: route.params?.id ? 'Editar Producción' : 'Nueva Producción' })} />
+      <Stack.Screen name="ProduccionDetalle" component={ProduccionDetalleScreen} options={{ title: 'Detalle Producción' }} />
     </Stack.Navigator>
   );
 }
@@ -205,7 +222,11 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeStack} options={{ title: 'Inicio' }} />
-      <Tab.Screen name="OperacionTab" component={OperacionStack} options={{ title: 'Operación' }} />
+      <Tab.Screen name="OperacionTab" component={OperacionStack} options={{ title: 'Operación' }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => { navigation.navigate('OperacionTab', { screen: 'OperacionHome' }); },
+        })}
+      />
       <Tab.Screen name="ComprasTab" component={ComprasStack} options={{ title: 'Compras' }}
         listeners={({ navigation }) => ({
           tabPress: (e) => { navigation.navigate('ComprasTab', { screen: 'ComprasHome' }); },

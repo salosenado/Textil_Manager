@@ -276,4 +276,38 @@ export const api = {
 
   deleteCompraInsumo: (id) =>
     request(`/compras-insumo/${id}`, { method: 'DELETE' }),
+
+  getProducciones: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append('search', params.search);
+    if (params.estado) query.append('estado', params.estado);
+    const qs = query.toString();
+    return request(`/producciones${qs ? '?' + qs : ''}`);
+  },
+
+  getProduccion: (id) => request(`/producciones/${id}`),
+
+  createProduccion: (data) =>
+    request('/producciones', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateProduccion: (id, data) =>
+    request(`/producciones/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  cancelarProduccion: (id) =>
+    request(`/producciones/${id}/cancelar`, { method: 'PUT' }),
+
+  deleteProduccion: (id) =>
+    request(`/producciones/${id}`, { method: 'DELETE' }),
+
+  createReciboProduccion: (produccionId, data) =>
+    request(`/producciones/${produccionId}/recibos`, { method: 'POST', body: JSON.stringify(data) }),
+
+  deleteReciboProduccion: (reciboId) =>
+    request(`/producciones/recibos/${reciboId}`, { method: 'DELETE' }),
+
+  createPagoRecibo: (reciboId, data) =>
+    request(`/producciones/recibos/${reciboId}/pagos`, { method: 'POST', body: JSON.stringify(data) }),
+
+  deletePagoRecibo: (pagoId) =>
+    request(`/producciones/pagos/${pagoId}`, { method: 'DELETE' }),
 };
