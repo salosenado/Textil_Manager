@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, RefreshControl, ActivityIndicator, Alert, Modal, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, FontSize } from '../theme';
+import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { api } from '../services/api';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -12,6 +12,9 @@ export default function AprobacionUsuariosScreen({ navigation }) {
   const [empresas, setEmpresas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [empresaModalVisible, setEmpresaModalVisible] = useState(false);
+  const [empresaSearch, setEmpresaSearch] = useState('');
+  const [pendingUsuario, setPendingUsuario] = useState(null);
 
   const loadData = async () => {
     try {
@@ -37,25 +40,9 @@ export default function AprobacionUsuariosScreen({ navigation }) {
 
   const handleAprobar = async (usuario) => {
     if (!usuario.empresa_id) {
-      const buttons = empresas.map(e => ({
-        text: e.nombre,
-        onPress: async () => {
-          try {
-            await api.asignarEmpresa(usuario.id, e.id);
-            Alert.alert('Listo', `${usuario.nombre} aprobado y asignado a ${e.nombre}`);
-            loadData();
-          } catch (err) {
-            Alert.alert('Error', err.message);
-          }
-        },
-      }));
-      buttons.push({ text: 'Cancelar', style: 'cancel' });
-
-      Alert.alert(
-        'Asignar empresa',
-        `${usuario.nombre} no tiene empresa asignada. Selecciona una:`,
-        buttons
-      );
+      setPendingUsuario(usuario);
+      setEmpresaSearch('');
+      setEmpresaModalVisible(true);
       return;
     }
 
@@ -67,6 +54,24 @@ export default function AprobacionUsuariosScreen({ navigation }) {
       Alert.alert('Error', err.message);
     }
   };
+
+  const handleSelectEmpresa = async (empresa) => {
+    if (!pendingUsuario) return;
+    setEmpresaModalVisible(false);
+    try {
+      await api.asignarEmpresa(pendingUsuario.id, empresa.id);
+      Alert.alert('Listo', `${pendingUsuario.nombre} aprobado y asignado a ${empresa.nombre}`);
+      loadData();
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    } finally {
+      setPendingUsuario(null);
+    }
+  };
+
+  const filteredEmpresas = empresas.filter(e =>
+    e.nombre?.toLowerCase().includes(empresaSearch.toLowerCase())
+  );
 
   const handleRechazar = (usuario) => {
     Alert.alert(
@@ -145,14 +150,61 @@ export default function AprobacionUsuariosScreen({ navigation }) {
   }
 
   return (
-    <FlatList
-      style={styles.container}
-      contentContainerStyle={styles.list}
-      data={usuarios}
-      keyExtractor={(item) => item.id}
-      renderItem={renderItem}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadData(); }} />}
-    />
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      <FlatList
+        style={styles.container}
+        contentContainerStyle={styles.list}
+        data={usuarios}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); loadData(); }} />}
+      />
+
+      <Modal visible={empresaModalVisible} animationType="slide" transparent>
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                Asignar empresa a {pendingUsuario?.nombre}
+              </Text>
+              <TouchableOpacity onPress={() => { setEmpresaModalVisible(false); setPendingUsuario(null); }}>
+                <Text style={styles.modalClose}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={styles.searchInput}
+              value={empresaSearch}
+              onChangeText={setEmpresaSearch}
+              placeholder="Buscar empresa..."
+              placeholderTextColor={Colors.textTertiary}
+              autoFocus
+            />
+            <FlatList
+              data={filteredEmpresas}
+              keyExtractor={(item) => item.id}
+              style={styles.empresaList}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.empresaRow}
+                  onPress={() => handleSelectEmpresa(item)}
+                >
+                  <View style={styles.empresaInfo}>
+                    <Ionicons name="business-outline" size={20} color={Colors.primary} />
+                    <Text style={styles.empresaNombre}>{item.nombre}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.empresaSeparator} />}
+              ListEmptyComponent={
+                <Text style={styles.empresaEmpty}>No se encontraron empresas</Text>
+              }
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    </View>
   );
 }
 
@@ -238,5 +290,76 @@ const styles = StyleSheet.create({
     fontSize: FontSize.body,
     color: Colors.textSecondary,
     marginTop: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.card,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: '70%',
+    paddingBottom: 34,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.separator,
+  },
+  modalTitle: {
+    fontSize: FontSize.headline,
+    fontWeight: '600',
+    color: Colors.text,
+    flex: 1,
+  },
+  modalClose: {
+    fontSize: FontSize.body,
+    color: Colors.primary,
+    fontWeight: '500',
+    marginLeft: Spacing.sm,
+  },
+  searchInput: {
+    backgroundColor: Colors.background,
+    marginHorizontal: Spacing.md,
+    marginVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.md,
+    fontSize: FontSize.body,
+    color: Colors.text,
+  },
+  empresaList: {
+    paddingHorizontal: Spacing.md,
+  },
+  empresaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+  },
+  empresaInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  empresaNombre: {
+    fontSize: FontSize.body,
+    color: Colors.text,
+  },
+  empresaSeparator: {
+    height: 1,
+    backgroundColor: Colors.separator,
+  },
+  empresaEmpty: {
+    textAlign: 'center',
+    color: Colors.textSecondary,
+    padding: Spacing.lg,
+    fontSize: FontSize.body,
   },
 });
