@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius } from '../theme';
 import { useAuth } from '../context/AuthContext';
@@ -47,11 +47,47 @@ export default function ProfileScreen({ navigation }) {
     }
   }
 
+  const [showDeleteForm, setShowDeleteForm] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
+
   function handleLogout() {
     Alert.alert('Cerrar Sesión', '¿Estás seguro?', [
       { text: 'Cancelar', style: 'cancel' },
       { text: 'Cerrar Sesión', style: 'destructive', onPress: logout },
     ]);
+  }
+
+  function handleDeleteAccount() {
+    if (!deletePassword) {
+      Alert.alert('Error', 'Ingresa tu contraseña para confirmar');
+      return;
+    }
+
+    Alert.alert(
+      'Eliminar Cuenta',
+      'Esta acción es permanente. Se eliminarán todos tus datos y no podrás recuperar tu cuenta. ¿Estás seguro?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar mi cuenta',
+          style: 'destructive',
+          onPress: async () => {
+            setDeletingAccount(true);
+            try {
+              await api.deleteAccount(deletePassword);
+              Alert.alert('Cuenta eliminada', 'Tu cuenta ha sido eliminada correctamente.', [
+                { text: 'OK', onPress: logout },
+              ]);
+            } catch (err) {
+              Alert.alert('Error', err.message);
+            } finally {
+              setDeletingAccount(false);
+            }
+          },
+        },
+      ]
+    );
   }
 
   return (
@@ -127,6 +163,42 @@ export default function ProfileScreen({ navigation }) {
           variant="destructive"
         />
       </View>
+
+      {!user?.es_root && (
+        <>
+          <SectionHeader title="Zona de Peligro" />
+          <Card style={styles.dangerCard}>
+            <ListRow
+              title="Eliminar mi cuenta"
+              icon="trash-outline"
+              iconColor={Colors.destructive}
+              onPress={() => setShowDeleteForm(!showDeleteForm)}
+              showChevron={!showDeleteForm}
+            />
+            {showDeleteForm && (
+              <View style={styles.deleteForm}>
+                <Text style={styles.deleteWarning}>
+                  Al eliminar tu cuenta se borrarán permanentemente todos tus datos. Esta acción no se puede deshacer.
+                </Text>
+                <Input
+                  label="Confirma tu contraseña"
+                  value={deletePassword}
+                  onChangeText={setDeletePassword}
+                  secureTextEntry
+                  placeholder="Ingresa tu contraseña"
+                />
+                <Button
+                  title="Eliminar mi cuenta permanentemente"
+                  onPress={handleDeleteAccount}
+                  variant="destructive"
+                  loading={deletingAccount}
+                />
+              </View>
+            )}
+          </Card>
+          <View style={{ height: 40 }} />
+        </>
+      )}
     </ScrollView>
   );
 }
@@ -190,6 +262,19 @@ const styles = StyleSheet.create({
   },
   logoutSection: {
     padding: Spacing.lg,
-    paddingBottom: Spacing.xxxl,
+    paddingBottom: Spacing.lg,
+  },
+  dangerCard: {
+    borderWidth: 1,
+    borderColor: Colors.destructive + '30',
+  },
+  deleteForm: {
+    paddingTop: Spacing.md,
+  },
+  deleteWarning: {
+    fontSize: FontSize.footnote,
+    color: Colors.destructive,
+    marginBottom: Spacing.md,
+    lineHeight: 18,
   },
 });

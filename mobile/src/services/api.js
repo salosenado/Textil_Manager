@@ -87,6 +87,12 @@ export const api = {
       body: JSON.stringify({ password_actual: currentPassword, password_nueva: newPassword }),
     }),
 
+  deleteAccount: (password) =>
+    request('/auth/eliminar-cuenta', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    }),
+
   getUsuarios: () => request('/usuarios'),
 
   createUsuario: (data) =>

@@ -247,5 +247,35 @@ module.exports = function(pool) {
     }
   });
 
+  router.post('/eliminar-cuenta', authMiddleware, async (req, res) => {
+    const client = await pool.connect();
+    try {
+      const { password } = req.body;
+      if (!password) return res.status(400).json({ error: 'La contraseña es requerida para confirmar' });
+
+      if (req.user.es_root) {
+        return res.status(403).json({ error: 'La cuenta root no puede ser eliminada' });
+      }
+
+      const userResult = await client.query('SELECT password_hash FROM usuarios WHERE id = $1', [req.user.id]);
+      if (userResult.rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+      const valid = await bcrypt.compare(password, userResult.rows[0].password_hash);
+      if (!valid) return res.status(401).json({ error: 'Contraseña incorrecta' });
+
+      await client.query('BEGIN');
+      await client.query('DELETE FROM usuarios WHERE id = $1', [req.user.id]);
+      await client.query('COMMIT');
+
+      res.json({ message: 'Cuenta eliminada correctamente' });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      console.error('Error DELETE cuenta:', err);
+      res.status(500).json({ error: 'Error del servidor' });
+    } finally {
+      client.release();
+    }
+  });
+
   return router;
 };
